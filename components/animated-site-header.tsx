@@ -57,13 +57,13 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
 
   return (
     <header
-      className={`kodaore-site-header sticky top-0 z-40 border-b border-black/10 bg-surface/70 backdrop-blur-md transition-all duration-500 ${
+      className={`kodaore-site-header sticky top-0 z-40 border-b border-black/10 bg-surface/70 backdrop-blur-md transition-all duration-700 ${
         show ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0 pointer-events-none"
       }`}
     >
-      <div className={`mx-auto w-full max-w-6xl px-5 transition-all duration-300 md:px-8 ${compact ? "py-1.5" : "py-3"}`}>
+      <div className={`mx-auto w-full max-w-6xl px-5 transition-all duration-[450ms] md:px-8 ${compact ? "py-1.5" : "py-3"}`}>
         <div
-          className={`rounded-2xl border border-black/10 bg-white/70 shadow-[0_18px_45px_-34px_rgba(0,0,0,0.6)] transition-all duration-300 ${
+          className={`rounded-2xl border border-black/10 bg-white/70 shadow-[0_18px_45px_-34px_rgba(0,0,0,0.6)] transition-all duration-[450ms] ${
             compact ? "p-2" : "p-3"
           }`}
         >

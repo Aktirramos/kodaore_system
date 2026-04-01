@@ -75,11 +75,13 @@ export function InitialLoader() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-loader-phase", phase);
+  }, [phase]);
 
+  useEffect(() => {
     return () => {
       document.documentElement.removeAttribute("data-loader-phase");
     };
-  }, [phase]);
+  }, []);
 
   useEffect(() => {
     if (phase !== "exit") {

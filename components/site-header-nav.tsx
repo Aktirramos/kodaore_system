@@ -55,25 +55,25 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
       href: homeHref,
       label: locale === "eu" ? "Hasiera" : "Inicio",
       active: isHome,
-      delay: 110,
+      delay: 160,
     },
     {
       href: sitesHref,
       label: discoverLabel,
       active: isSites,
-      delay: 190,
+      delay: 260,
     },
     {
       href: galleryHref,
       label: galleryLabel,
       active: isGallery,
-      delay: 270,
+      delay: 360,
     },
     {
       href: accessHref,
       label: accessLabel,
       active: isAccess,
-      delay: 350,
+      delay: 460,
     },
   ];
 
@@ -81,15 +81,15 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
     <div className="flex flex-wrap items-center justify-between gap-3">
       <Link
         href={homeHref}
-        className={`group inline-flex items-center gap-3 transition-all duration-500 ${revealClass}`}
+        className={`group inline-flex items-center gap-3 transition-all duration-700 ${revealClass}`}
         style={{ transitionDelay: show ? "0ms" : "0ms" }}
         aria-label={brand}
       >
-        <span className={`relative overflow-hidden rounded-full transition-all duration-300 ${compact ? "h-9 w-9" : "h-11 w-11"}`}>
+        <span className={`relative overflow-hidden rounded-full transition-all duration-500 ${compact ? "h-9 w-9" : "h-11 w-11"}`}>
           <Image src="/logo-kodaore.png" alt="Kodaore logo" fill priority sizes="44px" className="object-contain" />
         </span>
         <span
-          className={`font-heading font-semibold tracking-[0.07em] text-foreground transition-all duration-300 group-hover:opacity-85 ${
+          className={`font-heading font-semibold tracking-[0.07em] text-foreground transition-all duration-500 group-hover:opacity-85 ${
             compact ? "text-lg md:text-xl" : "text-xl md:text-2xl"
           }`}
         >
@@ -105,7 +105,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
             <Link
               key={item.href}
               href={item.href}
-              className={`${navClass(item.active)} transform-gpu transition-all duration-500 ${revealClass}`}
+              className={`${navClass(item.active)} transform-gpu transition-all duration-700 ${revealClass}`}
               style={{ transitionDelay: show ? `${item.delay}ms` : "0ms" }}
             >
               {item.label}
@@ -114,14 +114,14 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         </nav>
 
         <div
-          className={`h-5 w-px bg-black/15 transition-all duration-500 ${revealClass}`}
-          style={{ transitionDelay: show ? "430ms" : "0ms" }}
+          className={`h-5 w-px bg-black/15 transition-all duration-700 ${revealClass}`}
+          style={{ transitionDelay: show ? "560ms" : "0ms" }}
           aria-hidden="true"
         />
 
         <div
-          className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-500 ${revealClass}`}
-          style={{ transitionDelay: show ? "500ms" : "0ms" }}
+          className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-700 ${revealClass}`}
+          style={{ transitionDelay: show ? "650ms" : "0ms" }}
         >
           <Link
             href={localizePath(pathname, "eu")}

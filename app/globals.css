@@ -67,6 +67,13 @@ body {
   animation: fade-reveal-left 0.65s ease forwards;
 }
 
+.kodaore-route-motion .fade-rise,
+.kodaore-route-motion .fade-reveal-left {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 @layer utilities {
   .fade-rise-delay-100 {
     animation-delay: 100ms;

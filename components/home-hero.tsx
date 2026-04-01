@@ -12,15 +12,26 @@ type HomeHeroProps = {
   heroId: string;
 };
 
+function getInitialReadyState() {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  const phase = document.documentElement.getAttribute("data-loader-phase");
+  const loaderElement = document.querySelector(".kodaore-loader");
+  return phase === "exit" || phase === "hidden" || (phase === null && !loaderElement);
+}
+
 export function HomeHero({ tagline, heroTitle, scrollProgress, heroId }: HomeHeroProps) {
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(getInitialReadyState);
 
   useEffect(() => {
     const html = document.documentElement;
 
     const syncPhase = () => {
       const phase = html.getAttribute("data-loader-phase");
-      setReady(phase === null || phase === "exit" || phase === "hidden");
+      const loaderElement = document.querySelector(".kodaore-loader");
+      setReady(phase === "exit" || phase === "hidden" || (phase === null && !loaderElement));
     };
 
     syncPhase();
