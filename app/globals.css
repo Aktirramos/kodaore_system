@@ -207,6 +207,60 @@ body {
   animation: loader-wave-sweep 1.25s ease-in-out infinite;
 }
 
+.kodaore-footer-top-line {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(227, 30, 36, 0.2) 0%, rgba(227, 30, 36, 0.9) 30%, rgba(11, 158, 74, 0.9) 70%, rgba(11, 158, 74, 0.2) 100%);
+  background-size: 240% 100%;
+  animation: footer-line-shift 7s linear infinite;
+}
+
+.kodaore-social-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.92);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.kodaore-social-icon::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  box-shadow: 0 0 0 1px var(--social-glow), 0 0 20px -2px var(--social-glow);
+}
+
+.kodaore-social-icon:nth-child(odd) {
+  --social-glow: color-mix(in srgb, var(--brand) 85%, white 15%);
+}
+
+.kodaore-social-icon:nth-child(even) {
+  --social-glow: color-mix(in srgb, var(--brand-warm) 85%, white 15%);
+}
+
+.kodaore-social-icon:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: var(--social-glow);
+  box-shadow: 0 8px 26px -16px var(--social-glow);
+}
+
+.kodaore-social-icon:hover::after {
+  opacity: 1;
+}
+
+.kodaore-backtop {
+  animation: backtop-bob 2.3s ease-in-out infinite;
+}
+
 @keyframes fade-rise {
   from {
     opacity: 0;
@@ -226,6 +280,25 @@ body {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes footer-line-shift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 240% 50%;
+  }
+}
+
+@keyframes backtop-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
 
@@ -256,6 +329,10 @@ body {
   .kodaore-loader-word,
   .kodaore-loader-wave::after,
   .kodaore-loader-logo-wrap,
+  .kodaore-footer-top-line,
+  .kodaore-social-icon,
+  .kodaore-social-icon::after,
+  .kodaore-backtop,
   .fade-rise,
   .fade-reveal-left {
     animation: none !important;
