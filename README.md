@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kodaore System
 
-## Getting Started
+Sistema web de gestion para el club Kodaore con tres sedes: Azkoitia, Azpeitia y Zumaia.
 
-First, run the development server:
+## Estado actual
+
+Base V1 implementada con:
+
+- Modelo de datos multi-sede en Prisma
+- Roles y permisos por sede
+- Semilla inicial con usuarios, sedes y datos demo
+- Home bilingue (eu/es)
+- Panel admin inicial con metricas
+- Endpoint de salud en API
+
+## Requisitos
+
+- Node.js 20+
+- PostgreSQL 14+
+
+## Configuracion
+
+1. Instala dependencias:
+
+```bash
+npm install
+```
+
+2. Crea el archivo `.env` con la cadena de conexion:
+
+```bash
+DATABASE_URL="postgresql://usuario:password@localhost:5432/kodaore"
+SEED_DEFAULT_PASSWORD="Kodaore2026!"
+```
+
+3. Genera cliente y aplica migracion:
+
+```bash
+npm run db:generate
+npm run db:migrate -- --name init_kodaore_v1
+```
+
+4. Carga datos base:
+
+```bash
+npm run db:seed
+```
+
+5. Arranca el proyecto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Rutas iniciales
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `http://localhost:3000` redirige a `/eu`
+- `http://localhost:3000/eu`
+- `http://localhost:3000/es`
+- `http://localhost:3000/eu/admin`
+- `http://localhost:3000/eu/portal`
+- `http://localhost:3000/api/health`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Credenciales seed
 
-## Learn More
+- `developer@kodaore.eus`
+- `admin@kodaore.eus`
+- `admin.azkoitia@kodaore.eus`
+- `admin.azpeitia@kodaore.eus`
+- `admin.zumaia@kodaore.eus`
 
-To learn more about Next.js, take a look at the following resources:
+Password: valor de `SEED_DEFAULT_PASSWORD`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Siguiente sprint recomendado
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- NextAuth con login por rol
+- Guardas de permisos en server actions y API
+- CRUD completo de alumnos/profesores/grupos
+- Importador Excel operativo
+- Flujo de remesas con export bancario

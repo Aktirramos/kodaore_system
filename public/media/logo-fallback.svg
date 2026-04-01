@@ -1,0 +1,10 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" fill="#0E1012"/>
+  <circle cx="600" cy="600" r="520" fill="#F4F2EA"/>
+  <path d="M250 560L500 470L680 350L870 470L980 430" stroke="#111111" stroke-width="20" stroke-linecap="round"/>
+  <rect x="250" y="190" width="60" height="470" fill="#E31E24"/>
+  <rect x="314" y="190" width="55" height="355" fill="#0B9E4A"/>
+  <path d="M540 755C610 720 670 650 760 620" stroke="#6D6B66" stroke-width="18" stroke-linecap="round"/>
+  <path d="M445 860C515 820 605 790 680 720" stroke="#6D6B66" stroke-width="18" stroke-linecap="round"/>
+  <text x="600" y="1020" text-anchor="middle" font-size="108" font-family="Arial, sans-serif" fill="#E31E24" letter-spacing="14">KODAORE</text>
+</svg>

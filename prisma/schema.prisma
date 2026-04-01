@@ -1,0 +1,458 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Locale {
+  eu
+  es
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum RoleCode {
+  DEVELOPER
+  ADMIN_GLOBAL
+  ADMIN_SEDE
+  OPERADOR_SEDE
+  PROFESOR_SEDE
+  ALUMNO_TUTOR
+}
+
+enum BillingPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  JUSTIFIED
+}
+
+enum ReceiptStatus {
+  PENDING
+  PREPARED
+  SENT
+  PAID
+  RETURNED
+  CANCELED
+}
+
+enum RemittanceStatus {
+  DRAFT
+  CONFIRMED
+  SENT
+  CLOSED
+}
+
+enum PaymentMovementType {
+  SEND
+  COLLECTION
+  RETURN
+  RETRY
+  ADJUSTMENT
+}
+
+enum CommunicationType {
+  NOTICE
+  EMAIL
+}
+
+enum CommunicationTargetType {
+  SITE
+  GROUP
+  STUDENT
+  FAMILY
+}
+
+enum ImportType {
+  STUDENTS
+  TEACHERS
+  ENROLLMENTS
+  BILLING
+}
+
+enum ImportStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Site {
+  id            String          @id @default(cuid())
+  code          String          @unique
+  name          String
+  isActive      Boolean         @default(true)
+  defaultLocale Locale          @default(eu)
+  config        Json?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  userSiteRoles UserSiteRole[]
+  teacherTags   TeacherTag[]
+  teachers      TeacherProfile[]
+  tuitionPlans  TuitionPlan[]
+  enrollments   Enrollment[]
+  groups        Group[]
+  receipts      Receipt[]
+  remittances   Remittance[]
+  communications Communication[]
+  studentsMain  Student[]       @relation("StudentMainSite")
+}
+
+model User {
+  id                  String           @id @default(cuid())
+  email               String           @unique
+  passwordHash        String
+  firstName           String
+  lastName            String
+  phone               String?
+  preferredLocale     Locale           @default(eu)
+  status              UserStatus       @default(ACTIVE)
+  lastLoginAt         DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  siteRoles           UserSiteRole[]
+  teacherProfile      TeacherProfile?
+  familyAccountsOwned FamilyAccount[]  @relation("FamilyAccountOwner")
+  tutorLinks          StudentTutor[]
+  communications      Communication[]
+  auditLogs           AuditLog[]
+  imports             ExcelImport[]
+}
+
+model Role {
+  id          String          @id @default(cuid())
+  code        RoleCode        @unique
+  name        String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  permissions RolePermission[]
+  userLinks   UserSiteRole[]
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  code        String           @unique
+  description String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  createdAt    DateTime   @default(now())
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model UserSiteRole {
+  id        String   @id @default(cuid())
+  userId    String
+  siteId    String?
+  roleId    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site      Site?    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, siteId, roleId])
+  @@index([siteId])
+}
+
+model TeacherProfile {
+  id           String              @id @default(cuid())
+  userId       String              @unique
+  siteId       String
+  notes        String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site         Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  tags         TeacherProfileTag[]
+  groups       Group[]
+}
+
+model TeacherTag {
+  id        String              @id @default(cuid())
+  siteId    String
+  name      String
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  site      Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  teachers  TeacherProfileTag[]
+
+  @@unique([siteId, name])
+}
+
+model TeacherProfileTag {
+  teacherProfileId String
+  teacherTagId     String
+  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Cascade)
+  teacherTag       TeacherTag     @relation(fields: [teacherTagId], references: [id], onDelete: Cascade)
+
+  @@id([teacherProfileId, teacherTagId])
+}
+
+model FamilyAccount {
+  id              String    @id @default(cuid())
+  ownerId         String
+  email           String
+  phone           String?
+  address         String?
+  preferredLocale Locale    @default(eu)
+  ibanEncrypted   String?
+  ibanMasked      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  owner           User      @relation("FamilyAccountOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  students        Student[]
+
+  @@index([ownerId])
+}
+
+model Student {
+  id                      String        @id @default(cuid())
+  familyAccountId         String
+  firstName               String
+  lastName                String
+  birthDate               DateTime
+  phone                   String?
+  address                 String?
+  photoUrl                String?
+  schoolName              String?
+  schoolCourse            String?
+  sportsCenterMemberCode  String?
+  internalCode            String        @unique
+  mainSiteId              String
+  isActive                Boolean       @default(true)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  familyAccount           FamilyAccount @relation(fields: [familyAccountId], references: [id], onDelete: Restrict)
+  mainSite                Site          @relation("StudentMainSite", fields: [mainSiteId], references: [id], onDelete: Restrict)
+  tutors                  StudentTutor[]
+  enrollments             Enrollment[]
+  attendances             Attendance[]
+  receipts                Receipt[]
+
+  @@index([sportsCenterMemberCode])
+  @@index([mainSiteId])
+}
+
+model StudentTutor {
+  studentId   String
+  userId      String
+  relation    String?
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, userId])
+}
+
+model TuitionPlan {
+  id            String        @id @default(cuid())
+  siteId        String
+  name          String
+  period        BillingPeriod
+  amountCents   Int
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  site          Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  enrollments   Enrollment[]
+
+  @@index([siteId])
+}
+
+model Enrollment {
+  id            String           @id @default(cuid())
+  studentId     String
+  siteId        String
+  tuitionPlanId String
+  startsAt      DateTime
+  endsAt        DateTime?
+  status        EnrollmentStatus @default(ACTIVE)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  student       Student          @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  site          Site             @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  tuitionPlan   TuitionPlan      @relation(fields: [tuitionPlanId], references: [id], onDelete: Restrict)
+  receipts      Receipt[]
+
+  @@index([siteId, status])
+  @@index([studentId])
+}
+
+model Group {
+  id               String         @id @default(cuid())
+  siteId           String
+  name             String
+  level            String?
+  capacity         Int
+  leadTeacherId    String?
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  site             Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  leadTeacher      TeacherProfile? @relation(fields: [leadTeacherId], references: [id], onDelete: SetNull)
+  sessions         ClassSession[]
+
+  @@index([siteId, isActive])
+}
+
+model ClassSession {
+  id         String       @id @default(cuid())
+  groupId    String
+  startsAt   DateTime
+  endsAt     DateTime
+  room       String?
+  status     String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  group      Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+
+  @@index([groupId, startsAt])
+}
+
+model Attendance {
+  id             String           @id @default(cuid())
+  classSessionId String
+  studentId      String
+  status         AttendanceStatus
+  note           String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  classSession   ClassSession     @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classSessionId, studentId])
+}
+
+model Receipt {
+  id              String         @id @default(cuid())
+  siteId          String
+  studentId       String
+  enrollmentId    String
+  periodStart     DateTime
+  periodEnd       DateTime
+  amountCents     Int
+  status          ReceiptStatus  @default(PENDING)
+  dueDate         DateTime?
+  ibanMasked      String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  site            Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  enrollment      Enrollment     @relation(fields: [enrollmentId], references: [id], onDelete: Restrict)
+  remittances     RemittanceReceipt[]
+  paymentMovements PaymentMovement[]
+
+  @@index([siteId, status])
+  @@index([studentId])
+}
+
+model Remittance {
+  id            String            @id @default(cuid())
+  siteId        String
+  bankName      String
+  generatedAt   DateTime          @default(now())
+  status        RemittanceStatus  @default(DRAFT)
+  totalCents    Int               @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  site          Site              @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  receipts      RemittanceReceipt[]
+
+  @@index([siteId, status])
+}
+
+model RemittanceReceipt {
+  remittanceId String
+  receiptId    String
+  remittance   Remittance @relation(fields: [remittanceId], references: [id], onDelete: Cascade)
+  receipt      Receipt    @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@id([remittanceId, receiptId])
+}
+
+model PaymentMovement {
+  id          String              @id @default(cuid())
+  receiptId   String
+  type        PaymentMovementType
+  occurredAt  DateTime            @default(now())
+  amountCents Int
+  note        String?
+  createdAt   DateTime            @default(now())
+  receipt     Receipt             @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId, occurredAt])
+}
+
+model Communication {
+  id          String                  @id @default(cuid())
+  siteId      String
+  type        CommunicationType
+  title       String
+  content     String
+  targetType  CommunicationTargetType
+  targetRef   String?
+  createdById String
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  site        Site                    @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  createdBy   User                    @relation(fields: [createdById], references: [id], onDelete: Restrict)
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String
+  siteId      String?
+  entity      String
+  entityId    String
+  action      String
+  beforeData  Json?
+  afterData   Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  actorUser   User     @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+}
+
+model ExcelImport {
+  id          String       @id @default(cuid())
+  type        ImportType
+  fileName    String
+  status      ImportStatus @default(PENDING)
+  summary     Json?
+  createdById String
+  createdAt   DateTime     @default(now())
+  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Restrict)
+}

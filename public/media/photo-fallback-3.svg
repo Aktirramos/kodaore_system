@@ -1,0 +1,7 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F4F1E5"/>
+  <rect x="120" y="120" width="1360" height="660" rx="40" fill="#1B3A30"/>
+  <path d="M180 710L470 410L720 620L930 430L1400 710" stroke="#EDE6D5" stroke-width="14"/>
+  <circle cx="1210" cy="320" r="96" fill="#D88E30" fill-opacity="0.5"/>
+  <text x="230" y="260" fill="#F5F2E8" font-size="64" font-family="Arial, sans-serif" letter-spacing="4">KODAORE PHOTO 03</text>
+</svg>
