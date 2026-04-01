@@ -1,52 +1,48 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { SmartImage } from "@/components/smart-image";
 import { VantaWavesBackground } from "@/components/vanta-waves-background";
 
 type HomeHeroProps = {
   tagline: string;
   heroTitle: string;
+  scrollProgress: number;
+  heroId: string;
 };
 
-const SCROLL_RANGE = 900;
-
-function clamp01(value: number) {
-  return Math.max(0, Math.min(1, value));
-}
-
-export function HomeHero({ tagline, heroTitle }: HomeHeroProps) {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const rafRef = useRef<number | null>(null);
+export function HomeHero({ tagline, heroTitle, scrollProgress, heroId }: HomeHeroProps) {
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const updateProgress = () => {
-      rafRef.current = null;
-      setScrollProgress(clamp01(window.scrollY / SCROLL_RANGE));
+    const html = document.documentElement;
+
+    const syncPhase = () => {
+      const phase = html.getAttribute("data-loader-phase");
+      setReady(phase === null || phase === "exit" || phase === "hidden");
     };
 
-    const handleScroll = () => {
-      if (rafRef.current !== null) {
-        return;
-      }
+    syncPhase();
 
-      rafRef.current = window.requestAnimationFrame(updateProgress);
-    };
-
-    updateProgress();
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const observer = new MutationObserver(syncPhase);
+    observer.observe(html, {
+      attributes: true,
+      attributeFilter: ["data-loader-phase"],
+    });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafRef.current !== null) {
-        window.cancelAnimationFrame(rafRef.current);
-      }
+      observer.disconnect();
     };
   }, []);
 
   return (
-    <section className="fade-rise fade-rise-delay-100 relative isolate overflow-hidden rounded-[2rem] border border-black/10 bg-surface shadow-[0_50px_120px_-70px_rgba(16,16,16,0.62)] min-h-[74svh] md:h-[calc(100svh-11rem)] md:min-h-[calc(100svh-11rem)]">
+    <section
+      id={heroId}
+      className={`kodaore-hero relative isolate overflow-hidden rounded-[2rem] border border-black/10 bg-surface shadow-[0_50px_120px_-70px_rgba(16,16,16,0.62)] min-h-[74svh] md:h-[calc(100svh-11rem)] md:min-h-[calc(100svh-11rem)] transition-opacity duration-500 ${
+        ready ? "opacity-100 fade-rise fade-rise-delay-100" : "opacity-0"
+      }`}
+    >
       <VantaWavesBackground className="pointer-events-none absolute inset-0" scrollProgress={scrollProgress} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_85%_at_50%_50%,rgba(255,255,255,0.02),rgba(255,255,255,0.55)_62%,rgba(255,255,255,0.75)_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(227,30,36,0.16)_0%,rgba(227,30,36,0.1)_32%,rgba(255,255,255,0.06)_50%,rgba(11,158,74,0.1)_68%,rgba(11,158,74,0.16)_100%)]" />
@@ -80,7 +76,7 @@ export function HomeHero({ tagline, heroTitle }: HomeHeroProps) {
             <div className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-brand" />
             <div className="pointer-events-none absolute inset-y-0 left-2 w-1.5 bg-brand-warm" />
             <div className="relative z-10 flex h-full flex-col justify-start gap-4 pl-5 pr-1 md:pl-6 md:pr-2">
-              <div className="relative aspect-square w-full max-w-[82px] overflow-hidden rounded-full md:max-w-[96px]">
+              <div className={`relative aspect-square w-full max-w-[82px] overflow-hidden rounded-full md:max-w-[96px] ${ready ? "fade-rise fade-rise-delay-400" : "opacity-0"}`}>
                 <Image
                   src="/logo-kodaore.png"
                   alt="Kodaore logo"
@@ -93,7 +89,9 @@ export function HomeHero({ tagline, heroTitle }: HomeHeroProps) {
 
               <div className="space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand/80">{tagline}</p>
-                <h1 className="font-heading text-lg leading-tight text-foreground md:text-xl">{heroTitle}</h1>
+                <h1 className={`font-heading text-lg leading-tight text-foreground md:text-xl ${ready ? "fade-rise fade-rise-delay-500" : "opacity-0"}`}>
+                  {heroTitle}
+                </h1>
               </div>
             </div>
           </article>

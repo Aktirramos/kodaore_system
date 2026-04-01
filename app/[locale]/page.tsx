@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { HomeHero } from "@/components/home-hero";
+import { HomeHeroScrollSync } from "@/components/home-hero-scroll-sync";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
 
@@ -19,7 +19,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <HomeHero tagline={copy.tagline} heroTitle={copy.home.heroTitle} />
+      <HomeHeroScrollSync tagline={copy.tagline} heroTitle={copy.home.heroTitle} />
 
       <section className="fade-rise fade-rise-delay-200 rounded-3xl border border-black/10 bg-surface p-5 md:p-7">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">

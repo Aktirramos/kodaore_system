@@ -41,6 +41,7 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
   const elementRef = useRef<HTMLDivElement | null>(null);
   const effectRef = useRef<VantaEffect | undefined>(undefined);
   const lastWaveSpeedRef = useRef(0.7);
+  const lastWaveHeightRef = useRef(19);
 
   useEffect(() => {
     let effect: VantaEffect | undefined;
@@ -123,13 +124,19 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
       return;
     }
 
-    const nextWaveSpeed = 0.7 + 1.8 * normalizedScrollProgress;
-    if (Math.abs(nextWaveSpeed - lastWaveSpeedRef.current) < 0.02) {
+    const nextWaveSpeed = 0.7 + normalizedScrollProgress * 2.8;
+    const nextWaveHeight = 19 + normalizedScrollProgress * 34;
+
+    if (
+      Math.abs(nextWaveSpeed - lastWaveSpeedRef.current) < 0.01 &&
+      Math.abs(nextWaveHeight - lastWaveHeightRef.current) < 0.04
+    ) {
       return;
     }
 
     lastWaveSpeedRef.current = nextWaveSpeed;
-    effectRef.current.setOptions({ waveSpeed: nextWaveSpeed });
+    lastWaveHeightRef.current = nextWaveHeight;
+    effectRef.current.setOptions({ waveSpeed: nextWaveSpeed, waveHeight: nextWaveHeight });
   }, [normalizedScrollProgress]);
 
   return <div ref={elementRef} className={className} aria-hidden="true" />;
