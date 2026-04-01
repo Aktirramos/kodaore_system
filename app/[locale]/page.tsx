@@ -8,6 +8,12 @@ type LocaleHomeProps = {
   params: Promise<{ locale: string }>;
 };
 
+const sitePreviewMedia: Record<string, { src: string; fallbackSrc: string }> = {
+  azkoitia: { src: "/media/judo-4.jpg", fallbackSrc: "/media/photo-fallback-1.svg" },
+  azpeitia: { src: "/media/judo-5.jpg", fallbackSrc: "/media/photo-fallback-2.svg" },
+  zumaia: { src: "/media/judo-6.jpg", fallbackSrc: "/media/photo-fallback-3.svg" },
+};
+
 export default async function LocaleHome({ params }: LocaleHomeProps) {
   const { locale } = await params;
 
@@ -27,7 +33,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
               {copy.home.sitesTitle}
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted md:text-base">{copy.home.sitesDescription}</p>
+            <p className="fade-reveal-left mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted md:text-base">{copy.home.sitesDescription}</p>
           </div>
           <Link
             href={`/${locale}/sedes`}
@@ -42,10 +48,30 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <Link
               key={site.slug}
               href={`/${locale}/sedes/${site.slug}`}
-              className="rounded-2xl border border-black/10 bg-white p-5 transition hover:-translate-y-0.5"
+              className="group relative overflow-hidden rounded-2xl border border-black/10 bg-white p-5 transition duration-500 hover:-translate-y-1 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:p-px before:opacity-0 before:transition before:duration-500 before:content-[''] before:bg-[linear-gradient(130deg,rgba(227,30,36,0.75),rgba(11,158,74,0.75))] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] group-hover:before:opacity-100"
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Kodaore</p>
-              <h3 className="mt-1 font-heading text-2xl font-semibold text-foreground">{site.name}</h3>
+              <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition duration-500 group-hover:opacity-100">
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand/22 via-transparent to-brand-warm/22" />
+              </div>
+
+              <div className="relative h-44 overflow-hidden rounded-xl border border-black/10">
+                <SmartImage
+                  src={sitePreviewMedia[site.slug]?.src ?? "/media/hero-1.jpg"}
+                  fallbackSrc={sitePreviewMedia[site.slug]?.fallbackSrc ?? "/media/photo-fallback-1.svg"}
+                  alt={`${site.name} preview`}
+                  fill
+                  parallax
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 42vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+              </div>
+
+              <div className="relative z-10 mt-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Kodaore</p>
+                <h3 className="mt-1 font-heading text-2xl font-semibold text-foreground">{site.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">{site.description}</p>
+              </div>
             </Link>
           ))}
         </div>
@@ -70,8 +96,8 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">
               {copy.home.photoTitle}
             </h2>
-            <p className="text-sm leading-relaxed text-white/85 md:text-base">{copy.home.photoDescription}</p>
-            <p className="rounded-xl bg-black/25 px-3 py-2 text-xs tracking-[0.05em] text-white/90">{copy.home.photoHint}</p>
+            <p className="fade-reveal-left text-sm leading-relaxed text-white/85 md:text-base">{copy.home.photoDescription}</p>
+            <p className="fade-reveal-left rounded-xl bg-black/25 px-3 py-2 text-xs tracking-[0.05em] text-white/90">{copy.home.photoHint}</p>
           </div>
         </div>
       </section>
