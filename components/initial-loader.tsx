@@ -3,17 +3,51 @@
 import Image from "next/image";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
-const START_SCALE = 3.2;
+const START_SCALE = 2.8;
+const MOBILE_START_SCALE = 2.4;
 const END_SCALE = 1;
 const MAX_DEPTH = 1500;
-const LOGO_Y_OFFSET = -110;
+const LOGO_Y_OFFSET = 10;
+const DESKTOP_LOGO_SIZE = 128;
+const MOBILE_LOGO_SIZE = 112;
+
+function getResponsiveStartScale() {
+  if (typeof window === "undefined") {
+    return START_SCALE;
+  }
+
+  const isMobile = window.innerWidth < 768;
+  const viewportHeight = window.innerHeight;
+  const preferred = isMobile ? MOBILE_START_SCALE : START_SCALE;
+
+  if (viewportHeight < 700) {
+    return Math.min(preferred, isMobile ? 2 : 2.2);
+  }
+
+  if (viewportHeight < 820) {
+    return Math.min(preferred, isMobile ? 2.2 : 2.5);
+  }
+
+  return Math.min(preferred, isMobile ? 2.4 : 2.8);
+}
+
+function getResponsiveLogoSize() {
+  if (typeof window !== "undefined" && window.innerWidth < 768) {
+    return MOBILE_LOGO_SIZE;
+  }
+
+  return DESKTOP_LOGO_SIZE;
+}
 
 export function InitialLoader() {
+  const [startScale] = useState(getResponsiveStartScale);
+  const [logoBaseSize] = useState(getResponsiveLogoSize);
   const [phase, setPhase] = useState<"visible" | "exit" | "hidden">("visible");
+  const initialCompensation = ((startScale - END_SCALE) * logoBaseSize) / 2;
   const [motion, setMotion] = useState({
     progress: 0,
-    scale: START_SCALE,
-    y: LOGO_Y_OFFSET,
+    scale: startScale,
+    y: LOGO_Y_OFFSET - initialCompensation,
     z: 0,
   });
 
@@ -26,8 +60,9 @@ export function InitialLoader() {
   const applyDepth = useCallback((depth: number) => {
     const safeDepth = Math.max(0, Math.min(MAX_DEPTH, depth));
     const progress = safeDepth / MAX_DEPTH;
-    const scale = START_SCALE - (progress * (START_SCALE - END_SCALE));
-    const y = LOGO_Y_OFFSET + progress * 24;
+    const scale = startScale - (progress * (startScale - END_SCALE));
+    const compensationY = ((scale - END_SCALE) * logoBaseSize) / 2;
+    const y = LOGO_Y_OFFSET - compensationY + progress * 24;
     const z = -(progress * 640);
 
     setMotion({ progress, scale, y, z });
@@ -36,7 +71,7 @@ export function InitialLoader() {
       exitedRef.current = true;
       setPhase("exit");
     }
-  }, []);
+  }, [logoBaseSize, startScale]);
 
   const queueDepth = useCallback((depth: number) => {
     pendingDepthRef.current = Math.max(0, Math.min(MAX_DEPTH, depth));
@@ -177,19 +212,26 @@ export function InitialLoader() {
           }}
         >
           <span className="kodaore-loader-logo-glow" aria-hidden="true" />
-          <div className="relative h-32 w-32 overflow-hidden rounded-full">
+          <div className="relative h-28 w-28 overflow-hidden rounded-full md:h-32 md:w-32">
             <Image
               src="/logo-kodaore.png"
               alt="Kodaore logo"
               fill
               priority
-              sizes="128px"
+              sizes="(max-width: 768px) 112px, 128px"
               className="object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.22)]"
             />
           </div>
         </div>
 
-        <p className="kodaore-loader-word font-heading" style={{ opacity: chromeOpacity, transition: "opacity 90ms linear" }}>
+        <p
+          className="kodaore-loader-word mt-4 font-heading md:mt-5"
+          style={{
+            opacity: chromeOpacity,
+            transition: "opacity 90ms linear",
+            fontSize: "clamp(1.25rem, 5vw, 2.2rem)",
+          }}
+        >
           <span className="kodaore-loader-ko">Ko</span>
           <span>dao</span>
           <span className="kodaore-loader-re">re</span>

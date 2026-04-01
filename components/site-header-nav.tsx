@@ -79,7 +79,11 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
   ];
 
   return (
-    <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl transition-colors duration-500 ${frosted ? "bg-white/30" : "bg-transparent"}`}>
+    <div
+      className={`flex flex-wrap items-center justify-between gap-3 rounded-xl transition-all duration-500 ${
+        frosted ? "bg-white/30 backdrop-blur-xl border border-white/10" : "bg-transparent border border-transparent"
+      }`}
+    >
       <Link
         href={homeHref}
         className={`group inline-flex items-center gap-3 transition-all duration-700 ${revealClass}`}
