@@ -13,6 +13,7 @@ type SiteHeaderNavProps = {
   accessLabel: string;
   show: boolean;
   compact?: boolean;
+  frosted?: boolean;
 };
 
 const locales: LocaleCode[] = ["eu", "es"];
@@ -30,7 +31,7 @@ function localizePath(pathname: string, targetLocale: LocaleCode) {
   return result === "" ? `/${targetLocale}` : result;
 }
 
-export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, accessLabel, show, compact = false }: SiteHeaderNavProps) {
+export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, accessLabel, show, compact = false, frosted = false }: SiteHeaderNavProps) {
   const pathname = usePathname() ?? `/${locale}`;
 
   const homeHref = `/${locale}`;
@@ -78,7 +79,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl transition-colors duration-500 ${frosted ? "bg-white/30" : "bg-transparent"}`}>
       <Link
         href={homeHref}
         className={`group inline-flex items-center gap-3 transition-all duration-700 ${revealClass}`}

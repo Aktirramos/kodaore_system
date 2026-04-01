@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { LocaleCode } from "@/lib/i18n";
@@ -127,16 +128,29 @@ export function SiteFooter({ locale }: SiteFooterProps) {
         </div>
       </footer>
 
-      <button
-        type="button"
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label={backTopLabel}
-        className={`kodaore-backtop fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-[#101417]/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)] transition-all duration-300 ${
-          showBackToTop ? "pointer-events-auto opacity-100 translate-y-0" : "pointer-events-none opacity-0 translate-y-3"
-        }`}
-      >
-        {backTopLabel}
-      </button>
+      <AnimatePresence>
+        {showBackToTop ? (
+          <motion.button
+            key="back-top"
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label={backTopLabel}
+            className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-[#101417]/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)]"
+            initial={{ opacity: 0, y: 14, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 240, damping: 18, mass: 0.8 }}
+          >
+            <motion.span
+              animate={{ y: [0, -2, 0] }}
+              transition={{ duration: 1.8, ease: "easeInOut", repeat: Infinity }}
+              className="block"
+            >
+              {backTopLabel}
+            </motion.span>
+          </motion.button>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

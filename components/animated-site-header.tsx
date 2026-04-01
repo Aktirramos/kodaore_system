@@ -15,6 +15,7 @@ type AnimatedSiteHeaderProps = {
 export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel, accessLabel }: AnimatedSiteHeaderProps) {
   const [show, setShow] = useState(false);
   const [compactByScroll, setCompactByScroll] = useState(false);
+  const [deepScrolled, setDeepScrolled] = useState(false);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -43,9 +44,12 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
     }
 
     const onScroll = () => {
-      setCompactByScroll(window.scrollY > 28);
+      const scrollY = window.scrollY;
+      setCompactByScroll(scrollY > 28);
+      setDeepScrolled(scrollY > 50);
     };
 
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
@@ -57,7 +61,9 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
 
   return (
     <header
-      className={`kodaore-site-header sticky top-0 z-40 border-b border-black/10 bg-surface/70 backdrop-blur-md transition-all duration-700 ${
+      className={`kodaore-site-header sticky top-0 z-40 border-b transition-all duration-700 ${
+        deepScrolled ? "border-white/10 bg-surface/60 backdrop-blur-xl" : "border-transparent bg-surface/70 backdrop-blur-sm"
+      } ${
         show ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0 pointer-events-none"
       }`}
     >
@@ -75,6 +81,7 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
             accessLabel={accessLabel}
             show={show}
             compact={compact}
+            frosted={deepScrolled}
           />
         </div>
       </div>
