@@ -20,7 +20,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <section className="fade-rise relative isolate overflow-hidden rounded-[2rem] border border-black/10 bg-surface shadow-[0_50px_120px_-70px_rgba(16,16,16,0.62)] min-h-[74svh] md:h-[calc(100svh-11rem)] md:min-h-[calc(100svh-11rem)]">
+      <section className="fade-rise fade-rise-delay-100 relative isolate overflow-hidden rounded-[2rem] border border-black/10 bg-surface shadow-[0_50px_120px_-70px_rgba(16,16,16,0.62)] min-h-[74svh] md:h-[calc(100svh-11rem)] md:min-h-[calc(100svh-11rem)]">
         <VantaWavesBackground className="pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_85%_at_50%_50%,rgba(255,255,255,0.02),rgba(255,255,255,0.55)_62%,rgba(255,255,255,0.75)_100%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(227,30,36,0.16)_0%,rgba(227,30,36,0.1)_32%,rgba(255,255,255,0.06)_50%,rgba(11,158,74,0.1)_68%,rgba(11,158,74,0.16)_100%)]" />
@@ -77,7 +77,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/20 to-transparent" />
       </section>
 
-      <section className="fade-rise rounded-3xl border border-black/10 bg-surface p-5 md:p-7">
+      <section className="fade-rise fade-rise-delay-200 rounded-3xl border border-black/10 bg-surface p-5 md:p-7">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
@@ -107,7 +107,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
       </section>
 
-      <section className="fade-rise relative overflow-hidden rounded-3xl border border-black/15 bg-[#101214] p-4 md:p-6">
+      <section className="fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-black/15 bg-[#101214] p-4 md:p-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(227,30,36,0.24),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(11,158,74,0.28),transparent_45%)]" />
         <div className="relative grid items-end gap-6 md:grid-cols-[1.2fr_0.9fr]">
           <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-white/20 md:min-h-[280px]">
