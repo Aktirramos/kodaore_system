@@ -3,17 +3,17 @@
 import Image from "next/image";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
-const START_SCALE = 5;
-const MIN_SCALE = 1;
-const MAX_DEPTH = 1200;
-const CHROME_FADE_START = 0.02;
+const START_SCALE = 3.2;
+const END_SCALE = 1;
+const MAX_DEPTH = 1500;
+const LOGO_Y_OFFSET = -110;
 
 export function InitialLoader() {
   const [phase, setPhase] = useState<"visible" | "exit" | "hidden">("visible");
   const [motion, setMotion] = useState({
     progress: 0,
     scale: START_SCALE,
-    y: 0,
+    y: LOGO_Y_OFFSET,
     z: 0,
   });
 
@@ -26,13 +26,13 @@ export function InitialLoader() {
   const applyDepth = useCallback((depth: number) => {
     const safeDepth = Math.max(0, Math.min(MAX_DEPTH, depth));
     const progress = safeDepth / MAX_DEPTH;
-    const scale = Math.max(MIN_SCALE, START_SCALE - (START_SCALE - MIN_SCALE) * progress);
-    const y = progress * 24;
+    const scale = START_SCALE - (progress * (START_SCALE - END_SCALE));
+    const y = LOGO_Y_OFFSET + progress * 24;
     const z = -(progress * 640);
 
     setMotion({ progress, scale, y, z });
 
-    if (scale <= MIN_SCALE + Number.EPSILON && !exitedRef.current) {
+    if (scale <= END_SCALE + Number.EPSILON && !exitedRef.current) {
       exitedRef.current = true;
       setPhase("exit");
     }
@@ -136,10 +136,7 @@ export function InitialLoader() {
     "--loader-progress": motion.progress,
   } as CSSProperties;
 
-  const chromeOpacity =
-    motion.progress <= CHROME_FADE_START
-      ? 1
-      : Math.max(0, 1 - (motion.progress - CHROME_FADE_START) / (1 - CHROME_FADE_START));
+  const chromeOpacity = motion.progress > 0.01 ? 0 : 1;
 
   return (
     <div
@@ -170,13 +167,13 @@ export function InitialLoader() {
           </div>
         </div>
 
-        <p className="kodaore-loader-word font-heading" style={{ opacity: chromeOpacity }}>
+        <p className="kodaore-loader-word font-heading" style={{ opacity: chromeOpacity, transition: "opacity 90ms linear" }}>
           <span className="kodaore-loader-ko">Ko</span>
           <span>dao</span>
           <span className="kodaore-loader-re">re</span>
         </p>
 
-        <div className="kodaore-loader-wave" style={{ opacity: chromeOpacity }} aria-hidden="true" />
+        <div className="kodaore-loader-wave" style={{ opacity: chromeOpacity, transition: "opacity 90ms linear" }} aria-hidden="true" />
       </div>
     </div>
   );
