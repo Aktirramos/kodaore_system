@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
-const START_SCALE = 3.5;
-const END_SCALE = 1;
-const MAX_DEPTH = 1000;
-const CHROME_HIDE_PROGRESS = 0.05;
+const START_SCALE = 5;
+const MIN_SCALE = 1;
+const MAX_DEPTH = 1200;
+const CHROME_FADE_START = 0.02;
 
 export function InitialLoader() {
   const [phase, setPhase] = useState<"visible" | "exit" | "hidden">("visible");
@@ -15,7 +15,6 @@ export function InitialLoader() {
     scale: START_SCALE,
     y: 0,
     z: 0,
-    blur: (START_SCALE - END_SCALE) * 6,
   });
 
   const rafRef = useRef<number | null>(null);
@@ -27,14 +26,13 @@ export function InitialLoader() {
   const applyDepth = useCallback((depth: number) => {
     const safeDepth = Math.max(0, Math.min(MAX_DEPTH, depth));
     const progress = safeDepth / MAX_DEPTH;
-    const scale = START_SCALE - (START_SCALE - END_SCALE) * progress;
+    const scale = Math.max(MIN_SCALE, START_SCALE - (START_SCALE - MIN_SCALE) * progress);
     const y = progress * 24;
     const z = -(progress * 640);
-    const blur = (scale - END_SCALE) * 6;
 
-    setMotion({ progress, scale, y, z, blur });
+    setMotion({ progress, scale, y, z });
 
-    if (progress >= 1 && !exitedRef.current) {
+    if (scale <= MIN_SCALE + Number.EPSILON && !exitedRef.current) {
       exitedRef.current = true;
       setPhase("exit");
     }
@@ -138,11 +136,14 @@ export function InitialLoader() {
     "--loader-progress": motion.progress,
   } as CSSProperties;
 
-  const isChromeHidden = motion.progress > CHROME_HIDE_PROGRESS;
+  const chromeOpacity =
+    motion.progress <= CHROME_FADE_START
+      ? 1
+      : Math.max(0, 1 - (motion.progress - CHROME_FADE_START) / (1 - CHROME_FADE_START));
 
   return (
     <div
-      className={`kodaore-loader ${phase === "exit" ? "is-exit" : ""} ${isChromeHidden ? "is-chrome-hidden" : ""}`}
+      className={`kodaore-loader ${phase === "exit" ? "is-exit" : ""}`}
       style={containerStyle}
       role="status"
       aria-label="Kodaore loading screen"
@@ -154,7 +155,6 @@ export function InitialLoader() {
           className={`kodaore-loader-logo-wrap ${phase === "exit" ? "is-exit" : ""}`}
           style={{
             transform: `translate3d(0, ${motion.y}px, ${motion.z}px) scale(${motion.scale})`,
-            filter: `blur(${motion.blur}px)`,
           }}
         >
           <span className="kodaore-loader-logo-glow" aria-hidden="true" />
@@ -170,13 +170,13 @@ export function InitialLoader() {
           </div>
         </div>
 
-        <p className="kodaore-loader-word font-heading">
+        <p className="kodaore-loader-word font-heading" style={{ opacity: chromeOpacity }}>
           <span className="kodaore-loader-ko">Ko</span>
           <span>dao</span>
           <span className="kodaore-loader-re">re</span>
         </p>
 
-        <div className="kodaore-loader-wave" aria-hidden="true" />
+        <div className="kodaore-loader-wave" style={{ opacity: chromeOpacity }} aria-hidden="true" />
       </div>
     </div>
   );
