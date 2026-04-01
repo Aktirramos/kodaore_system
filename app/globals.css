@@ -98,6 +98,7 @@ body {
   place-items: center;
   overflow: hidden;
   perspective: 1200px;
+  --loader-progress: 0;
   transition: opacity 0.56s ease;
 }
 
@@ -116,6 +117,7 @@ body {
     opacity 0.5s ease,
     filter 0.5s ease,
     transform 0.5s ease;
+  filter: blur(calc((1 - var(--loader-progress)) * 16px));
 }
 
 .kodaore-loader.is-exit .kodaore-loader-backdrop {
@@ -144,6 +146,7 @@ body {
   will-change: transform, opacity;
   transition:
     transform 0.12s linear,
+    filter 0.16s linear,
     opacity 0.36s ease;
 }
 
@@ -174,6 +177,7 @@ body {
   animation: loader-word-rise 0.65s ease both;
   color: #f2f2f2;
   text-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .kodaore-loader-ko {
@@ -192,6 +196,27 @@ body {
   overflow: hidden;
   background: linear-gradient(90deg, rgba(227, 30, 36, 0.45), rgba(255, 255, 255, 0.78) 50%, rgba(11, 158, 74, 0.45));
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kodaore-loader.is-chrome-hidden .kodaore-loader-word,
+.kodaore-loader.is-chrome-hidden .kodaore-loader-wave {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.kodaore-site-header {
+  opacity: 0;
+  transform: translateY(-16px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+html[data-loader-phase="exit"] .kodaore-site-header,
+html[data-loader-phase="hidden"] .kodaore-site-header {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .kodaore-loader-wave::after {

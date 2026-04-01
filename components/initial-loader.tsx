@@ -1,14 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
-const MIN_SCALE = 0.56;
-const MAX_DEPTH = 680;
+const START_SCALE = 3.5;
+const END_SCALE = 1;
+const MAX_DEPTH = 1000;
+const CHROME_HIDE_PROGRESS = 0.05;
 
 export function InitialLoader() {
   const [phase, setPhase] = useState<"visible" | "exit" | "hidden">("visible");
-  const [motion, setMotion] = useState({ scale: 1, y: 0, z: 0 });
+  const [motion, setMotion] = useState({
+    progress: 0,
+    scale: START_SCALE,
+    y: 0,
+    z: 0,
+    blur: (START_SCALE - END_SCALE) * 6,
+  });
 
   const rafRef = useRef<number | null>(null);
   const pendingDepthRef = useRef(0);
@@ -19,13 +27,14 @@ export function InitialLoader() {
   const applyDepth = useCallback((depth: number) => {
     const safeDepth = Math.max(0, Math.min(MAX_DEPTH, depth));
     const progress = safeDepth / MAX_DEPTH;
-    const scale = Math.max(MIN_SCALE, 1 - progress * 0.46);
-    const y = progress * 34;
-    const z = -(progress * 560);
+    const scale = START_SCALE - (START_SCALE - END_SCALE) * progress;
+    const y = progress * 24;
+    const z = -(progress * 640);
+    const blur = (scale - END_SCALE) * 6;
 
-    setMotion({ scale, y, z });
+    setMotion({ progress, scale, y, z, blur });
 
-    if (scale <= MIN_SCALE && !exitedRef.current) {
+    if (progress >= 1 && !exitedRef.current) {
       exitedRef.current = true;
       setPhase("exit");
     }
@@ -55,12 +64,22 @@ export function InitialLoader() {
     const startExit = window.setTimeout(() => {
       if (!exitedRef.current) {
         exitedRef.current = true;
+        depthRef.current = MAX_DEPTH;
+        queueDepth(MAX_DEPTH);
         setPhase("exit");
       }
     }, autoExitMs);
 
     return () => {
       window.clearTimeout(startExit);
+    };
+  }, [phase, queueDepth]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-loader-phase", phase);
+
+    return () => {
+      document.documentElement.removeAttribute("data-loader-phase");
     };
   }, [phase]);
 
@@ -115,8 +134,19 @@ export function InitialLoader() {
     return null;
   }
 
+  const containerStyle = {
+    "--loader-progress": motion.progress,
+  } as CSSProperties;
+
+  const isChromeHidden = motion.progress > CHROME_HIDE_PROGRESS;
+
   return (
-    <div className={`kodaore-loader ${phase === "exit" ? "is-exit" : ""}`} role="status" aria-label="Kodaore loading screen">
+    <div
+      className={`kodaore-loader ${phase === "exit" ? "is-exit" : ""} ${isChromeHidden ? "is-chrome-hidden" : ""}`}
+      style={containerStyle}
+      role="status"
+      aria-label="Kodaore loading screen"
+    >
       <div className="kodaore-loader-backdrop" aria-hidden="true" />
 
       <div className="kodaore-loader-content">
@@ -124,6 +154,7 @@ export function InitialLoader() {
           className={`kodaore-loader-logo-wrap ${phase === "exit" ? "is-exit" : ""}`}
           style={{
             transform: `translate3d(0, ${motion.y}px, ${motion.z}px) scale(${motion.scale})`,
+            filter: `blur(${motion.blur}px)`,
           }}
         >
           <span className="kodaore-loader-logo-glow" aria-hidden="true" />

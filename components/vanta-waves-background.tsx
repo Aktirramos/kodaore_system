@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 type VantaWavesBackgroundProps = {
   className?: string;
+  scrollProgress?: number;
 };
 
 type VantaEffect = {
@@ -34,8 +35,12 @@ function blendHexColor(from: number, to: number, t: number) {
   return (rr << 16) | (rg << 8) | rb;
 }
 
-export function VantaWavesBackground({ className }: VantaWavesBackgroundProps) {
+export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWavesBackgroundProps) {
+  const normalizedScrollProgress = Math.max(0, Math.min(1, scrollProgress));
+
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const effectRef = useRef<VantaEffect | undefined>(undefined);
+  const lastWaveSpeedRef = useRef(0.7);
 
   useEffect(() => {
     let effect: VantaEffect | undefined;
@@ -67,9 +72,11 @@ export function VantaWavesBackground({ className }: VantaWavesBackgroundProps) {
         backgroundColor: 0xf0f2ef,
         shininess: 24,
         waveHeight: 19,
-        waveSpeed: 0.76,
+        waveSpeed: 0.7,
         zoom: 0.95,
       });
+
+      effectRef.current = effect;
     };
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -106,9 +113,24 @@ export function VantaWavesBackground({ className }: VantaWavesBackgroundProps) {
       cancelled = true;
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerleave", handlePointerLeave);
+      effectRef.current = undefined;
       effect?.destroy?.();
     };
   }, []);
+
+  useEffect(() => {
+    if (!effectRef.current?.setOptions) {
+      return;
+    }
+
+    const nextWaveSpeed = 0.7 + 1.8 * normalizedScrollProgress;
+    if (Math.abs(nextWaveSpeed - lastWaveSpeedRef.current) < 0.02) {
+      return;
+    }
+
+    lastWaveSpeedRef.current = nextWaveSpeed;
+    effectRef.current.setOptions({ waveSpeed: nextWaveSpeed });
+  }, [normalizedScrollProgress]);
 
   return <div ref={elementRef} className={className} aria-hidden="true" />;
 }

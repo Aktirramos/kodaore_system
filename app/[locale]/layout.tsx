@@ -19,7 +19,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <div className="kodaore-shell flex min-h-screen flex-col">
-      <header className="fade-rise sticky top-0 z-40 border-b border-black/10 bg-surface/70 backdrop-blur-md">
+      <header className="kodaore-site-header sticky top-0 z-40 border-b border-black/10 bg-surface/70 backdrop-blur-md">
         <div className="mx-auto w-full max-w-6xl px-5 py-3 md:px-8">
           <div className="rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_18px_45px_-34px_rgba(0,0,0,0.6)]">
             <SiteHeaderNav
