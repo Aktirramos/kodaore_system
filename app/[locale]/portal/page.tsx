@@ -16,8 +16,8 @@ export default async function PortalPage({ params }: PortalPageProps) {
 
   return (
     <div className="space-y-6">
-      <section className="fade-rise rounded-3xl border border-black/10 bg-surface p-6 md:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">{copy.ctas.access}</p>
+      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">{copy.ctas.access}</p>
         <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Familia eta ikasleen ataria
         </h1>
@@ -38,7 +38,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
 
 function InfoCard({ title, description }: { title: string; description: string }) {
   return (
-    <article className="rounded-2xl border border-black/10 bg-surface p-5">
+    <article className="rounded-2xl border border-white/10 bg-surface p-5">
       <h2 className="font-heading text-lg font-semibold text-foreground">{title}</h2>
       <p className="mt-2 text-sm text-ink-muted">{description}</p>
     </article>

@@ -17,8 +17,8 @@ export default async function AdminPage({ params }: AdminPageProps) {
 
   return (
     <div className="space-y-6">
-      <section className="fade-rise rounded-3xl border border-black/10 bg-surface p-6 md:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Admin Dashboard</p>
+      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">Admin Dashboard</p>
         <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Kodaore Backoffice
         </h1>
@@ -35,7 +35,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
         <StatCard label="Recibos pendientes" value={summary.totals.pendingReceipts} tone="warning" />
       </section>
 
-      <section className="fade-rise overflow-hidden rounded-2xl border border-black/10 bg-surface">
+      <section className="fade-rise overflow-hidden rounded-2xl border border-white/10 bg-surface">
         <table className="w-full border-collapse text-left text-sm">
           <thead className="bg-surface-strong/70 text-foreground">
             <tr>
@@ -55,7 +55,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
               </tr>
             ) : (
               summary.perSite.map((site) => (
-                <tr key={site.id} className="border-t border-black/10">
+                <tr key={site.id} className="border-t border-white/10">
                   <td className="px-4 py-3 font-medium text-foreground">{site.name}</td>
                   <td className="px-4 py-3 text-ink-muted">{site.activeStudents}</td>
                   <td className="px-4 py-3 text-ink-muted">{site.activeGroups}</td>
@@ -80,10 +80,10 @@ function StatCard({
   value: number;
   tone?: "normal" | "warning";
 }) {
-  const toneClass = tone === "warning" ? "bg-[#f8eadf]" : "bg-surface";
+  const toneClass = tone === "warning" ? "bg-[#2a1b21]" : "bg-surface";
 
   return (
-    <article className={`rounded-2xl border border-black/10 p-5 ${toneClass}`}>
+    <article className={`rounded-2xl border border-white/10 p-5 ${toneClass}`}>
       <p className="text-sm text-ink-muted">{label}</p>
       <p className="mt-1 font-heading text-3xl font-semibold text-foreground">{value}</p>
     </article>

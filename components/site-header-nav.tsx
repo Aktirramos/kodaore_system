@@ -81,7 +81,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
   return (
     <div
       className={`flex flex-wrap items-center justify-between gap-3 rounded-xl transition-all duration-500 ${
-        frosted ? "bg-white/30 backdrop-blur-xl border border-white/10" : "bg-transparent border border-transparent"
+        frosted ? "bg-surface-strong/55 backdrop-blur-xl border border-white/15" : "bg-transparent border border-transparent"
       }`}
     >
       <Link
@@ -98,7 +98,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
             compact ? "text-lg md:text-xl" : "text-xl md:text-2xl"
           }`}
         >
-          <span className="text-brand">Ko</span>
+          <span className="text-brand-emphasis">Ko</span>
           <span>dao</span>
           <span className="text-brand-warm">re</span>
         </span>
@@ -119,7 +119,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         </nav>
 
         <div
-          className={`h-5 w-px bg-black/15 transition-all duration-700 ${revealClass}`}
+          className={`h-5 w-px bg-white/20 transition-all duration-700 ${revealClass}`}
           style={{ transitionDelay: show ? "560ms" : "0ms" }}
           aria-hidden="true"
         />
@@ -130,14 +130,14 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         >
           <Link
             href={localizePath(pathname, "eu")}
-            className={locale === "eu" ? "text-brand" : "text-ink-muted hover:text-foreground"}
+            className={locale === "eu" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground"}
           >
             EU
           </Link>
-          <span className="text-black/30">/</span>
+          <span className="text-ink-muted">/</span>
           <Link
             href={localizePath(pathname, "es")}
-            className={locale === "es" ? "text-brand" : "text-ink-muted hover:text-foreground"}
+            className={locale === "es" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground"}
           >
             ES
           </Link>

@@ -27,7 +27,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
     <div className="space-y-6 md:space-y-8">
       <HomeHeroScrollSync tagline={copy.tagline} heroTitle={copy.home.heroTitle} />
 
-      <section className="fade-rise fade-rise-delay-200 rounded-3xl border border-black/10 bg-surface p-5 md:p-7">
+      <section className="fade-rise fade-rise-delay-200 rounded-3xl border border-white/10 bg-surface p-5 md:p-7">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
@@ -37,7 +37,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
           </div>
           <Link
             href={`/${locale}/sedes`}
-            className="inline-flex w-fit rounded-full border border-brand/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand transition hover:border-brand/55"
+            className="inline-flex w-fit rounded-full border border-brand/35 bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis transition hover:border-brand/60"
           >
             {copy.ctas.discover}
           </Link>
@@ -48,13 +48,13 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <Link
               key={site.slug}
               href={`/${locale}/sedes/${site.slug}`}
-              className="group relative overflow-hidden rounded-2xl border border-black/10 bg-white p-5 transition duration-500 hover:-translate-y-1 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:p-px before:opacity-0 before:transition before:duration-500 before:content-[''] before:bg-[linear-gradient(130deg,rgba(227,30,36,0.75),rgba(11,158,74,0.75))] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] group-hover:before:opacity-100"
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.28)] transition duration-500 hover:-translate-y-1 hover:border-brand/35 hover:shadow-[0_22px_44px_rgba(15,23,42,0.38)]"
             >
-              <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition duration-500 group-hover:opacity-100">
-                  <div className="absolute inset-0 bg-gradient-to-br from-brand/22 via-transparent to-brand-warm/22" />
+              <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand/18 via-transparent to-brand-warm/18" />
               </div>
 
-              <div className="relative h-44 overflow-hidden rounded-xl border border-black/10">
+              <div className="relative h-44 overflow-hidden rounded-xl border border-white/10">
                 <SmartImage
                   src={sitePreviewMedia[site.slug]?.src ?? "/media/hero-1.jpg"}
                   fallbackSrc={sitePreviewMedia[site.slug]?.fallbackSrc ?? "/media/photo-fallback-1.svg"}
@@ -68,7 +68,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
               </div>
 
               <div className="relative z-10 mt-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Kodaore</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-emphasis">Kodaore</p>
                 <h3 className="mt-1 font-heading text-2xl font-semibold text-foreground">{site.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-muted">{site.description}</p>
               </div>
@@ -77,10 +77,10 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
       </section>
 
-      <section className="fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-black/15 bg-[#101214] p-4 md:p-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(227,30,36,0.24),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(11,158,74,0.28),transparent_45%)]" />
+      <section className="fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-4 md:p-6">
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(17,24,39,0.35),rgba(17,24,39,0.12)_45%,rgba(17,24,39,0.35))]" />
         <div className="relative grid items-end gap-6 md:grid-cols-[1.2fr_0.9fr]">
-          <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-white/20 md:min-h-[280px]">
+          <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[280px]">
             <SmartImage
               src="/media/hero-3.jpg"
               fallbackSrc="/media/photo-fallback-3.svg"
@@ -92,12 +92,13 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-black/20" />
           </article>
 
-          <div className="space-y-3 rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
-            <h2 className="font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">
+          <div className="group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-white/20 bg-black/25 p-5 backdrop-blur-sm transition-colors duration-500 hover:border-brand/35">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/12 via-transparent to-brand-warm/12 opacity-0 transition-opacity duration-500 group-hover/final-box:opacity-100" />
+            <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">
               {copy.home.photoTitle}
             </h2>
-            <p className="fade-reveal-left text-sm leading-relaxed text-white/85 md:text-base">{copy.home.photoDescription}</p>
-            <p className="fade-reveal-left rounded-xl bg-black/25 px-3 py-2 text-xs tracking-[0.05em] text-white/90">{copy.home.photoHint}</p>
+            <p className="fade-reveal-left relative text-sm leading-relaxed text-white/85 transition-colors duration-500 group-hover/final-box:text-white md:text-base">{copy.home.photoDescription}</p>
+            <p className="fade-reveal-left relative rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs tracking-[0.05em] text-white/90 transition-colors duration-500 group-hover/final-box:border-brand/35 group-hover/final-box:bg-black/35">{copy.home.photoHint}</p>
           </div>
         </div>
       </section>

@@ -14,8 +14,8 @@ export default async function AccessPage({ params }: AccessPageProps) {
   }
 
   return (
-    <div className="fade-rise mx-auto max-w-lg rounded-3xl border border-black/10 bg-surface p-6 md:p-8">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Acceso</p>
+    <div className="fade-rise mx-auto max-w-lg rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">Acceso</p>
       <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground">Login V1</h1>
       <p className="mt-3 text-sm text-ink-muted">
         Pantalla reservada para integrar autenticacion con familias, profesorado y administracion.
@@ -29,7 +29,7 @@ export default async function AccessPage({ params }: AccessPageProps) {
         </Link>
         <Link
           href={`/${locale}/portal`}
-          className="rounded-full border border-brand/35 px-5 py-2.5 text-sm font-semibold text-brand"
+          className="rounded-full border border-brand/35 px-5 py-2.5 text-sm font-semibold text-brand-emphasis"
         >
           Ir a portal
         </Link>

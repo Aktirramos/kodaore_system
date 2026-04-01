@@ -12,8 +12,8 @@ type VantaEffect = {
   setOptions?: (options: Record<string, number>) => void;
 };
 
-const BASE_COLOR = 0xcf2c31;
-const BASE_COLOR_2 = 0x149955;
+const BASE_COLOR = 0xbe123c;
+const BASE_COLOR_2 = 0x059669;
 
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
@@ -70,7 +70,7 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
         scaleMobile: 1,
         color: BASE_COLOR,
         color2: BASE_COLOR_2,
-        backgroundColor: 0xf0f2ef,
+        backgroundColor: 0x08090a,
         shininess: 24,
         waveHeight: 19,
         waveSpeed: 0.7,
@@ -95,8 +95,8 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
       const nx = clamp01((event.clientX - rect.left) / rect.width);
       const ny = clamp01((event.clientY - rect.top) / rect.height);
 
-      const color = blendHexColor(0xd94348, 0xbd2026, nx * 0.7 + ny * 0.3);
-      const color2 = blendHexColor(0x22ae68, 0x0f8a4b, nx * 0.75 + (1 - ny) * 0.25);
+      const color = blendHexColor(0xd61f69, 0x9f1239, nx * 0.7 + ny * 0.3);
+      const color2 = blendHexColor(0x0ea877, 0x047857, nx * 0.75 + (1 - ny) * 0.25);
 
       effect.setOptions({ color, color2 });
     };

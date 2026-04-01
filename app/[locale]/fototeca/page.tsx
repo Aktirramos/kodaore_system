@@ -45,15 +45,15 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <section className="fade-rise rounded-3xl border border-black/10 bg-surface p-5 md:p-7">
+      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7">
         <div className="flex flex-col gap-3">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface-strong px-3 py-1.5">
               <span className="relative h-7 w-7 overflow-hidden rounded-full">
                 <Image src="/logo-kodaore.png" alt="Kodaore logo" fill sizes="28px" className="object-contain p-1" />
               </span>
               <span className="font-heading text-sm font-semibold tracking-[0.08em]">
-                <span className="text-brand">Ko</span>
+                <span className="text-brand-emphasis">Ko</span>
                 <span className="text-foreground">dao</span>
                 <span className="text-brand-warm">re</span>
               </span>
@@ -76,7 +76,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
           return (
             <article
               key={`${item.image}-${index}`}
-              className={`group relative overflow-hidden rounded-2xl border border-black/10 bg-black/10 ${
+              className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-black/10 ${
                 large ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
               } ${wide ? "md:col-span-2" : "md:col-span-1"}`}
             >
@@ -94,11 +94,12 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
         })}
       </section>
 
-      <section className="fade-rise rounded-3xl border border-black/10 bg-[#151719] p-5 md:p-7">
+      <section className="fade-rise rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7">
         <div className="flex flex-col gap-3">
-          <div>
-            <h2 className="font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">{copy.home.photoTitle}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80">{copy.home.photoHint}</p>
+          <div className="group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4 transition-colors duration-500 hover:border-brand/35">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/final-box:opacity-100" />
+            <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">{copy.home.photoTitle}</h2>
+            <p className="relative mt-2 max-w-2xl text-sm leading-relaxed text-white/80 transition-colors duration-500 group-hover/final-box:text-white">{copy.home.photoHint}</p>
           </div>
         </div>
       </section>
