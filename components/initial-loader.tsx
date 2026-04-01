@@ -100,6 +100,17 @@ export function InitialLoader() {
       return;
     }
 
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+    const previousOverscroll = html.style.overscrollBehaviorY;
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    html.style.overscrollBehaviorY = "none";
+    window.scrollTo(0, 0);
+
     startScrollYRef.current = window.scrollY;
 
     const handleWheel = (event: WheelEvent) => {
@@ -119,6 +130,9 @@ export function InitialLoader() {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
+      html.style.overscrollBehaviorY = previousOverscroll;
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("scroll", handleScroll);
       if (rafRef.current !== null) {
@@ -127,6 +141,12 @@ export function InitialLoader() {
       }
     };
   }, [phase, queueDepth]);
+
+  useEffect(() => {
+    if (phase === "hidden") {
+      window.scrollTo(0, 0);
+    }
+  }, [phase]);
 
   if (phase === "hidden") {
     return null;

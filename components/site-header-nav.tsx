@@ -11,6 +11,8 @@ type SiteHeaderNavProps = {
   discoverLabel: string;
   galleryLabel: string;
   accessLabel: string;
+  show: boolean;
+  compact?: boolean;
 };
 
 const locales: LocaleCode[] = ["eu", "es"];
@@ -28,7 +30,7 @@ function localizePath(pathname: string, targetLocale: LocaleCode) {
   return result === "" ? `/${targetLocale}` : result;
 }
 
-export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, accessLabel }: SiteHeaderNavProps) {
+export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, accessLabel, show, compact = false }: SiteHeaderNavProps) {
   const pathname = usePathname() ?? `/${locale}`;
 
   const homeHref = `/${locale}`;
@@ -42,17 +44,55 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
   const isAccess = pathname.startsWith(accessHref);
 
   const navClass = (active: boolean) =>
-    `border-b-2 px-1 py-2 text-sm font-medium transition ${
+    `border-b-2 px-1 py-2 text-sm font-medium transition-colors ${
       active ? "border-brand text-foreground" : "border-transparent text-ink-muted hover:text-foreground"
     }`;
 
+  const revealClass = show ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0";
+
+  const navItems = [
+    {
+      href: homeHref,
+      label: locale === "eu" ? "Hasiera" : "Inicio",
+      active: isHome,
+      delay: 110,
+    },
+    {
+      href: sitesHref,
+      label: discoverLabel,
+      active: isSites,
+      delay: 190,
+    },
+    {
+      href: galleryHref,
+      label: galleryLabel,
+      active: isGallery,
+      delay: 270,
+    },
+    {
+      href: accessHref,
+      label: accessLabel,
+      active: isAccess,
+      delay: 350,
+    },
+  ];
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <Link href={homeHref} className="group inline-flex items-center gap-3" aria-label={brand}>
-        <span className="relative h-11 w-11 overflow-hidden rounded-full">
+      <Link
+        href={homeHref}
+        className={`group inline-flex items-center gap-3 transition-all duration-500 ${revealClass}`}
+        style={{ transitionDelay: show ? "0ms" : "0ms" }}
+        aria-label={brand}
+      >
+        <span className={`relative overflow-hidden rounded-full transition-all duration-300 ${compact ? "h-9 w-9" : "h-11 w-11"}`}>
           <Image src="/logo-kodaore.png" alt="Kodaore logo" fill priority sizes="44px" className="object-contain" />
         </span>
-        <span className="font-heading text-xl font-semibold tracking-[0.07em] text-foreground transition group-hover:opacity-85 md:text-2xl">
+        <span
+          className={`font-heading font-semibold tracking-[0.07em] text-foreground transition-all duration-300 group-hover:opacity-85 ${
+            compact ? "text-lg md:text-xl" : "text-xl md:text-2xl"
+          }`}
+        >
           <span className="text-brand">Ko</span>
           <span>dao</span>
           <span className="text-brand-warm">re</span>
@@ -61,23 +101,28 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <nav className="flex flex-wrap items-center gap-3 md:gap-4">
-          <Link href={homeHref} className={navClass(isHome)}>
-            {locale === "eu" ? "Hasiera" : "Inicio"}
-          </Link>
-          <Link href={sitesHref} className={navClass(isSites)}>
-            {discoverLabel}
-          </Link>
-          <Link href={galleryHref} className={navClass(isGallery)}>
-            {galleryLabel}
-          </Link>
-          <Link href={accessHref} className={navClass(isAccess)}>
-            {accessLabel}
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`${navClass(item.active)} transform-gpu transition-all duration-500 ${revealClass}`}
+              style={{ transitionDelay: show ? `${item.delay}ms` : "0ms" }}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="h-5 w-px bg-black/15" aria-hidden="true" />
+        <div
+          className={`h-5 w-px bg-black/15 transition-all duration-500 ${revealClass}`}
+          style={{ transitionDelay: show ? "430ms" : "0ms" }}
+          aria-hidden="true"
+        />
 
-        <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em]">
+        <div
+          className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-500 ${revealClass}`}
+          style={{ transitionDelay: show ? "500ms" : "0ms" }}
+        >
           <Link
             href={localizePath(pathname, "eu")}
             className={locale === "eu" ? "text-brand" : "text-ink-muted hover:text-foreground"}
