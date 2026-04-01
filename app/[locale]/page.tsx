@@ -14,6 +14,11 @@ const sitePreviewMedia: Record<string, { src: string; fallbackSrc: string }> = {
   zumaia: { src: "/media/judo-6.jpg", fallbackSrc: "/media/photo-fallback-3.svg" },
 };
 
+const sitesSectionClass = "fade-rise fade-rise-delay-200 rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
+const siteCardClass = "group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.28)] transition duration-500 hover:-translate-y-1 hover:border-brand/35 hover:shadow-[0_22px_44px_rgba(15,23,42,0.38)]";
+const finalSectionClass = "fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-4 md:p-6";
+const finalTextBoxClass = "group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-white/20 bg-black/25 p-5 backdrop-blur-sm transition-colors duration-500 hover:border-brand/35";
+
 export default async function LocaleHome({ params }: LocaleHomeProps) {
   const { locale } = await params;
 
@@ -27,7 +32,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
     <div className="space-y-6 md:space-y-8">
       <HomeHeroScrollSync tagline={copy.tagline} heroTitle={copy.home.heroTitle} />
 
-      <section className="fade-rise fade-rise-delay-200 rounded-3xl border border-white/10 bg-surface p-5 md:p-7">
+      <section className={sitesSectionClass}>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
@@ -48,7 +53,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <Link
               key={site.slug}
               href={`/${locale}/sedes/${site.slug}`}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.28)] transition duration-500 hover:-translate-y-1 hover:border-brand/35 hover:shadow-[0_22px_44px_rgba(15,23,42,0.38)]"
+              className={siteCardClass}
             >
               <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand/18 via-transparent to-brand-warm/18" />
@@ -77,7 +82,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
       </section>
 
-      <section className="fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-4 md:p-6">
+      <section className={finalSectionClass}>
         <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(17,24,39,0.35),rgba(17,24,39,0.12)_45%,rgba(17,24,39,0.35))]" />
         <div className="relative grid items-end gap-6 md:grid-cols-[1.2fr_0.9fr]">
           <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[280px]">
@@ -92,7 +97,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-black/20" />
           </article>
 
-          <div className="group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-white/20 bg-black/25 p-5 backdrop-blur-sm transition-colors duration-500 hover:border-brand/35">
+          <div className={finalTextBoxClass}>
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/12 via-transparent to-brand-warm/12 opacity-0 transition-opacity duration-500 group-hover/final-box:opacity-100" />
             <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">
               {copy.home.photoTitle}

@@ -34,6 +34,10 @@ const galleryBlocks = [
   },
 ];
 
+const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
+const finalSectionClass = "fade-rise rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7";
+const finalTextBoxClass = "group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4 transition-colors duration-500 hover:border-brand/35";
+
 export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
   const { locale } = await params;
 
@@ -45,7 +49,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7">
+      <section className={panelSectionClass}>
         <div className="flex flex-col gap-3">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface-strong px-3 py-1.5">
@@ -94,9 +98,9 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
         })}
       </section>
 
-      <section className="fade-rise rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7">
+      <section className={finalSectionClass}>
         <div className="flex flex-col gap-3">
-          <div className="group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4 transition-colors duration-500 hover:border-brand/35">
+          <div className={finalTextBoxClass}>
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/final-box:opacity-100" />
             <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">{copy.home.photoTitle}</h2>
             <p className="relative mt-2 max-w-2xl text-sm leading-relaxed text-white/80 transition-colors duration-500 group-hover/final-box:text-white">{copy.home.photoHint}</p>

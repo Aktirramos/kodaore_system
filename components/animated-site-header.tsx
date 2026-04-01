@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { SiteHeaderNav } from "@/components/site-header-nav";
 import type { LocaleCode } from "@/lib/i18n";
@@ -61,14 +62,14 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
 
   return (
     <header
-      className={`kodaore-site-header sticky top-0 z-40 border-b transition-all duration-700 ${
-        deepScrolled ? "border-white/10 bg-surface/60 backdrop-blur-xl" : "border-transparent bg-surface/70 backdrop-blur-sm"
-      } ${
-        show ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0 pointer-events-none"
-      }`}
+      className={clsx(
+        "kodaore-site-header sticky top-0 z-40 border-b transition-all duration-700",
+        deepScrolled ? "border-white/10 bg-surface/60 backdrop-blur-xl" : "border-transparent bg-surface/70 backdrop-blur-sm",
+        show ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-5 opacity-0",
+      )}
     >
-      <div className={`mx-auto w-full max-w-6xl px-5 transition-all duration-[450ms] md:px-8 ${compact ? "py-1.5" : "py-3"}`}>
-        <div className={`transition-all duration-[450ms] ${compact ? "p-2" : "p-3"}`}>
+      <div className={clsx("mx-auto w-full max-w-6xl px-5 transition-all duration-[450ms] md:px-8", compact ? "py-1.5" : "py-3")}>
+        <div className={clsx("transition-all duration-[450ms]", compact ? "p-2" : "p-3")}>
           <SiteHeaderNav
             locale={locale}
             brand={brand}

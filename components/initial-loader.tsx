@@ -10,6 +10,22 @@ const MAX_DEPTH = 1500;
 const LOGO_Y_OFFSET = 10;
 const DESKTOP_LOGO_SIZE = 128;
 const MOBILE_LOGO_SIZE = 112;
+const DEPTH_FROM_WHEEL_FACTOR = 0.9;
+const Y_PROGRESS_TRAVEL = 24;
+const Z_PROGRESS_TRAVEL = 640;
+
+type LoaderPhase = "visible" | "exit" | "hidden";
+
+type LoaderMotion = {
+  progress: number;
+  scale: number;
+  y: number;
+  z: number;
+};
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 function getResponsiveStartScale() {
   if (typeof window === "undefined") {
@@ -42,9 +58,9 @@ function getResponsiveLogoSize() {
 export function InitialLoader() {
   const [startScale] = useState(getResponsiveStartScale);
   const [logoBaseSize] = useState(getResponsiveLogoSize);
-  const [phase, setPhase] = useState<"visible" | "exit" | "hidden">("visible");
+  const [phase, setPhase] = useState<LoaderPhase>("visible");
   const initialCompensation = ((startScale - END_SCALE) * logoBaseSize) / 2;
-  const [motion, setMotion] = useState({
+  const [motion, setMotion] = useState<LoaderMotion>({
     progress: 0,
     scale: startScale,
     y: LOGO_Y_OFFSET - initialCompensation,
@@ -62,8 +78,8 @@ export function InitialLoader() {
     const progress = safeDepth / MAX_DEPTH;
     const scale = startScale - (progress * (startScale - END_SCALE));
     const compensationY = ((scale - END_SCALE) * logoBaseSize) / 2;
-    const y = LOGO_Y_OFFSET - compensationY + progress * 24;
-    const z = -(progress * 640);
+    const y = LOGO_Y_OFFSET - compensationY + progress * Y_PROGRESS_TRAVEL;
+    const z = -(progress * Z_PROGRESS_TRAVEL);
 
     setMotion({ progress, scale, y, z });
 
@@ -91,8 +107,7 @@ export function InitialLoader() {
       return;
     }
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const autoExitMs = prefersReducedMotion ? 900 : 2800;
+    const autoExitMs = prefersReducedMotion() ? 900 : 2800;
 
     const startExit = window.setTimeout(() => {
       if (!exitedRef.current) {
@@ -123,8 +138,7 @@ export function InitialLoader() {
       return;
     }
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const exitMs = prefersReducedMotion ? 160 : 560;
+    const exitMs = prefersReducedMotion() ? 160 : 560;
     const hide = window.setTimeout(() => setPhase("hidden"), exitMs);
 
     return () => {
@@ -151,7 +165,7 @@ export function InitialLoader() {
     startScrollYRef.current = window.scrollY;
 
     const handleWheel = (event: WheelEvent) => {
-      depthRef.current = Math.max(0, Math.min(MAX_DEPTH, depthRef.current + event.deltaY * 0.9));
+      depthRef.current = Math.max(0, Math.min(MAX_DEPTH, depthRef.current + event.deltaY * DEPTH_FROM_WHEEL_FACTOR));
       queueDepth(depthRef.current);
     };
 
@@ -200,6 +214,7 @@ export function InitialLoader() {
       className={`kodaore-loader ${phase === "exit" ? "is-exit" : ""}`}
       style={containerStyle}
       role="status"
+      aria-live="polite"
       aria-label="Kodaore loading screen"
     >
       <div className="kodaore-loader-backdrop" aria-hidden="true" />

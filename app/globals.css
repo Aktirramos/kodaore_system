@@ -290,10 +290,6 @@ body::after {
   opacity: 1;
 }
 
-.kodaore-backtop {
-  animation: backtop-bob 2.3s ease-in-out infinite;
-}
-
 @keyframes fade-rise {
   from {
     opacity: 0;
@@ -322,16 +318,6 @@ body::after {
   }
   to {
     background-position: 240% 50%;
-  }
-}
-
-@keyframes backtop-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
   }
 }
 
@@ -365,7 +351,6 @@ body::after {
   .kodaore-footer-top-line,
   .kodaore-social-icon,
   .kodaore-social-icon::after,
-  .kodaore-backtop,
   .fade-rise,
   .fade-reveal-left {
     animation: none !important;

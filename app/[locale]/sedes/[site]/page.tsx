@@ -37,6 +37,10 @@ const siteVisuals: Record<string, { hero: string; fallback: string; gallery: Arr
   },
 };
 
+const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
+const textHoverBoxClass = "group/text relative overflow-hidden rounded-xl border border-transparent p-3 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20";
+const coachTextHoverBoxClass = "group/text relative overflow-hidden space-y-2 rounded-xl border border-transparent p-4 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20";
+
 export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
   const { locale, site } = await params;
 
@@ -55,7 +59,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7">
+      <section className={panelSectionClass}>
         <div className="flex flex-wrap items-center gap-2">
           {copy.home.sites.map((item) => {
             const active = item.slug === site;
@@ -77,7 +81,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
         </div>
 
         <div className="mt-5 rounded-2xl border border-white/10 bg-surface-strong p-4 md:p-5">
-          <div className="group/text relative overflow-hidden rounded-xl border border-transparent p-3 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20">
+          <div className={textHoverBoxClass}>
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
             <p className="relative text-xs font-semibold uppercase tracking-[0.15em] text-brand-emphasis">Kodaore</p>
             <h1 className="relative mt-1 font-heading text-3xl font-semibold tracking-tight text-foreground transition-colors duration-500 group-hover/text:text-white">{selectedSite.name}</h1>
@@ -101,7 +105,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
         </div>
       </section>
 
-      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7">
+      <section className={panelSectionClass}>
         <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">{copy.home.coachesTitle}</h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-3">
@@ -123,7 +127,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/12 to-transparent" />
                 </div>
 
-                <div className="group/text relative overflow-hidden space-y-2 rounded-xl border border-transparent p-4 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20">
+                <div className={coachTextHoverBoxClass}>
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
                   <h3 className="relative font-heading text-xl font-semibold text-foreground transition-colors duration-500 group-hover/text:text-white">{coach.name}</h3>
                   <p className="relative text-sm text-brand-emphasis">{coach.profile}</p>
