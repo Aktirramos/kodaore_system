@@ -180,15 +180,18 @@ async function createUsersAndAssignments() {
 
   const users = {
     developer: await prisma.user.upsert({
-      where: { email: "developer@kodaore.eus" },
+      where: { username: "developer" },
       update: {
+        username: "developer",
+        email: null,
         firstName: "Kodaore",
         lastName: "Developer",
         status: "ACTIVE",
         preferredLocale: "eu",
       },
       create: {
-        email: "developer@kodaore.eus",
+        username: "developer",
+        email: null,
         passwordHash: hash,
         firstName: "Kodaore",
         lastName: "Developer",
@@ -196,14 +199,17 @@ async function createUsersAndAssignments() {
       },
     }),
     adminGlobal: await prisma.user.upsert({
-      where: { email: "admin@kodaore.eus" },
+      where: { username: "admin.global" },
       update: {
+        username: "admin.global",
+        email: null,
         firstName: "Admin",
         lastName: "Global",
         preferredLocale: "eu",
       },
       create: {
-        email: "admin@kodaore.eus",
+        username: "admin.global",
+        email: null,
         passwordHash: hash,
         firstName: "Admin",
         lastName: "Global",
@@ -213,12 +219,14 @@ async function createUsersAndAssignments() {
     tutor: await prisma.user.upsert({
       where: { email: "familia@kodaore.eus" },
       update: {
+        username: null,
         firstName: "Ane",
         lastName: "Garmendia",
         phone: "600000001",
         preferredLocale: "eu",
       },
       create: {
+        username: null,
         email: "familia@kodaore.eus",
         passwordHash: hash,
         firstName: "Ane",
@@ -267,14 +275,17 @@ async function createUsersAndAssignments() {
   for (const site of sites) {
     const emailSlug = site.code;
     const adminSede = await prisma.user.upsert({
-      where: { email: `admin.${emailSlug}@kodaore.eus` },
+      where: { username: `admin.${emailSlug}` },
       update: {
+        username: `admin.${emailSlug}`,
+        email: null,
         firstName: "Admin",
         lastName: site.name,
         preferredLocale: "eu",
       },
       create: {
-        email: `admin.${emailSlug}@kodaore.eus`,
+        username: `admin.${emailSlug}`,
+        email: null,
         passwordHash: hash,
         firstName: "Admin",
         lastName: site.name,
@@ -283,14 +294,17 @@ async function createUsersAndAssignments() {
     });
 
     const profesor = await prisma.user.upsert({
-      where: { email: `profe.${emailSlug}@kodaore.eus` },
+      where: { username: `profe.${emailSlug}` },
       update: {
+        username: `profe.${emailSlug}`,
+        email: null,
         firstName: "Irakasle",
         lastName: site.name,
         preferredLocale: "eu",
       },
       create: {
-        email: `profe.${emailSlug}@kodaore.eus`,
+        username: `profe.${emailSlug}`,
+        email: null,
         passwordHash: hash,
         firstName: "Irakasle",
         lastName: site.name,
@@ -299,14 +313,17 @@ async function createUsersAndAssignments() {
     });
 
     const operador = await prisma.user.upsert({
-      where: { email: `operador.${emailSlug}@kodaore.eus` },
+      where: { username: `operador.${emailSlug}` },
       update: {
+        username: `operador.${emailSlug}`,
+        email: null,
         firstName: "Operador",
         lastName: site.name,
         preferredLocale: "eu",
       },
       create: {
-        email: `operador.${emailSlug}@kodaore.eus`,
+        username: `operador.${emailSlug}`,
+        email: null,
         passwordHash: hash,
         firstName: "Operador",
         lastName: site.name,
@@ -678,8 +695,9 @@ async function main() {
 
   console.log("Kodaore seed completed");
   console.log(`Default seed password: ${defaultPassword}`);
-  console.log("Developer user: developer@kodaore.eus");
-  console.log("Global admin user: admin@kodaore.eus");
+  console.log("Developer user (username): developer");
+  console.log("Global admin user (username): admin.global");
+  console.log("Family user (email): familia@kodaore.eus");
 }
 
 main()

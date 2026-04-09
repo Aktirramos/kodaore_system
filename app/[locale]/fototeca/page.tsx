@@ -36,7 +36,7 @@ const galleryBlocks = [
 
 const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const finalSectionClass = "fade-rise rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7";
-const finalTextBoxClass = "group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4 transition-colors duration-500 hover:border-brand/35";
+const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4";
 
 export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
   const { locale } = await params;
@@ -52,7 +52,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
       <section className={panelSectionClass}>
         <div className="flex flex-col gap-3">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface-strong px-3 py-1.5">
+            <div className="k-hover-soft inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface-strong px-3 py-1.5">
               <span className="relative h-7 w-7 overflow-hidden rounded-full">
                 <Image src="/logo-kodaore.png" alt="Kodaore logo" fill sizes="28px" className="object-contain p-1" />
               </span>
@@ -80,7 +80,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
           return (
             <article
               key={`${item.image}-${index}`}
-              className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-black/10 ${
+              className={`k-hover-lift group relative overflow-hidden rounded-2xl border border-white/10 bg-black/10 ${
                 large ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
               } ${wide ? "md:col-span-2" : "md:col-span-1"}`}
             >

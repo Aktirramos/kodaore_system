@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
 import { getDashboardSummary } from "@/lib/dashboard";
 import { isLocale } from "@/lib/i18n";
 
@@ -13,6 +14,12 @@ export default async function AdminPage({ params }: AdminPageProps) {
     notFound();
   }
 
+  await requireAuth({
+    locale,
+    allowedRoles: ADMIN_ROLE_CODES,
+    forbiddenRedirectTo: `/${locale}/portal`,
+  });
+
   const summary = await getDashboardSummary();
 
   return (
@@ -23,8 +30,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
           Kodaore Backoffice
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-muted md:text-base">
-          Vista inicial para controlar alumnos, grupos y cobros de las tres sedes. El siguiente paso sera conectar
-          autenticacion y permisos reales en UI.
+          Vista inicial para controlar alumnos, grupos y cobros de las tres sedes con acceso protegido por rol.
         </p>
       </section>
 
@@ -55,7 +61,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
               </tr>
             ) : (
               summary.perSite.map((site) => (
-                <tr key={site.id} className="border-t border-white/10">
+                <tr key={site.id} className="k-row-hover border-t border-white/10">
                   <td className="px-4 py-3 font-medium text-foreground">{site.name}</td>
                   <td className="px-4 py-3 text-ink-muted">{site.activeStudents}</td>
                   <td className="px-4 py-3 text-ink-muted">{site.activeGroups}</td>
@@ -83,7 +89,7 @@ function StatCard({
   const toneClass = tone === "warning" ? "bg-[#2a1b21]" : "bg-surface";
 
   return (
-    <article className={`rounded-2xl border border-white/10 p-5 ${toneClass}`}>
+    <article className={`k-hover-lift rounded-2xl border border-white/10 p-5 ${toneClass}`}>
       <p className="text-sm text-ink-muted">{label}</p>
       <p className="mt-1 font-heading text-3xl font-semibold text-foreground">{value}</p>
     </article>

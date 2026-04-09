@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AnimatedSiteHeader } from "@/components/animated-site-header";
 import { PathnamePageTransitionShell } from "@/components/page-transition-shell";
 import { SiteFooter } from "@/components/site-footer";
+import { getAuthSession } from "@/lib/auth";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
 
 type LocaleLayoutProps = {
@@ -18,6 +19,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   const copy = getCopy(locale as LocaleCode);
+  const session = await getAuthSession();
 
   return (
     <div className="kodaore-shell flex min-h-screen flex-col">
@@ -27,6 +29,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         discoverLabel={copy.ctas.discover}
         galleryLabel={copy.ctas.gallery}
         accessLabel={copy.ctas.access}
+        isAuthenticated={Boolean(session?.user?.id)}
       />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 md:px-8 md:py-10">

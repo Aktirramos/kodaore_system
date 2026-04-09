@@ -11,9 +11,10 @@ type AnimatedSiteHeaderProps = {
   discoverLabel: string;
   galleryLabel: string;
   accessLabel: string;
+  isAuthenticated: boolean;
 };
 
-export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel, accessLabel }: AnimatedSiteHeaderProps) {
+export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel, accessLabel, isAuthenticated }: AnimatedSiteHeaderProps) {
   const [show, setShow] = useState(false);
   const [compactByScroll, setCompactByScroll] = useState(false);
   const [deepScrolled, setDeepScrolled] = useState(false);
@@ -76,9 +77,9 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
             discoverLabel={discoverLabel}
             galleryLabel={galleryLabel}
             accessLabel={accessLabel}
+            isAuthenticated={isAuthenticated}
             show={show}
             compact={compact}
-            frosted={deepScrolled}
           />
         </div>
       </div>

@@ -4,6 +4,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AuthSignOutButton } from "@/components/auth-signout-button";
 import type { LocaleCode } from "@/lib/i18n";
 
 type SiteHeaderNavProps = {
@@ -12,9 +13,9 @@ type SiteHeaderNavProps = {
   discoverLabel: string;
   galleryLabel: string;
   accessLabel: string;
+  isAuthenticated: boolean;
   show: boolean;
   compact?: boolean;
-  frosted?: boolean;
 };
 
 const locales: LocaleCode[] = ["eu", "es"];
@@ -32,13 +33,44 @@ function localizePath(pathname: string, targetLocale: LocaleCode) {
   return result === "" ? `/${targetLocale}` : result;
 }
 
-export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, accessLabel, show, compact = false, frosted = false }: SiteHeaderNavProps) {
+export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, accessLabel, isAuthenticated, show, compact = false }: SiteHeaderNavProps) {
   const pathname = usePathname() ?? `/${locale}`;
 
   const homeHref = `/${locale}`;
   const sitesHref = `/${locale}/sedes`;
   const galleryHref = `/${locale}/fototeca`;
   const accessHref = `/${locale}/acceso`;
+  const adminHref = `/${locale}/admin`;
+  const portalHref = `/${locale}/portal`;
+  const portalProfileHref = `/${locale}/portal/profile`;
+  const portalPaymentsHref = `/${locale}/portal/payments`;
+  const portalMessagesHref = `/${locale}/portal/messages`;
+
+  const isAdminArea = pathname.startsWith(adminHref);
+  const isPortalArea = pathname.startsWith(portalHref);
+  const isPortalSummary = pathname === portalHref || pathname === `${portalHref}/`;
+  const isPrivateArea = isAuthenticated && (isAdminArea || isPortalArea);
+
+  const panelHref = isAdminArea ? adminHref : portalHref;
+  const panelLabel = isPortalArea ? (locale === "eu" ? "Laburpena" : "Resumen") : locale === "eu" ? "Panel nagusia" : "Panel principal";
+  const publicSiteLabel = locale === "eu" ? "Web nagusia" : "Pagina principal";
+  const portalSectionLinks = [
+    {
+      href: portalProfileHref,
+      label: locale === "eu" ? "Datu pertsonalak" : "Datos personales",
+      active: pathname.startsWith(portalProfileHref),
+    },
+    {
+      href: portalPaymentsHref,
+      label: locale === "eu" ? "Ordainketak" : "Pagos",
+      active: pathname.startsWith(portalPaymentsHref),
+    },
+    {
+      href: portalMessagesHref,
+      label: locale === "eu" ? "Komunikazioak" : "Comunicaciones",
+      active: pathname.startsWith(portalMessagesHref),
+    },
+  ];
 
   const isHome = pathname === homeHref || pathname === `${homeHref}/`;
   const isSites = pathname.startsWith(sitesHref);
@@ -81,13 +113,10 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
 
   return (
     <div
-      className={clsx(
-        "flex flex-wrap items-center justify-between gap-3 rounded-xl transition-all duration-500",
-        frosted ? "border border-white/15 bg-surface-strong/55 backdrop-blur-xl" : "border border-transparent bg-transparent",
-      )}
+      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-transparent bg-transparent transition-all duration-500"
     >
       <Link
-        href={homeHref}
+        href={isPrivateArea ? panelHref : homeHref}
         className={clsx("group inline-flex items-center gap-3 transition-all duration-700", revealClass)}
         style={{ transitionDelay: show ? "0ms" : "0ms" }}
         aria-label={brand}
@@ -109,16 +138,47 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <nav className="flex flex-wrap items-center gap-3 md:gap-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={clsx(navClass(item.active), "transform-gpu transition-all duration-700", revealClass)}
-              style={{ transitionDelay: show ? `${item.delay}ms` : "0ms" }}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {isPrivateArea ? (
+            <>
+              <Link
+                href={panelHref}
+                className={clsx(navClass(isPortalArea ? isPortalSummary : pathname.startsWith(panelHref)), "transform-gpu transition-all duration-700", revealClass)}
+                style={{ transitionDelay: show ? "180ms" : "0ms" }}
+              >
+                {panelLabel}
+              </Link>
+              {isPortalArea
+                ? portalSectionLinks.map((item, index) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={clsx(navClass(item.active), "transform-gpu transition-all duration-700", revealClass)}
+                      style={{ transitionDelay: show ? `${260 + index * 80}ms` : "0ms" }}
+                    >
+                      {item.label}
+                    </Link>
+                  ))
+                : null}
+              <Link
+                href={homeHref}
+                className={clsx(navClass(false), "transform-gpu transition-all duration-700", revealClass)}
+                style={{ transitionDelay: show ? "520ms" : "0ms" }}
+              >
+                {publicSiteLabel}
+              </Link>
+            </>
+          ) : (
+            navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={clsx(navClass(item.active), "transform-gpu transition-all duration-700", revealClass)}
+                style={{ transitionDelay: show ? `${item.delay}ms` : "0ms" }}
+              >
+                {item.label}
+              </Link>
+            ))
+          )}
         </nav>
 
         <div
@@ -133,18 +193,27 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         >
           <Link
             href={localizePath(pathname, "eu")}
-            className={locale === "eu" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground"}
+            className={clsx("rounded px-1 py-0.5 transition-colors", locale === "eu" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground")}
           >
             EU
           </Link>
           <span className="text-ink-muted">/</span>
           <Link
             href={localizePath(pathname, "es")}
-            className={locale === "es" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground"}
+            className={clsx("rounded px-1 py-0.5 transition-colors", locale === "es" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground")}
           >
             ES
           </Link>
         </div>
+
+        {isAuthenticated ? (
+          <div
+            className={clsx("transition-all duration-700", revealClass)}
+            style={{ transitionDelay: show ? "720ms" : "0ms" }}
+          >
+            <AuthSignOutButton locale={locale} className="min-h-9 px-3 py-1.5 text-xs md:text-sm" />
+          </div>
+        ) : null}
 
       </div>
     </div>

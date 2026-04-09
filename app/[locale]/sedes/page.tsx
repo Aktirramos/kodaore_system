@@ -14,10 +14,10 @@ const siteImages = [
 ];
 
 const headerSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
-const siteCardClass = "group overflow-hidden rounded-3xl border border-white/10 bg-surface-strong shadow-[0_14px_30px_rgba(15,23,42,0.26)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(15,23,42,0.36)]";
-const siteTextBoxClass = "group/text relative space-y-4 rounded-2xl border border-transparent p-5 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20";
+const siteCardClass = "k-hover-lift group overflow-hidden rounded-3xl border border-white/10 bg-surface-strong shadow-[0_14px_30px_rgba(15,23,42,0.26)]";
+const siteTextBoxClass = "k-hover-soft group/text relative space-y-4 rounded-2xl border border-transparent p-5";
 const finalSectionClass = "fade-rise relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7";
-const finalTextBoxClass = "group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4 transition-colors duration-500 hover:border-brand/35";
+const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4";
 
 export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
   const { locale } = await params;
@@ -48,7 +48,7 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
             <Link
               key={site.slug}
               href={`/${locale}/sedes/${site.slug}`}
-              className="rounded-full border border-white/20 bg-surface-strong px-4 py-2 text-sm font-medium text-foreground transition hover:border-brand/35 hover:text-brand-emphasis"
+              className="k-focus-ring k-hover-action rounded-full border border-white/20 bg-surface-strong px-4 py-2 text-sm font-medium text-foreground hover:border-brand/35 hover:text-brand-emphasis"
             >
               {site.name}
             </Link>

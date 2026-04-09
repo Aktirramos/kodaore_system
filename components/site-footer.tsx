@@ -135,7 +135,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             aria-label={backTopLabel}
-            className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-[#101417]/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)]"
+            className="k-focus-ring k-hover-action fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-[#101417]/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)]"
             initial={{ opacity: 0, y: 14, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}

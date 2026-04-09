@@ -38,8 +38,8 @@ const siteVisuals: Record<string, { hero: string; fallback: string; gallery: Arr
 };
 
 const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
-const textHoverBoxClass = "group/text relative overflow-hidden rounded-xl border border-transparent p-3 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20";
-const coachTextHoverBoxClass = "group/text relative overflow-hidden space-y-2 rounded-xl border border-transparent p-4 transition-colors duration-500 hover:border-brand/35 hover:bg-black/20";
+const textHoverBoxClass = "k-hover-soft group/text relative overflow-hidden rounded-xl border border-transparent p-3";
+const coachTextHoverBoxClass = "k-hover-soft group/text relative overflow-hidden space-y-2 rounded-xl border border-transparent p-4";
 
 export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
   const { locale, site } = await params;
@@ -68,7 +68,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
               <Link
                 key={item.slug}
                 href={`/${locale}/sedes/${item.slug}`}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`k-focus-ring k-hover-action rounded-full px-4 py-2 text-sm font-medium ${
                   active
                     ? "border border-brand bg-brand text-brand-contrast"
                     : "border border-white/20 bg-surface-strong text-foreground hover:border-white/40"
@@ -88,7 +88,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
             <p className="relative mt-3 text-sm leading-relaxed text-ink-muted transition-colors duration-500 group-hover/text:text-foreground">{selectedSite.description}</p>
           </div>
 
-          <article className="group relative mt-4 min-h-[280px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[420px]">
+          <article className="k-hover-lift group relative mt-4 min-h-[280px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[420px]">
             <SmartImage
               src={visuals.hero}
               fallbackSrc={visuals.fallback}
@@ -114,7 +114,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
             const coachPhoto = coach.photo ?? galleryFallback.src;
 
             return (
-              <article key={coach.name} className="overflow-hidden rounded-2xl border border-white/10 bg-surface-strong">
+              <article key={coach.name} className="k-hover-lift overflow-hidden rounded-2xl border border-white/10 bg-surface-strong">
                 <div className="group relative min-h-[220px] overflow-hidden">
                   <SmartImage
                     src={coachPhoto}

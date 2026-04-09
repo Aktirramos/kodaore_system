@@ -15,7 +15,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "Kodaore",
-  description: "Sistema de gestion unificado para las sedes de Kodaore",
+  description: "Plataforma digital de Kodaore para familias y alumnado",
 };
 
 export default function RootLayout({
