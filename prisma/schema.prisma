@@ -143,6 +143,20 @@ model User {
   imports             ExcelImport[]
 }
 
+model AuthRateLimit {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  failedCount     Int      @default(0)
+  windowStartedAt DateTime
+  lastFailureAt   DateTime?
+  lockUntil       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([lockUntil])
+  @@index([updatedAt])
+}
+
 model Role {
   id          String          @id @default(cuid())
   code        RoleCode        @unique
@@ -235,7 +249,7 @@ model FamilyAccount {
   owner           User      @relation("FamilyAccountOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   students        Student[]
 
-  @@index([ownerId])
+  @@unique([ownerId])
 }
 
 model Student {

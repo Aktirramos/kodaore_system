@@ -33,6 +33,7 @@ DATABASE_URL="postgresql://usuario:password@localhost:5432/kodaore"
 SEED_DEFAULT_PASSWORD="Kodaore2026!"
 NEXTAUTH_SECRET="genera-un-secreto-largo-y-aleatorio"
 NEXTAUTH_URL="http://localhost:3000"
+OBSERVABILITY_WEBHOOK_URL="https://tu-webhook-de-alertas"
 ```
 
 3. Genera cliente y aplica migracion:
@@ -67,19 +68,34 @@ cp .env.production.example .env.production
 - `DATABASE_URL` apuntando a tu Postgres real.
 - `NEXTAUTH_SECRET` con un secreto aleatorio de al menos 32 caracteres.
 - `NEXTAUTH_URL` con la URL publica final (https).
+- `OBSERVABILITY_WEBHOOK_URL` opcional para recibir alertas de errores runtime y degradacion de salud.
 
-3. Build y arranque en modo produccion:
+3. Aplica migraciones en produccion:
+
+```bash
+npm run db:migrate:deploy
+```
+
+4. Build y arranque en modo produccion:
 
 ```bash
 npm run build
 npm run start
 ```
 
-4. Verifica salud:
+5. Verifica salud:
 
 ```bash
 curl -i http://localhost:3000/api/health
 ```
+
+Si defines `OBSERVABILITY_WEBHOOK_URL`, se enviaran alertas con cooldown desde:
+
+- `POST /api/observability/error` para errores runtime en segmentos privados.
+- `GET /api/health` cuando el estado sea `degraded` por latencia o error de DB.
+
+Nota:
+En desarrollo local usa `npm run db:migrate` (migrate dev). En produccion usa siempre `npm run db:migrate:deploy`.
 
 ## Rutas iniciales
 
@@ -125,3 +141,46 @@ Acceso real:
 - CRUD completo de alumnos/profesores/grupos
 - Importador Excel operativo
 - Flujo de remesas con export bancario
+
+## QA automatizada (inicio)
+
+Se ha iniciado la base e2e con Playwright en `tests/e2e/smoke.spec.ts`.
+
+1. Instala navegadores de Playwright (una vez):
+
+```bash
+npx playwright install --with-deps chromium
+```
+
+2. Ejecuta tests e2e:
+
+```bash
+npm run test:e2e
+```
+
+Para incluir flujos reales de autenticacion (familia y gestion), activa:
+
+```bash
+E2E_AUTH_ENABLED=true \
+E2E_FAMILY_IDENTIFIER=familia@kodaore.eus \
+E2E_MANAGEMENT_IDENTIFIER=developer \
+E2E_PASSWORD=Kodaore2026! \
+npm run test:e2e
+```
+
+Opcionales:
+
+```bash
+npm run test:e2e:headed
+npm run test:e2e:ui
+```
+
+## Fototeca con assets locales
+
+La fototeca usa imagenes locales definidas en `lib/fototeca.ts` mediante `DEFAULT_FOTOTECA_ITEMS`.
+
+Si quieres cambiar las fotos:
+
+1. Coloca los archivos en `public/media`.
+2. Actualiza las rutas `image` y `fallback` en `lib/fototeca.ts`.
+3. Reinicia el servidor si estas en produccion.
