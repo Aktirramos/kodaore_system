@@ -1,0 +1,42 @@
+name: Maintenance
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup-auth-rate-limit:
+    name: Cleanup AuthRateLimit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_RATE_LIMIT_RETENTION_DAYS: "30"
+      AUTH_RATE_LIMIT_LOCK_GRACE_HOURS: "24"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate DATABASE_URL secret
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "DATABASE_URL secret is not configured. Skipping cleanup job."
+            exit 0
+          fi
+
+      - name: Cleanup stale auth rate-limit rows
+        run: npm run maintenance:cleanup-rate-limit

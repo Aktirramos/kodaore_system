@@ -98,6 +98,25 @@ Si defines `OBSERVABILITY_WEBHOOK_URL`, se enviaran alertas con cooldown desde:
 Nota:
 En desarrollo local usa `npm run db:migrate` (migrate dev). En produccion usa siempre `npm run db:migrate:deploy`.
 
+## Mantenimiento de rate-limit
+
+La tabla `AuthRateLimit` se limpia automaticamente con el workflow programado `Maintenance`.
+
+Requisitos:
+
+- Configurar `DATABASE_URL` como secret de GitHub Actions en el repositorio.
+
+Comandos utiles:
+
+```bash
+npm run maintenance:cleanup-rate-limit
+```
+
+Variables opcionales del cleanup:
+
+- `AUTH_RATE_LIMIT_RETENTION_DAYS` (por defecto `30`)
+- `AUTH_RATE_LIMIT_LOCK_GRACE_HOURS` (por defecto `24`)
+
 ## Rutas iniciales
 
 - `http://localhost:3000` redirige a `/eu`
