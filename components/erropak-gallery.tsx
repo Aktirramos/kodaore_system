@@ -7,6 +7,7 @@ import type { LocaleCode } from "@/lib/i18n";
 const SWIPE_THRESHOLD_PX = 48;
 
 export type ErropakGalleryItem = {
+  categoryKey: string;
   nameEu: string;
   nameEs: string;
   categoryEu: string;
@@ -30,8 +31,30 @@ function wrapIndex(index: number, total: number) {
 
 export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeCategoryKey, setActiveCategoryKey] = useState<string>("all");
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const isEu = locale === "eu";
+
+  const categoryMap = new Map<string, { key: string; label: string }>();
+
+  for (const item of items) {
+    if (categoryMap.has(item.categoryKey)) {
+      continue;
+    }
+
+    categoryMap.set(item.categoryKey, {
+      key: item.categoryKey,
+      label: isEu ? item.categoryEu : item.categoryEs,
+    });
+  }
+
+  const categories = Array.from(categoryMap.values());
+  const visibleItems = activeCategoryKey === "all"
+    ? items
+    : items.filter((item) => item.categoryKey === activeCategoryKey);
+
+  const allCategoryLabel = isEu ? "Guztiak" : "Todo";
+  const activeItem = activeIndex === null ? null : (visibleItems[activeIndex] ?? null);
 
   const closeLightbox = useCallback(() => {
     setActiveIndex(null);
@@ -43,9 +66,9 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
         return current;
       }
 
-      return wrapIndex(current - 1, items.length);
+      return wrapIndex(current - 1, visibleItems.length);
     });
-  }, [items.length]);
+  }, [visibleItems.length]);
 
   const showNext = useCallback(() => {
     setActiveIndex((current) => {
@@ -53,9 +76,14 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
         return current;
       }
 
-      return wrapIndex(current + 1, items.length);
+      return wrapIndex(current + 1, visibleItems.length);
     });
-  }, [items.length]);
+  }, [visibleItems.length]);
+
+  const selectCategory = useCallback((nextCategoryKey: string) => {
+    setActiveCategoryKey(nextCategoryKey);
+    setActiveIndex(null);
+  }, []);
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -132,8 +160,38 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
 
   return (
     <>
-      <section className="fade-rise grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item, index) => (
+      <section className="fade-rise space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => selectCategory("all")}
+            className={`k-focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
+              activeCategoryKey === "all"
+                ? "border-brand/60 bg-brand/15 text-brand-emphasis"
+                : "border-white/15 bg-black/20 text-white/75 hover:border-white/30"
+            }`}
+          >
+            {allCategoryLabel}
+          </button>
+
+          {categories.map((category) => (
+            <button
+              key={category.key}
+              type="button"
+              onClick={() => selectCategory(category.key)}
+              className={`k-focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
+                activeCategoryKey === category.key
+                  ? "border-brand/60 bg-brand/15 text-brand-emphasis"
+                  : "border-white/15 bg-black/20 text-white/75 hover:border-white/30"
+              }`}
+            >
+              {category.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {visibleItems.map((item, index) => (
           <button
             key={`${item.nameEs}-${index}`}
             type="button"
@@ -164,9 +222,10 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             </div>
           </button>
         ))}
+        </div>
       </section>
 
-      {activeIndex !== null ? (
+      {activeItem ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 md:p-6"
           role="dialog"
@@ -197,9 +256,9 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             onTouchCancel={handleTouchCancel}
           >
             <SmartImage
-              src={items[activeIndex].imageSrc}
-              fallbackSrc={items[activeIndex].fallbackSrc}
-              alt={isEu ? items[activeIndex].nameEu : items[activeIndex].nameEs}
+              src={activeItem.imageSrc}
+              fallbackSrc={activeItem.fallbackSrc}
+              alt={isEu ? activeItem.nameEu : activeItem.nameEs}
               fill
               priority
               className="object-contain"
@@ -218,9 +277,9 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
 
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-2xl border border-white/20 bg-black/40 px-4 py-2 text-center text-white md:bottom-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-emphasis">
-              {isEu ? items[activeIndex].categoryEu : items[activeIndex].categoryEs}
+              {isEu ? activeItem.categoryEu : activeItem.categoryEs}
             </p>
-            <p className="mt-1 text-sm font-medium">{isEu ? items[activeIndex].nameEu : items[activeIndex].nameEs}</p>
+            <p className="mt-1 text-sm font-medium">{isEu ? activeItem.nameEu : activeItem.nameEs}</p>
           </div>
         </div>
       ) : null}
