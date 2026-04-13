@@ -56,8 +56,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
 
   const allCategoryLabel = isEu ? "Guztiak" : "Todo";
   const activeItem = activeIndex === null ? null : (visibleItems[activeIndex] ?? null);
-  const previewIndex = hoveredIndex ?? 0;
-  const previewItem = visibleItems[previewIndex] ?? null;
+  const hoveredItem = hoveredIndex === null ? null : (visibleItems[hoveredIndex] ?? null);
 
   const closeLightbox = useCallback(() => {
     setActiveIndex(null);
@@ -194,43 +193,31 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
           ))}
         </div>
 
-        {previewItem ? (
-          <article className="group/preview relative hidden overflow-hidden rounded-2xl border border-white/15 bg-black/35 md:block">
-            <div className="relative h-[300px] overflow-hidden lg:h-[360px]">
-              <SmartImage
-                src={previewItem.imageSrc}
-                fallbackSrc={previewItem.fallbackSrc}
-                alt={isEu ? previewItem.nameEu : previewItem.nameEs}
-                fill
-                className="object-cover transition duration-700"
-                sizes="(max-width: 1280px) 100vw, 80vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/40" />
-
-              <div className="absolute left-5 top-5 rounded-full border border-white/25 bg-black/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90">
-                {isEu ? previewItem.categoryEu : previewItem.categoryEs}
+        <div className="relative">
+        {hoveredItem ? (
+          <div className="pointer-events-none absolute -top-2 right-0 z-20 hidden w-48 md:block lg:w-56">
+            <article className="overflow-hidden rounded-2xl border border-white/20 bg-black/70 shadow-[0_18px_40px_rgba(0,0,0,0.45)]">
+              <div className="relative aspect-square overflow-hidden">
+                <SmartImage
+                  src={hoveredItem.imageSrc}
+                  fallbackSrc={hoveredItem.fallbackSrc}
+                  alt={isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
+                  fill
+                  className="object-cover"
+                  sizes="220px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
               </div>
-
-              <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-emphasis">
-                    {isEu ? "Hover bidez handituta" : "Ampliado por hover"}
-                  </p>
-                  <h2 className="mt-1 font-heading text-3xl font-semibold text-white lg:text-4xl">
-                    {isEu ? previewItem.nameEu : previewItem.nameEs}
-                  </h2>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveIndex(previewIndex)}
-                  className="k-focus-ring k-hover-action inline-flex rounded-full border border-white/30 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white"
-                >
-                  {isEu ? "Ireki handituta" : "Abrir ampliado"}
-                </button>
+              <div className="px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-emphasis">
+                  {isEu ? hoveredItem.categoryEu : hoveredItem.categoryEs}
+                </p>
+                <p className="mt-1 text-xs font-medium text-white/90">
+                  {isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
+                </p>
               </div>
-            </div>
-          </article>
+            </article>
+          </div>
         ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -240,7 +227,9 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             type="button"
             onClick={() => setActiveIndex(index)}
             onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
             onFocus={() => setHoveredIndex(index)}
+            onBlur={() => setHoveredIndex(null)}
             className={`k-focus-ring k-hover-lift group overflow-hidden rounded-2xl border bg-surface-strong text-left transition-colors ${
               hoveredIndex === index ? "border-brand/45" : "border-white/10"
             }`}
@@ -269,6 +258,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             </div>
           </button>
         ))}
+        </div>
         </div>
       </section>
 
