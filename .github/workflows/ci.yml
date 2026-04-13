@@ -67,12 +67,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     needs: quality
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kodaore
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kodaore"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     env:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/kodaore?schema=public
       NEXTAUTH_SECRET: CI_ONLY_NEXTAUTH_SECRET_MIN_32_CHARACTERS
       NEXTAUTH_URL: http://127.0.0.1:3000
       PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
-      E2E_AUTH_ENABLED: "false"
+      E2E_AUTH_ENABLED: "true"
+      E2E_FAMILY_IDENTIFIER: familia@kodaore.eus
+      E2E_MANAGEMENT_IDENTIFIER: developer
+      E2E_PASSWORD: Kodaore2026!
+      SEED_DEFAULT_PASSWORD: Kodaore2026!
       CI: "true"
 
     steps:
@@ -87,6 +105,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Apply migrations
+        run: npm run db:migrate:deploy
+
+      - name: Seed database
+        run: npm run db:seed
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
