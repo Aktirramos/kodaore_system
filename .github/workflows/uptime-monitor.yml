@@ -1,0 +1,30 @@
+name: Uptime Monitor
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  healthcheck:
+    name: External Healthcheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEALTHCHECK_URL: ${{ secrets.HEALTHCHECK_URL }}
+
+    steps:
+      - name: Validate HEALTHCHECK_URL secret
+        run: |
+          if [ -z "${HEALTHCHECK_URL}" ]; then
+            echo "HEALTHCHECK_URL secret is not configured. Skipping uptime monitor."
+            exit 0
+          fi
+
+      - name: Ping health endpoint
+        run: |
+          RESPONSE="$(curl --fail --silent --show-error --max-time 15 "${HEALTHCHECK_URL}")"
+          echo "${RESPONSE}" | grep -E '"status":"(ok|degraded)"' >/dev/null

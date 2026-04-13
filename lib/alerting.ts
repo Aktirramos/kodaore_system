@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
 
 type AlertSeverity = "warning" | "critical";
 
@@ -11,16 +12,33 @@ type OpsAlertInput = {
 };
 
 const ALERT_COOLDOWN_MS = 10 * 60 * 1000;
-const lastAlertAtByKey = new Map<string, number>();
 
-function shouldSendByCooldown(key: string, nowMs: number) {
-  const previous = lastAlertAtByKey.get(key);
-  if (typeof previous === "number" && nowMs - previous < ALERT_COOLDOWN_MS) {
-    return false;
-  }
+async function shouldSendByCooldown(key: string, nowMs: number) {
+  const cooldownThreshold = new Date(nowMs - ALERT_COOLDOWN_MS);
 
-  lastAlertAtByKey.set(key, nowMs);
-  return true;
+  // Ensure the key row exists. We seed lastSentAt with epoch so the first alert can claim immediately.
+  await prisma.opsAlertState.upsert({
+    where: { key },
+    create: {
+      key,
+      lastSentAt: new Date(0),
+    },
+    update: {},
+  });
+
+  const claim = await prisma.opsAlertState.updateMany({
+    where: {
+      key,
+      lastSentAt: {
+        lt: cooldownThreshold,
+      },
+    },
+    data: {
+      lastSentAt: new Date(nowMs),
+    },
+  });
+
+  return claim.count > 0;
 }
 
 export async function sendOpsAlert(input: OpsAlertInput) {
@@ -30,7 +48,16 @@ export async function sendOpsAlert(input: OpsAlertInput) {
   }
 
   const nowMs = Date.now();
-  if (!shouldSendByCooldown(input.key, nowMs)) {
+  let allowedByCooldown = true;
+
+  try {
+    allowedByCooldown = await shouldSendByCooldown(input.key, nowMs);
+  } catch {
+    // If cooldown storage fails, prefer sending alert over dropping it silently.
+    allowedByCooldown = true;
+  }
+
+  if (!allowedByCooldown) {
     return;
   }
 

@@ -157,6 +157,16 @@ model AuthRateLimit {
   @@index([updatedAt])
 }
 
+model OpsAlertState {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  lastSentAt DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([updatedAt])
+}
+
 model Role {
   id          String          @id @default(cuid())
   code        RoleCode        @unique

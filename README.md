@@ -100,7 +100,7 @@ En desarrollo local usa `npm run db:migrate` (migrate dev). En produccion usa si
 
 ## Mantenimiento de rate-limit
 
-La tabla `AuthRateLimit` se limpia automaticamente con el workflow programado `Maintenance`.
+Las tablas `AuthRateLimit` y `OpsAlertState` se limpian automaticamente con el workflow programado `Maintenance`.
 
 Requisitos:
 
@@ -116,6 +116,44 @@ Variables opcionales del cleanup:
 
 - `AUTH_RATE_LIMIT_RETENTION_DAYS` (por defecto `30`)
 - `AUTH_RATE_LIMIT_LOCK_GRACE_HOURS` (por defecto `24`)
+- `OPS_ALERT_STATE_RETENTION_DAYS` (por defecto `90`)
+
+## Monitor externo de disponibilidad
+
+El workflow `Uptime Monitor` ejecuta ping externo a health endpoint cada 10 minutos.
+
+Requisitos:
+
+- Configurar `HEALTHCHECK_URL` como secret de GitHub Actions.
+
+Ejemplo recomendado:
+
+- `https://TU_DOMINIO/api/health`
+
+## Prueba de carga minima
+
+Para una validacion rapida de rendimiento en staging:
+
+```bash
+npm run test:load:smoke
+```
+
+Variables opcionales:
+
+- `LOAD_BASE_URL` (por defecto `http://127.0.0.1:3000`)
+- `LOAD_DURATION_SECONDS` (por defecto `30`)
+- `LOAD_CONCURRENCY` (por defecto `8`)
+- `LOAD_TIMEOUT_MS` (por defecto `8000`)
+- `LOAD_MAX_ERROR_RATE_PERCENT` (por defecto `2`)
+
+## Runbook operativo
+
+Existe una guia operativa completa en `docs/produccion-runbook.md` con:
+
+- Despliegue estandar
+- Rollback de aplicacion y datos
+- Respuesta a incidencias
+- Politica de backup y prueba de restauracion
 
 ## Rutas iniciales
 

@@ -11,6 +11,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
     "test:unit": "vitest run tests/unit",
+    "test:load:smoke": "node scripts/load-smoke.mjs",
     "maintenance:cleanup-rate-limit": "node scripts/cleanup-auth-rate-limit.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

@@ -17,6 +17,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AUTH_RATE_LIMIT_RETENTION_DAYS: "30"
       AUTH_RATE_LIMIT_LOCK_GRACE_HOURS: "24"
+      OPS_ALERT_STATE_RETENTION_DAYS: "90"
 
     steps:
       - name: Checkout
