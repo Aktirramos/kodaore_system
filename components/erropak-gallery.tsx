@@ -1,6 +1,6 @@
 "use client";
 
-import { type TouchEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type FocusEvent, type MouseEvent, type TouchEvent, useCallback, useEffect, useRef, useState } from "react";
 import { SmartImage } from "@/components/smart-image";
 import type { LocaleCode } from "@/lib/i18n";
 
@@ -32,8 +32,12 @@ function wrapIndex(index: number, total: number) {
 export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoverPreviewExpanded, setHoverPreviewExpanded] = useState(false);
+  const [hoverPreviewOrigin, setHoverPreviewOrigin] = useState<{ top: number; left: number; size: number } | null>(null);
+  const [viewportSize, setViewportSize] = useState({ width: 1280, height: 720 });
   const [activeCategoryKey, setActiveCategoryKey] = useState<string>("all");
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hoverHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isEu = locale === "eu";
 
   const categoryMap = new Map<string, { key: string; label: string }>();
@@ -57,6 +61,22 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const allCategoryLabel = isEu ? "Guztiak" : "Todo";
   const activeItem = activeIndex === null ? null : (visibleItems[activeIndex] ?? null);
   const hoveredItem = hoveredIndex === null ? null : (visibleItems[hoveredIndex] ?? null);
+
+  useEffect(() => {
+    const syncViewport = () => {
+      setViewportSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    syncViewport();
+    window.addEventListener("resize", syncViewport);
+
+    return () => {
+      window.removeEventListener("resize", syncViewport);
+    };
+  }, []);
 
   const closeLightbox = useCallback(() => {
     setActiveIndex(null);
@@ -86,6 +106,50 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
     setActiveCategoryKey(nextCategoryKey);
     setActiveIndex(null);
     setHoveredIndex(null);
+    setHoverPreviewExpanded(false);
+    setHoverPreviewOrigin(null);
+  }, []);
+
+  const openHoverPreview = useCallback((index: number, originElement: HTMLElement) => {
+    if (hoverHideTimerRef.current) {
+      clearTimeout(hoverHideTimerRef.current);
+      hoverHideTimerRef.current = null;
+    }
+
+    const rect = originElement.getBoundingClientRect();
+    const size = Math.max(90, Math.min(rect.width, rect.height));
+    const top = rect.top + (rect.height - size) / 2;
+    const left = rect.left + (rect.width - size) / 2;
+
+    setHoveredIndex(index);
+    setHoverPreviewOrigin({ top, left, size });
+    setHoverPreviewExpanded(false);
+
+    window.requestAnimationFrame(() => {
+      setHoverPreviewExpanded(true);
+    });
+  }, []);
+
+  const closeHoverPreview = useCallback(() => {
+    setHoverPreviewExpanded(false);
+
+    if (hoverHideTimerRef.current) {
+      clearTimeout(hoverHideTimerRef.current);
+    }
+
+    hoverHideTimerRef.current = setTimeout(() => {
+      setHoveredIndex(null);
+      setHoverPreviewOrigin(null);
+      hoverHideTimerRef.current = null;
+    }, 220);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hoverHideTimerRef.current) {
+        clearTimeout(hoverHideTimerRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -157,6 +221,22 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
     showNext();
   }, [showNext, showPrevious]);
 
+  const previewSize = Math.max(220, Math.min(460, Math.min(viewportSize.width * 0.42, viewportSize.height * 0.62)));
+  const previewTop = (viewportSize.height - previewSize) / 2;
+  const previewLeft = (viewportSize.width - previewSize) / 2;
+  const animatedPreviewStyle = hoverPreviewOrigin
+    ? {
+      top: hoverPreviewExpanded ? previewTop : hoverPreviewOrigin.top,
+      left: hoverPreviewExpanded ? previewLeft : hoverPreviewOrigin.left,
+      width: hoverPreviewExpanded ? previewSize : hoverPreviewOrigin.size,
+      height: hoverPreviewExpanded ? previewSize : hoverPreviewOrigin.size,
+      opacity: hoverPreviewExpanded ? 1 : 0.65,
+      transform: hoverPreviewExpanded ? "scale(1)" : "scale(0.96)",
+      transition:
+        "top 280ms cubic-bezier(0.2, 0.9, 0.2, 1), left 280ms cubic-bezier(0.2, 0.9, 0.2, 1), width 280ms cubic-bezier(0.2, 0.9, 0.2, 1), height 280ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 220ms ease, transform 220ms ease",
+    }
+    : undefined;
+
   const handleTouchCancel = useCallback(() => {
     touchStartRef.current = null;
   }, []);
@@ -194,17 +274,17 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
         </div>
 
         <div className="relative">
-        {hoveredItem ? (
-          <div className="pointer-events-none absolute -top-2 right-0 z-20 hidden w-48 md:block lg:w-56">
-            <article className="overflow-hidden rounded-2xl border border-white/20 bg-black/70 shadow-[0_18px_40px_rgba(0,0,0,0.45)]">
-              <div className="relative aspect-square overflow-hidden">
+        {hoveredItem && hoverPreviewOrigin ? (
+          <div className="pointer-events-none fixed z-40 hidden md:block" style={animatedPreviewStyle}>
+            <article className="h-full w-full overflow-hidden rounded-2xl border border-white/25 bg-black/75 shadow-[0_24px_48px_rgba(0,0,0,0.5)]">
+              <div className="relative h-full w-full overflow-hidden">
                 <SmartImage
                   src={hoveredItem.imageSrc}
                   fallbackSrc={hoveredItem.fallbackSrc}
                   alt={isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
                   fill
                   className="object-cover"
-                  sizes="220px"
+                  sizes="460px"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
               </div>
@@ -226,10 +306,10 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             key={`${item.nameEs}-${index}`}
             type="button"
             onClick={() => setActiveIndex(index)}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-            onFocus={() => setHoveredIndex(index)}
-            onBlur={() => setHoveredIndex(null)}
+            onMouseEnter={(event: MouseEvent<HTMLButtonElement>) => openHoverPreview(index, event.currentTarget)}
+            onMouseLeave={closeHoverPreview}
+            onFocus={(event: FocusEvent<HTMLButtonElement>) => openHoverPreview(index, event.currentTarget)}
+            onBlur={closeHoverPreview}
             className={`k-focus-ring k-hover-lift group overflow-hidden rounded-2xl border bg-surface-strong text-left transition-colors ${
               hoveredIndex === index ? "border-brand/45" : "border-white/10"
             }`}
