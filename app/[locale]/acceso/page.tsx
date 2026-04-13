@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AuthCredentialsForm } from "@/components/auth-credentials-form";
 import { ADMIN_ROLE_CODES, getAuthSession } from "@/lib/auth";
@@ -40,6 +41,26 @@ export default async function AccessPage({ params }: AccessPageProps) {
 
       <div className="mt-6">
         <AuthCredentialsForm locale={locale} />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-white/10 bg-surface-strong/70 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-emphasis">
+          {locale === "eu" ? "Bezero berriak" : "Nuevos clientes"}
+        </p>
+        <p className="mt-2 text-sm text-ink-muted">
+          {locale === "eu"
+            ? "Ez bazara oraindik bezeroa, sortu familia kontua eta hasi alta prozesua."
+            : "Si aun no eres cliente, crea tu cuenta de familia y comienza el alta."}
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href={`/${locale}/acceso/crear-cuenta`}
+            className="k-focus-ring k-hover-action inline-flex min-h-10 items-center justify-center rounded-full border border-[color:var(--brand-emphasis)] bg-[color:var(--brand)]/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-[color:var(--brand)]"
+          >
+            {locale === "eu" ? "Familia kontua sortu" : "Crear cuenta de familia"}
+          </Link>
+        </div>
       </div>
     </div>
   );

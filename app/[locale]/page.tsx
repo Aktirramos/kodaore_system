@@ -16,6 +16,7 @@ const sitePreviewMedia: Record<string, { src: string; fallbackSrc: string }> = {
 
 const sitesSectionClass = "fade-rise fade-rise-delay-200 rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const siteCardClass = "k-hover-lift group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.28)]";
+const storeSectionClass = "fade-rise fade-rise-delay-250 rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const finalSectionClass = "fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-4 md:p-6";
 const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-white/20 bg-black/25 p-5 backdrop-blur-sm";
 
@@ -27,6 +28,11 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
   }
 
   const copy = getCopy(locale as LocaleCode);
+  const storeTitle = locale === "eu" ? "Kodaore arropa" : "Ropa Kodaore";
+  const storeDescription = locale === "eu"
+    ? "Klubeko sudaderak, kamisetak eta osagarriak galeria bisual batean. Ikusi estiloak eta hurrengo bildumen inspirazioa hartu."
+    : "Sudaderas, camisetas y accesorios del club en una galeria visual. Mira estilos e inspírate para las proximas colecciones.";
+  const storeCta = locale === "eu" ? "Erropak ikusi" : "Ver ropa";
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -79,6 +85,57 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className={storeSectionClass}>
+        <div className="grid gap-4 md:grid-cols-[1.2fr_0.9fr]">
+          <article className="k-hover-lift group relative min-h-[220px] overflow-hidden rounded-2xl border border-white/10">
+            <SmartImage
+              src="/media/hero-2.jpg"
+              fallbackSrc="/media/photo-fallback-2.svg"
+              alt={storeTitle}
+              fill
+              className="object-cover transition duration-700 group-hover:scale-[1.03]"
+              sizes="(max-width: 768px) 100vw, 54vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-black/25" />
+            <div className="absolute left-4 top-4 rounded-full border border-white/25 bg-black/35 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
+              {locale === "eu" ? "Galeria" : "Galeria"}
+            </div>
+          </article>
+
+          <div className="k-hover-soft group/store relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong/70 p-5">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/16 via-transparent to-brand-warm/16 opacity-0 transition-opacity duration-500 group-hover/store:opacity-100" />
+            <p className="relative text-xs font-semibold uppercase tracking-[0.16em] text-brand-emphasis">
+              {locale === "eu" ? "Kolekzio berria" : "Nueva coleccion"}
+            </p>
+            <h2 className="relative mt-2 font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+              {storeTitle}
+            </h2>
+            <p className="relative mt-3 text-sm leading-relaxed text-ink-muted md:text-base">
+              {storeDescription}
+            </p>
+
+            <div className="relative mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+                {locale === "eu" ? "Sudaderak" : "Sudaderas"}
+              </span>
+              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+                {locale === "eu" ? "Kamisetak" : "Camisetas"}
+              </span>
+              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+                {locale === "eu" ? "Osagarriak" : "Accesorios"}
+              </span>
+            </div>
+
+            <Link
+              href={`/${locale}/erropak`}
+              className="k-focus-ring k-hover-action relative mt-6 inline-flex w-fit rounded-full border border-brand/35 bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis hover:border-brand/60"
+            >
+              {storeCta}
+            </Link>
+          </div>
         </div>
       </section>
 

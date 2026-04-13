@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type VantaWavesBackgroundProps = {
   className?: string;
@@ -37,6 +37,7 @@ function blendHexColor(from: number, to: number, t: number) {
 
 export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWavesBackgroundProps) {
   const normalizedScrollProgress = Math.max(0, Math.min(1, scrollProgress));
+  const [effectsEnabled, setEffectsEnabled] = useState(false);
 
   const elementRef = useRef<HTMLDivElement | null>(null);
   const effectRef = useRef<VantaEffect | undefined>(undefined);
@@ -44,6 +45,29 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
   const lastWaveHeightRef = useRef(19);
 
   useEffect(() => {
+    const desktopMedia = window.matchMedia("(min-width: 768px)");
+    const reducedMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const syncCapability = () => {
+      setEffectsEnabled(desktopMedia.matches && !reducedMotionMedia.matches);
+    };
+
+    syncCapability();
+
+    desktopMedia.addEventListener("change", syncCapability);
+    reducedMotionMedia.addEventListener("change", syncCapability);
+
+    return () => {
+      desktopMedia.removeEventListener("change", syncCapability);
+      reducedMotionMedia.removeEventListener("change", syncCapability);
+    };
+  }, [effectsEnabled]);
+
+  useEffect(() => {
+    if (!effectsEnabled) {
+      return;
+    }
+
     let effect: VantaEffect | undefined;
     let cancelled = false;
     let lastUpdateTime = 0;
@@ -117,9 +141,13 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
       effectRef.current = undefined;
       effect?.destroy?.();
     };
-  }, []);
+  }, [effectsEnabled]);
 
   useEffect(() => {
+    if (!effectsEnabled) {
+      return;
+    }
+
     if (!effectRef.current?.setOptions) {
       return;
     }
@@ -137,7 +165,14 @@ export function VantaWavesBackground({ className, scrollProgress = 0 }: VantaWav
     lastWaveSpeedRef.current = nextWaveSpeed;
     lastWaveHeightRef.current = nextWaveHeight;
     effectRef.current.setOptions({ waveSpeed: nextWaveSpeed, waveHeight: nextWaveHeight });
-  }, [normalizedScrollProgress]);
+  }, [effectsEnabled, normalizedScrollProgress]);
 
-  return <div ref={elementRef} className={className} aria-hidden="true" />;
+  const fallbackStyle = effectsEnabled
+    ? undefined
+    : {
+      background:
+        "radial-gradient(120% 80% at 15% 10%, rgba(190,18,60,0.34) 0%, rgba(190,18,60,0) 55%), radial-gradient(120% 90% at 85% 15%, rgba(5,150,105,0.28) 0%, rgba(5,150,105,0) 60%), linear-gradient(180deg, #08090a 0%, #101214 100%)",
+    };
+
+  return <div ref={elementRef} className={className} aria-hidden="true" style={fallbackStyle} />;
 }

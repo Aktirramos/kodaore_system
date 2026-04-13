@@ -23,6 +23,17 @@ type LoaderMotion = {
   z: number;
 };
 
+function calculateLoaderMotion(depth: number, startScale: number, logoBaseSize: number): LoaderMotion {
+  const safeDepth = Math.max(0, Math.min(MAX_DEPTH, depth));
+  const progress = safeDepth / MAX_DEPTH;
+  const scale = startScale - (progress * (startScale - END_SCALE));
+  const compensationY = ((scale - END_SCALE) * logoBaseSize) / 2;
+  const y = LOGO_Y_OFFSET - compensationY + progress * Y_PROGRESS_TRAVEL;
+  const z = -(progress * Z_PROGRESS_TRAVEL);
+
+  return { progress, scale, y, z };
+}
+
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -56,16 +67,10 @@ function getResponsiveLogoSize() {
 }
 
 export function InitialLoader() {
-  const [startScale] = useState(getResponsiveStartScale);
-  const [logoBaseSize] = useState(getResponsiveLogoSize);
+  const startScaleRef = useRef(START_SCALE);
+  const logoBaseSizeRef = useRef(DESKTOP_LOGO_SIZE);
   const [phase, setPhase] = useState<LoaderPhase>("visible");
-  const initialCompensation = ((startScale - END_SCALE) * logoBaseSize) / 2;
-  const [motion, setMotion] = useState<LoaderMotion>({
-    progress: 0,
-    scale: startScale,
-    y: LOGO_Y_OFFSET - initialCompensation,
-    z: 0,
-  });
+  const [motion, setMotion] = useState<LoaderMotion>(() => calculateLoaderMotion(0, START_SCALE, DESKTOP_LOGO_SIZE));
 
   const rafRef = useRef<number | null>(null);
   const pendingDepthRef = useRef(0);
@@ -75,19 +80,27 @@ export function InitialLoader() {
 
   const applyDepth = useCallback((depth: number) => {
     const safeDepth = Math.max(0, Math.min(MAX_DEPTH, depth));
-    const progress = safeDepth / MAX_DEPTH;
-    const scale = startScale - (progress * (startScale - END_SCALE));
-    const compensationY = ((scale - END_SCALE) * logoBaseSize) / 2;
-    const y = LOGO_Y_OFFSET - compensationY + progress * Y_PROGRESS_TRAVEL;
-    const z = -(progress * Z_PROGRESS_TRAVEL);
+    const nextMotion = calculateLoaderMotion(safeDepth, startScaleRef.current, logoBaseSizeRef.current);
 
-    setMotion({ progress, scale, y, z });
+    setMotion(nextMotion);
 
-    if (scale <= END_SCALE + Number.EPSILON && !exitedRef.current) {
+    if (nextMotion.scale <= END_SCALE + Number.EPSILON && !exitedRef.current) {
       exitedRef.current = true;
       setPhase("exit");
     }
-  }, [logoBaseSize, startScale]);
+  }, []);
+
+  useEffect(() => {
+    const raf = window.requestAnimationFrame(() => {
+      startScaleRef.current = getResponsiveStartScale();
+      logoBaseSizeRef.current = getResponsiveLogoSize();
+      setMotion(calculateLoaderMotion(depthRef.current, startScaleRef.current, logoBaseSizeRef.current));
+    });
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const queueDepth = useCallback((depth: number) => {
     pendingDepthRef.current = Math.max(0, Math.min(MAX_DEPTH, depth));

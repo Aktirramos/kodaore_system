@@ -74,6 +74,30 @@ body::after {
   pointer-events: none;
 }
 
+.k-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 120;
+  transform: translateY(-180%);
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--brand-emphasis) 60%, white 40%);
+  background: color-mix(in srgb, var(--surface) 85%, black 15%);
+  color: var(--foreground);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: transform 180ms ease;
+}
+
+.k-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid color-mix(in srgb, var(--brand-emphasis) 75%, white 25%);
+  outline-offset: 2px;
+}
+
 .fade-rise {
   animation: fade-rise 0.65s ease forwards;
 }
@@ -440,6 +464,31 @@ body::after {
   }
   to {
     transform: translateX(100%);
+  }
+}
+
+@media (hover: none) {
+  .k-hover-lift,
+  .k-hover-action,
+  .kodaore-social-icon {
+    transition:
+      border-color 220ms ease,
+      background-color 220ms ease,
+      color 220ms ease,
+      opacity 220ms ease;
+  }
+
+  .k-hover-lift:hover,
+  .k-hover-action:hover,
+  .kodaore-social-icon:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .k-hover-lift:hover::before,
+  .k-hover-soft:hover::before,
+  .kodaore-social-icon:hover::after {
+    opacity: 0 !important;
   }
 }
 

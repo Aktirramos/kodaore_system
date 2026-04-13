@@ -39,7 +39,7 @@ const siteVisuals: Record<string, { hero: string; fallback: string; gallery: Arr
 
 const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const textHoverBoxClass = "k-hover-soft group/text relative overflow-hidden rounded-xl border border-transparent p-3";
-const coachTextHoverBoxClass = "k-hover-soft group/text relative overflow-hidden space-y-2 rounded-xl border border-transparent p-4";
+const coachTextHoverBoxClass = "k-hover-soft group/text relative overflow-hidden space-y-2 px-5 pb-5 pt-4";
 
 export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
   const { locale, site } = await params;
@@ -114,7 +114,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
             const coachPhoto = coach.photo ?? galleryFallback.src;
 
             return (
-              <article key={coach.name} className="k-hover-lift overflow-hidden rounded-2xl border border-white/10 bg-surface-strong">
+              <article key={coach.name} className="k-hover-lift overflow-hidden rounded-[1.6rem] border border-white/8 bg-gradient-to-b from-surface-strong to-surface/80">
                 <div className="group relative min-h-[220px] overflow-hidden">
                   <SmartImage
                     src={coachPhoto}
@@ -128,7 +128,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
                 </div>
 
                 <div className={coachTextHoverBoxClass}>
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
+                  <div className="pointer-events-none absolute inset-2 rounded-2xl bg-gradient-to-br from-brand/10 via-transparent to-brand-warm/10 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
                   <h3 className="relative font-heading text-xl font-semibold text-foreground transition-colors duration-500 group-hover/text:text-white">{coach.name}</h3>
                   <p className="relative text-sm text-brand-emphasis">{coach.profile}</p>
                   <p className="relative text-sm leading-relaxed text-ink-muted transition-colors duration-500 group-hover/text:text-foreground">{coach.focus}</p>

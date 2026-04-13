@@ -20,6 +20,10 @@ export function SmartImage({ src, fallbackSrc, alt, onError, parallax = false, c
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
+    setCurrentSrc(src);
+  }, [src]);
+
+  useEffect(() => {
     if (!parallax) {
       return;
     }

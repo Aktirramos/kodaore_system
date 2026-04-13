@@ -14,8 +14,8 @@ const siteImages = [
 ];
 
 const headerSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
-const siteCardClass = "k-hover-lift group overflow-hidden rounded-3xl border border-white/10 bg-surface-strong shadow-[0_14px_30px_rgba(15,23,42,0.26)]";
-const siteTextBoxClass = "k-hover-soft group/text relative space-y-4 rounded-2xl border border-transparent p-5";
+const siteCardClass = "k-hover-lift group overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-surface-strong via-surface-strong to-surface/80 shadow-[0_16px_34px_rgba(15,23,42,0.24)]";
+const siteTextBoxClass = "k-hover-soft group/text relative space-y-4 px-5 pb-5 pt-4";
 const finalSectionClass = "fade-rise relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7";
 const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4";
 
@@ -66,7 +66,7 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
               href={`/${locale}/sedes/${site.slug}`}
               className={siteCardClass}
             >
-              <div className="group relative h-48 overflow-hidden">
+                <div className="group relative h-50 overflow-hidden">
                 <SmartImage
                   src={visual.src}
                   fallbackSrc={visual.fallback}
@@ -82,7 +82,8 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
               </div>
 
               <div className={siteTextBoxClass}>
-                <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-brand/16 via-transparent to-brand-warm/16 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
+                  <div className="pointer-events-none absolute inset-x-0 -top-4 h-10 bg-gradient-to-b from-black/35 to-transparent" />
+                  <div className="pointer-events-none absolute inset-2 rounded-[1.2rem] bg-gradient-to-br from-brand/10 via-transparent to-brand-warm/10 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
                 <div>
                   <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-foreground transition-colors duration-500 group-hover/text:text-white">{site.name}</h2>
                   <p className="relative mt-2 text-sm leading-relaxed text-ink-muted transition-colors duration-500 group-hover/text:text-foreground">{site.description}</p>
@@ -90,13 +91,13 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
 
                 <div>
                   <p className="relative text-xs font-semibold uppercase tracking-[0.15em] text-brand-emphasis">{copy.home.coachesTitle}</p>
-                  <ul className="mt-2 space-y-2">
+                  <ul className="mt-2 space-y-1.5">
                     {site.coaches.map((coach) => (
                       <li
                         key={coach.name}
-                        className="relative rounded-xl border border-white/10 bg-background/45 px-3 py-2 text-sm text-foreground transition-colors duration-500 group-hover/text:border-brand/25"
+                        className="relative text-sm text-foreground/90 transition-colors duration-500 group-hover/text:text-foreground"
                       >
-                        {coach.name}
+                          * {coach.name}
                       </li>
                     ))}
                   </ul>

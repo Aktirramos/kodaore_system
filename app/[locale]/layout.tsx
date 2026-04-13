@@ -23,6 +23,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <div className="kodaore-shell flex min-h-screen flex-col">
+      <a href="#main-content" className="k-skip-link">
+        {locale === "eu" ? "Joan edukira" : "Saltar al contenido"}
+      </a>
+
       <AnimatedSiteHeader
         locale={locale as LocaleCode}
         brand={copy.brand}
@@ -32,7 +36,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         isAuthenticated={Boolean(session?.user?.id)}
       />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 md:px-8 md:py-10">
+      <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 md:px-8 md:py-10" tabIndex={-1}>
         <PathnamePageTransitionShell>{children}</PathnamePageTransitionShell>
       </main>
 
