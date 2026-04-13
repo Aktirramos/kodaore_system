@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { Locale, Prisma, RoleCode, UserStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { env } from "@/lib/env";
 import { isLocale } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { buildRateLimitKey, extractClientIp } from "@/lib/security/rate-limit";
@@ -9,6 +10,7 @@ import { buildRateLimitKey, extractClientIp } from "@/lib/security/rate-limit";
 const REGISTER_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const REGISTER_RATE_LIMIT_LOCK_MS = 30 * 60 * 1000;
 const REGISTER_RATE_LIMIT_MAX_ATTEMPTS = 5;
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 const registerSchema = z.object({
   firstName: z.string().trim().min(2).max(80),
@@ -17,10 +19,15 @@ const registerSchema = z.object({
   phone: z.string().trim().min(6).max(40),
   password: z.string().min(10).max(72),
   locale: z.string(),
+  captchaToken: z.string().trim().min(20).max(2048).optional(),
 });
 
 function errorResponse(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
+}
+
+function registrationAcceptedResponse() {
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
 
 function buildRegisterRateLimitKey(scope: "email" | "ip", value: string) {
@@ -111,6 +118,40 @@ async function clearRegisterFailures(keys: string[]) {
   });
 }
 
+async function verifyTurnstileToken(token: string, clientIp: string | null) {
+  if (!env.TURNSTILE_SECRET_KEY) {
+    return true;
+  }
+
+  const body = new URLSearchParams();
+  body.set("secret", env.TURNSTILE_SECRET_KEY);
+  body.set("response", token);
+
+  if (clientIp) {
+    body.set("remoteip", clientIp);
+  }
+
+  try {
+    const response = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: body.toString(),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const payload = (await response.json()) as { success?: boolean };
+    return payload.success === true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   let body: unknown;
 
@@ -125,7 +166,7 @@ export async function POST(request: Request) {
     return errorResponse("Invalid registration data.", 400);
   }
 
-  const { firstName, lastName, email, password, phone, locale } = parsed.data;
+  const { firstName, lastName, email, password, phone, locale, captchaToken } = parsed.data;
   const clientIp = extractClientIp(request.headers);
   const throttleKeys = buildRegisterRateLimitKeys(email, clientIp);
   const now = new Date();
@@ -137,6 +178,19 @@ export async function POST(request: Request) {
   if (!isLocale(locale)) {
     await registerRegistrationFailureForKeys(throttleKeys, now);
     return errorResponse("Unsupported locale.", 400);
+  }
+
+  if (env.TURNSTILE_SECRET_KEY) {
+    if (!captchaToken) {
+      await registerRegistrationFailureForKeys(throttleKeys, now);
+      return errorResponse("Invalid registration data.", 400);
+    }
+
+    const captchaOk = await verifyTurnstileToken(captchaToken, clientIp);
+    if (!captchaOk) {
+      await registerRegistrationFailureForKeys(throttleKeys, now);
+      return errorResponse("Invalid registration data.", 400);
+    }
   }
 
   try {
@@ -156,7 +210,7 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       await registerRegistrationFailureForKeys(throttleKeys, now);
-      return errorResponse("An account with this email already exists.", 409);
+      return registrationAcceptedResponse();
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -198,11 +252,11 @@ export async function POST(request: Request) {
 
     await clearRegisterFailures(throttleKeys);
 
-    return NextResponse.json({ ok: true }, { status: 201 });
+    return registrationAcceptedResponse();
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       await registerRegistrationFailureForKeys(throttleKeys, now);
-      return errorResponse("An account with this email already exists.", 409);
+      return registrationAcceptedResponse();
     }
 
     await registerRegistrationFailureForKeys(throttleKeys, now);

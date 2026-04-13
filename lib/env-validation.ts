@@ -5,6 +5,8 @@ export type ValidatedEnv = {
   NEXTAUTH_SECRET: string;
   NEXTAUTH_URL: string | null;
   OBSERVABILITY_WEBHOOK_URL: string | null;
+  TURNSTILE_SECRET_KEY: string | null;
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: string | null;
 };
 
 function getRequiredEnv(source: Record<string, string | undefined>, name: string) {
@@ -33,6 +35,8 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
   const NEXTAUTH_SECRET = getRequiredEnv(source, "NEXTAUTH_SECRET");
   const NEXTAUTH_URL = source.NEXTAUTH_URL;
   const OBSERVABILITY_WEBHOOK_URL = source.OBSERVABILITY_WEBHOOK_URL;
+  const TURNSTILE_SECRET_KEY = source.TURNSTILE_SECRET_KEY?.trim() || null;
+  const NEXT_PUBLIC_TURNSTILE_SITE_KEY = source.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
 
   if (NEXTAUTH_SECRET.length < 32) {
     throw new Error("NEXTAUTH_SECRET must be at least 32 characters long.");
@@ -52,6 +56,10 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
     validateUrl("OBSERVABILITY_WEBHOOK_URL", OBSERVABILITY_WEBHOOK_URL);
   }
 
+  if (Boolean(TURNSTILE_SECRET_KEY) !== Boolean(NEXT_PUBLIC_TURNSTILE_SITE_KEY)) {
+    throw new Error("TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY must be set together.");
+  }
+
   return {
     NODE_ENV,
     IS_PRODUCTION,
@@ -59,5 +67,7 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
     NEXTAUTH_SECRET,
     NEXTAUTH_URL: NEXTAUTH_URL ?? null,
     OBSERVABILITY_WEBHOOK_URL: OBSERVABILITY_WEBHOOK_URL ?? null,
+    TURNSTILE_SECRET_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   };
 }

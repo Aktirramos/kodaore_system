@@ -46,4 +46,24 @@ describe("env validation", () => {
     expect(env.IS_PRODUCTION).toBe(false);
     expect(env.NEXTAUTH_URL).toBe(null);
   });
+
+  it("requires Turnstile server and public keys together", () => {
+    expect(() =>
+      buildValidatedEnv({
+        ...baseEnv,
+        TURNSTILE_SECRET_KEY: "secret-only",
+      }),
+    ).toThrow(/TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY must be set together/);
+  });
+
+  it("accepts Turnstile when both keys are provided", () => {
+    const env = buildValidatedEnv({
+      ...baseEnv,
+      TURNSTILE_SECRET_KEY: "turnstile-secret",
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: "turnstile-site-key",
+    });
+
+    expect(env.TURNSTILE_SECRET_KEY).toBe("turnstile-secret");
+    expect(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY).toBe("turnstile-site-key");
+  });
 });

@@ -3,8 +3,63 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import type { LocaleCode } from "@/lib/i18n";
+
+type TurnstileRenderOptions = {
+  sitekey: string;
+  callback?: (token: string) => void;
+  "expired-callback"?: () => void;
+  "error-callback"?: () => void;
+  theme?: "auto" | "light" | "dark";
+};
+
+type TurnstileApi = {
+  render: (element: HTMLElement, options: TurnstileRenderOptions) => string;
+  remove?: (widgetId: string) => void;
+};
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+function loadTurnstileScript() {
+  if (typeof window === "undefined") {
+    return Promise.resolve();
+  }
+
+  if (window.turnstile) {
+    return Promise.resolve();
+  }
+
+  if (turnstileScriptPromise) {
+    return turnstileScriptPromise;
+  }
+
+  turnstileScriptPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>('script[data-turnstile="true"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("TURNSTILE_SCRIPT_LOAD_ERROR")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.dataset.turnstile = "true";
+    script.addEventListener("load", () => resolve(), { once: true });
+    script.addEventListener("error", () => reject(new Error("TURNSTILE_SCRIPT_LOAD_ERROR")), { once: true });
+    document.head.appendChild(script);
+  });
+
+  return turnstileScriptPromise;
+}
 
 type AuthSignupFormProps = {
   locale: LocaleCode;
@@ -16,6 +71,8 @@ type RegisterErrorResponse = {
 
 export function AuthSignupForm({ locale }: AuthSignupFormProps) {
   const router = useRouter();
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? "";
+  const captchaEnabled = turnstileSiteKey.length > 0;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -25,6 +82,56 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  const captchaContainerRef = useRef<HTMLDivElement | null>(null);
+  const captchaWidgetIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!captchaEnabled) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const renderCaptcha = async () => {
+      try {
+        await loadTurnstileScript();
+
+        if (cancelled || !captchaContainerRef.current || !window.turnstile || captchaWidgetIdRef.current) {
+          return;
+        }
+
+        captchaWidgetIdRef.current = window.turnstile.render(captchaContainerRef.current, {
+          sitekey: turnstileSiteKey,
+          theme: "auto",
+          callback: (token) => {
+            setCaptchaToken(token);
+          },
+          "expired-callback": () => {
+            setCaptchaToken(null);
+          },
+          "error-callback": () => {
+            setCaptchaToken(null);
+          },
+        });
+      } catch {
+        setError(locale === "eu" ? "Captcha ezin izan da kargatu." : "No se pudo cargar el captcha.");
+      }
+    };
+
+    void renderCaptcha();
+
+    return () => {
+      cancelled = true;
+
+      if (captchaWidgetIdRef.current && window.turnstile?.remove) {
+        window.turnstile.remove(captchaWidgetIdRef.current);
+      }
+
+      captchaWidgetIdRef.current = null;
+    };
+  }, [captchaEnabled, locale, turnstileSiteKey]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,6 +145,11 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
 
     if (password !== confirmPassword) {
       setError(locale === "eu" ? "Pasahitzak ez datoz bat." : "Las contrasenas no coinciden.");
+      return;
+    }
+
+    if (captchaEnabled && !captchaToken) {
+      setError(locale === "eu" ? "Mesedez, osatu captcha." : "Por favor, completa el captcha.");
       return;
     }
 
@@ -56,6 +168,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
         phone: normalizedPhone,
         password,
         locale,
+        captchaToken,
       }),
     });
 
@@ -169,6 +282,12 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
           />
         </label>
       </div>
+
+      {captchaEnabled ? (
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+          <div ref={captchaContainerRef} />
+        </div>
+      ) : null}
 
       {error ? (
         <p role="alert" className="rounded-xl border border-rose-400/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">

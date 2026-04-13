@@ -68,6 +68,7 @@ cp .env.production.example .env.production
 - `DATABASE_URL` apuntando a tu Postgres real.
 - `NEXTAUTH_SECRET` con un secreto aleatorio de al menos 32 caracteres.
 - `NEXTAUTH_URL` con la URL publica final (https).
+- `TURNSTILE_SECRET_KEY` y `NEXT_PUBLIC_TURNSTILE_SITE_KEY` si activas captcha en registro.
 - `OBSERVABILITY_WEBHOOK_URL` opcional para recibir alertas de errores runtime y degradacion de salud.
 
 3. Aplica migraciones en produccion:
