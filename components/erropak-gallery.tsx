@@ -31,6 +31,7 @@ function wrapIndex(index: number, total: number) {
 
 export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string>("all");
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const isEu = locale === "eu";
@@ -55,6 +56,8 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
 
   const allCategoryLabel = isEu ? "Guztiak" : "Todo";
   const activeItem = activeIndex === null ? null : (visibleItems[activeIndex] ?? null);
+  const previewIndex = hoveredIndex ?? 0;
+  const previewItem = visibleItems[previewIndex] ?? null;
 
   const closeLightbox = useCallback(() => {
     setActiveIndex(null);
@@ -83,6 +86,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const selectCategory = useCallback((nextCategoryKey: string) => {
     setActiveCategoryKey(nextCategoryKey);
     setActiveIndex(null);
+    setHoveredIndex(null);
   }, []);
 
   useEffect(() => {
@@ -190,13 +194,56 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
           ))}
         </div>
 
+        {previewItem ? (
+          <article className="group/preview relative hidden overflow-hidden rounded-2xl border border-white/15 bg-black/35 md:block">
+            <div className="relative h-[300px] overflow-hidden lg:h-[360px]">
+              <SmartImage
+                src={previewItem.imageSrc}
+                fallbackSrc={previewItem.fallbackSrc}
+                alt={isEu ? previewItem.nameEu : previewItem.nameEs}
+                fill
+                className="object-cover transition duration-700"
+                sizes="(max-width: 1280px) 100vw, 80vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/40" />
+
+              <div className="absolute left-5 top-5 rounded-full border border-white/25 bg-black/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90">
+                {isEu ? previewItem.categoryEu : previewItem.categoryEs}
+              </div>
+
+              <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-emphasis">
+                    {isEu ? "Hover bidez handituta" : "Ampliado por hover"}
+                  </p>
+                  <h2 className="mt-1 font-heading text-3xl font-semibold text-white lg:text-4xl">
+                    {isEu ? previewItem.nameEu : previewItem.nameEs}
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveIndex(previewIndex)}
+                  className="k-focus-ring k-hover-action inline-flex rounded-full border border-white/30 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white"
+                >
+                  {isEu ? "Ireki handituta" : "Abrir ampliado"}
+                </button>
+              </div>
+            </div>
+          </article>
+        ) : null}
+
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleItems.map((item, index) => (
           <button
             key={`${item.nameEs}-${index}`}
             type="button"
             onClick={() => setActiveIndex(index)}
-            className="k-focus-ring k-hover-lift group overflow-hidden rounded-2xl border border-white/10 bg-surface-strong text-left"
+            onMouseEnter={() => setHoveredIndex(index)}
+            onFocus={() => setHoveredIndex(index)}
+            className={`k-focus-ring k-hover-lift group overflow-hidden rounded-2xl border bg-surface-strong text-left transition-colors ${
+              hoveredIndex === index ? "border-brand/45" : "border-white/10"
+            }`}
             aria-label={isEu ? `Ireki irudia ${index + 1}` : `Abrir imagen ${index + 1}`}
           >
             <div className="relative h-56 overflow-hidden">
@@ -205,7 +252,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
                 fallbackSrc={item.fallbackSrc}
                 alt={isEu ? item.nameEu : item.nameEs}
                 fill
-                className="object-cover transition duration-700 group-hover:scale-[1.03]"
+                className="object-cover transition duration-700 group-hover:scale-[1.1]"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
