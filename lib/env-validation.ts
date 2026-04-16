@@ -3,6 +3,7 @@ export type ValidatedEnv = {
   IS_PRODUCTION: boolean;
   DATABASE_URL: string;
   NEXTAUTH_SECRET: string;
+  ENCRYPTION_SECRET: string;
   NEXTAUTH_URL: string | null;
   AUTH_EMAIL_SERVER: string | null;
   AUTH_EMAIL_FROM: string | null;
@@ -35,6 +36,7 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
 
   const DATABASE_URL = getRequiredEnv(source, "DATABASE_URL");
   const NEXTAUTH_SECRET = getRequiredEnv(source, "NEXTAUTH_SECRET");
+  const ENCRYPTION_SECRET = getRequiredEnv(source, "ENCRYPTION_SECRET");
   const NEXTAUTH_URL = source.NEXTAUTH_URL;
   const AUTH_EMAIL_SERVER = source.AUTH_EMAIL_SERVER?.trim() || null;
   const AUTH_EMAIL_FROM = source.AUTH_EMAIL_FROM?.trim() || null;
@@ -44,6 +46,10 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
 
   if (NEXTAUTH_SECRET.length < 32) {
     throw new Error("NEXTAUTH_SECRET must be at least 32 characters long.");
+  }
+
+  if (ENCRYPTION_SECRET.length < 32) {
+    throw new Error("ENCRYPTION_SECRET must be at least 32 characters long.");
   }
 
   if (IS_PRODUCTION) {
@@ -82,6 +88,7 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
     IS_PRODUCTION,
     DATABASE_URL,
     NEXTAUTH_SECRET,
+    ENCRYPTION_SECRET,
     NEXTAUTH_URL: NEXTAUTH_URL ?? null,
     AUTH_EMAIL_SERVER,
     AUTH_EMAIL_FROM,

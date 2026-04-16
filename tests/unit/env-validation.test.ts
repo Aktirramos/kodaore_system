@@ -4,6 +4,7 @@ import { buildValidatedEnv } from "../../lib/env-validation";
 const baseEnv = {
   DATABASE_URL: "postgresql://user:pass@localhost:5432/kodaore",
   NEXTAUTH_SECRET: "12345678901234567890123456789012",
+  ENCRYPTION_SECRET: "12345678901234567890123456789012",
 };
 
 describe("env validation", () => {
@@ -26,6 +27,15 @@ describe("env validation", () => {
         NEXTAUTH_SECRET: "short-secret",
       }),
     ).toThrow(/NEXTAUTH_SECRET/);
+  });
+
+  it("fails with short ENCRYPTION_SECRET", () => {
+    expect(() =>
+      buildValidatedEnv({
+        ...baseEnv,
+        ENCRYPTION_SECRET: "short-secret",
+      }),
+    ).toThrow(/ENCRYPTION_SECRET/);
   });
 
   it("fails in production without NEXTAUTH_URL", () => {

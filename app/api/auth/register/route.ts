@@ -18,7 +18,7 @@ const registerSchema = z.object({
   lastName: z.string().trim().min(2).max(120),
   email: z.string().trim().toLowerCase().email().max(320),
   phone: z.string().trim().min(6).max(40),
-  password: z.string().min(10).max(72),
+  password: z.string().min(10).max(72).regex(/[A-Z]/).regex(/[0-9]/).regex(/[^A-Za-z0-9]/),
   acceptedTerms: z.literal(true),
   acceptedPrivacy: z.literal(true),
   locale: z.string(),
