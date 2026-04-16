@@ -46,11 +46,11 @@ export default async function PortalPaymentsPage({ params }: PortalPaymentsPageP
           value={formatCurrency(payments.totals.paidAmountCents, locale)}
         />
         <Stat
-          label={isEu ? "Ordainketa zainak" : "Pagos pendientes"}
+          label={isEu ? "Ordaintzeko daudenak" : "Pagos pendientes"}
           value={formatCurrency(payments.totals.pendingAmountCents, locale)}
         />
         <Stat
-          label={isEu ? "Errezibo kopurua" : "Numero de recibos"}
+          label={isEu ? "Ordainagiri kopurua" : "Numero de recibos"}
           value={`${payments.totals.paidCount + payments.totals.pendingCount}`}
         />
       </section>
@@ -80,7 +80,7 @@ export default async function PortalPaymentsPage({ params }: PortalPaymentsPageP
                     value={`${formatDate(receipt.periodStart, locale)} - ${formatDate(receipt.periodEnd, locale)}`}
                   />
                   <Data
-                    label={isEu ? "Mugimendu berriena" : "Ultimo movimiento"}
+                    label={isEu ? "Azken mugimendua" : "Ultimo movimiento"}
                     value={
                       receipt.latestMovement
                         ? `${getMovementLabel(receipt.latestMovement.type, locale)} · ${formatDate(receipt.latestMovement.occurredAt, locale)}`

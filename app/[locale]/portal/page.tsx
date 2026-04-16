@@ -54,7 +54,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
           tone="neutral"
         />
         <StatCard
-          label={isEu ? "Ordainketa zainak" : "Pagos pendientes"}
+          label={isEu ? "Ordaintzeko daudenak" : "Pagos pendientes"}
           value={String(summary.totals.pendingReceipts)}
           tone="warning"
         />
@@ -75,19 +75,19 @@ export default async function PortalPage({ params }: PortalPageProps) {
           href={`/${locale}/portal/profile`}
           title={isEu ? "Datu pertsonalak" : "Datos personales"}
           text={isEu ? "Familiaren fitxa eta ikasleen datuak kontsultatu." : "Consulta ficha familiar y datos del alumnado."}
-          cta={isEu ? "Ikusi xehetasuna" : "Ver detalle"}
+          cta={isEu ? "Ikusi xehetasunak" : "Ver detalles"}
         />
         <QuickLinkCard
           href={`/${locale}/portal/payments`}
           title={isEu ? "Ordainketak" : "Pagos"}
           text={isEu ? "Kuoten egoera eta azken mugimenduak ikusi." : "Revisa estado de cuotas y movimientos recientes."}
-          cta={isEu ? "Ikusi xehetasuna" : "Ver detalle"}
+          cta={isEu ? "Ikusi xehetasunak" : "Ver detalles"}
         />
         <QuickLinkCard
           href={`/${locale}/portal/messages`}
           title={isEu ? "Komunikazioak" : "Comunicaciones"}
           text={isEu ? "Egoitzako mezuak eta abisuak berrikusi." : "Lee avisos y mensajes de la sede."}
-          cta={isEu ? "Ikusi xehetasuna" : "Ver detalle"}
+          cta={isEu ? "Ikusi xehetasunak" : "Ver detalles"}
         />
       </section>
 

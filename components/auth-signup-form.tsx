@@ -308,7 +308,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
           <span>
             {locale === "eu" ? "Onartzen ditut " : "Acepto los "}
             <Link href={`/${locale}/legal/terms`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-white">
-              {locale === "eu" ? "zerbitzuaren baldintzak" : "terminos del servicio"}
+              {locale === "eu" ? "zerbitzuen baldintzak" : "terminos del servicio"}
             </Link>
             .
           </span>

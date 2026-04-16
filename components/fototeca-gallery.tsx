@@ -150,7 +150,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
               <SmartImage
                 src={item.image}
                 fallbackSrc={item.fallback}
-                alt={`${brand} gallery ${index + 1}`}
+                alt={locale === "eu" ? `${brand} galeria ${index + 1}` : `Galeria de ${brand} ${index + 1}`}
                 fill
                 className="object-cover transition duration-700 group-hover:scale-[1.04]"
                 sizes="(max-width: 768px) 50vw, 25vw"
@@ -194,7 +194,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
             <SmartImage
               src={items[activeIndex].image}
               fallbackSrc={items[activeIndex].fallback}
-              alt={`${brand} gallery ${activeIndex + 1}`}
+              alt={locale === "eu" ? `${brand} galeria ${activeIndex + 1}` : `Galeria de ${brand} ${activeIndex + 1}`}
               fill
               priority
               className="object-contain"
@@ -215,7 +215,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
             {activeIndex + 1} / {items.length}
           </p>
           <p className="absolute bottom-12 left-1/2 -translate-x-1/2 text-[11px] font-medium tracking-[0.08em] text-white/80 md:hidden">
-            {locale === "eu" ? "Ezkerrera/eskuinera irristatu" : "Desliza izquierda/derecha"}
+            {locale === "eu" ? "Ezkerrera/eskuinera pasa" : "Desliza izquierda/derecha"}
           </p>
         </div>
       ) : null}

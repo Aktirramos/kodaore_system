@@ -183,7 +183,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         aria-label={brand}
       >
         <span className={clsx("relative overflow-hidden rounded-full transition-all duration-500", compact ? "h-9 w-9" : "h-11 w-11")}>
-          <Image src="/logo-kodaore.png" alt="Kodaore logo" fill priority sizes="44px" className="object-contain" />
+          <Image src="/logo-kodaore.png" alt={locale === "eu" ? "Kodaore logoa" : "Logo de Kodaore"} fill priority sizes="44px" className="object-contain" />
         </span>
         <span
           className={clsx(

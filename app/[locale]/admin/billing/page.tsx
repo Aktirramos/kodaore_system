@@ -43,12 +43,12 @@ export default async function AdminBillingPage({ params }: AdminBillingPageProps
       <section className="fade-rise grid gap-4 md:grid-cols-4">
         <StatCard label={isEu ? "Ordainduta" : "Pagado"} value={formatCurrency(data.totals.paidAmountCents, locale)} />
         <StatCard
-          label={isEu ? "Ordaintzeke" : "Pendiente"}
+          label={isEu ? "Ordaindu gabe" : "Pendiente"}
           value={formatCurrency(data.totals.pendingAmountCents, locale)}
           tone="warning"
         />
-        <StatCard label={isEu ? "Errezibo ordainduak" : "Recibos pagados"} value={String(data.totals.paidCount)} />
-        <StatCard label={isEu ? "Errezibo pendienteak" : "Recibos pendientes"} value={String(data.totals.pendingCount)} tone="warning" />
+        <StatCard label={isEu ? "Ordainagiri ordainduak" : "Recibos pagados"} value={String(data.totals.paidCount)} />
+        <StatCard label={isEu ? "Falta diren ordainagiriak" : "Recibos pendientes"} value={String(data.totals.pendingCount)} tone="warning" />
       </section>
 
       <section className="fade-rise overflow-hidden rounded-2xl border border-white/10 bg-surface">
@@ -85,7 +85,7 @@ export default async function AdminBillingPage({ params }: AdminBillingPageProps
             <div className="overflow-x-auto">
               <table className="min-w-[920px] w-full border-collapse text-left text-sm">
                 <caption className="sr-only">
-                  {isEu ? "Kobrantzen eta erreziboen administrazio taula" : "Tabla de administracion de cobros y recibos"}
+                  {isEu ? "Kobrantzen eta ordainagirien administrazio taula" : "Tabla de administracion de cobros y recibos"}
                 </caption>
                 <thead className="bg-surface-strong/70 text-foreground">
                   <tr>

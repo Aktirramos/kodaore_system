@@ -39,13 +39,13 @@ export default function LocaleNotFound() {
             href={`/${locale}`}
             className="k-focus-ring k-hover-action rounded-full border border-brand/45 bg-brand px-4 py-2 text-sm font-semibold text-brand-contrast"
           >
-            {isEu ? "Hasierara itzuli" : "Volver al inicio"}
+            {isEu ? "Hasiera itzuli" : "Volver al inicio"}
           </Link>
           <Link
             href={`/${locale}/sedes`}
             className="k-focus-ring k-hover-action rounded-full border border-white/30 bg-black/25 px-4 py-2 text-sm font-semibold text-white"
           >
-            {isEu ? "Sedeak ikusi" : "Ver sedes"}
+            {isEu ? "Egoitzak ikusi" : "Ver sedes"}
           </Link>
           <Link
             href={`/${locale}/acceso`}

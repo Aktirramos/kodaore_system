@@ -111,6 +111,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   const termsLabel = locale === "eu" ? "Baldintzak" : "Terminos";
   const privacyLabel = locale === "eu" ? "Pribatutasuna" : "Privacidad";
   const backTopLabel = locale === "eu" ? "Gora" : "Arriba";
+  const socialLabel = locale === "eu" ? "Sare sozialak" : "Redes sociales";
 
   return (
     <>
@@ -133,7 +134,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
             <div className="flex flex-wrap items-end justify-between gap-8">
               <div className="space-y-3">
                 <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">{appsLabel}</p>
-                <nav className="flex items-center gap-3 md:gap-4" aria-label="Social links">
+                <nav className="flex items-center gap-3 md:gap-4" aria-label={socialLabel}>
                   {socialLinks.map((social, index) => (
                     <Link
                       key={social.label}

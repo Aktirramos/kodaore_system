@@ -28,20 +28,22 @@ export default async function AdminPage({ params }: AdminPageProps) {
   return (
     <div className="space-y-6">
       <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">Admin Dashboard</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">{isEu ? "Admin panela" : "Panel admin"}</p>
         <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Kodaore Backoffice
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-muted md:text-base">
-          Vista inicial para controlar alumnos, grupos y cobros de las tres sedes con acceso protegido por rol.
+          {isEu
+            ? "Hiru egoitzetako ikasleak, taldeak eta kobrantzak kontrolatzeko hasierako ikuspegia, rolaren arabera babestutako sarbidearekin."
+            : "Vista inicial para controlar alumnos, grupos y cobros de las tres sedes con acceso protegido por rol."}
         </p>
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-4">
-        <StatCard label="Alumnos activos" value={summary.totals.students} />
-        <StatCard label="Grupos activos" value={summary.totals.groups} />
-        <StatCard label="Recibos cobrados" value={summary.totals.paidReceipts} />
-        <StatCard label="Recibos pendientes" value={summary.totals.pendingReceipts} tone="warning" />
+        <StatCard label={isEu ? "Ikasle aktiboak" : "Alumnos activos"} value={summary.totals.students} />
+        <StatCard label={isEu ? "Talde aktiboak" : "Grupos activos"} value={summary.totals.groups} />
+        <StatCard label={isEu ? "Ordainagiri ordainduak" : "Recibos cobrados"} value={summary.totals.paidReceipts} />
+        <StatCard label={isEu ? "Falta diren ordainagiriak" : "Recibos pendientes"} value={summary.totals.pendingReceipts} tone="warning" />
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-3">
@@ -81,17 +83,19 @@ export default async function AdminPage({ params }: AdminPageProps) {
           <div className="space-y-3 p-4 md:hidden">
             {summary.perSite.length === 0 ? (
               <article className="rounded-xl border border-white/10 bg-surface-strong/40 p-4 text-sm text-ink-muted">
-                Sin datos todavia. Ejecuta migraciones y seed para cargar informacion de ejemplo.
+                {isEu
+                  ? "Oraindik ez dago daturik. Exekutatu migrazioak eta seed komandoa adibideko informazioa kargatzeko."
+                  : "Sin datos todavia. Ejecuta migraciones y seed para cargar informacion de ejemplo."}
               </article>
             ) : (
               summary.perSite.map((site) => (
                 <article key={site.id} className="rounded-xl border border-white/10 bg-surface-strong/40 p-4">
                   <h2 className="font-semibold text-foreground">{site.name}</h2>
                   <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-ink-muted">
-                    <p>Alumnos: {site.activeStudents}</p>
-                    <p>Grupos: {site.activeGroups}</p>
-                    <p>Cobrados: {site.paidReceipts}</p>
-                    <p>Pendientes: {site.pendingReceipts}</p>
+                    <p>{isEu ? "Ikasleak" : "Alumnos"}: {site.activeStudents}</p>
+                    <p>{isEu ? "Taldeak" : "Grupos"}: {site.activeGroups}</p>
+                    <p>{isEu ? "Ordainduak" : "Cobrados"}: {site.paidReceipts}</p>
+                    <p>{isEu ? "Falta direnak" : "Pendientes"}: {site.pendingReceipts}</p>
                   </div>
                 </article>
               ))
@@ -106,18 +110,20 @@ export default async function AdminPage({ params }: AdminPageProps) {
                 </caption>
                 <thead className="bg-surface-strong/70 text-foreground">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">Sede</th>
-                    <th className="px-4 py-3 font-semibold">Alumnos</th>
-                    <th className="px-4 py-3 font-semibold">Grupos</th>
-                    <th className="px-4 py-3 font-semibold">Cobrados</th>
-                    <th className="px-4 py-3 font-semibold">Pendientes</th>
+                    <th className="px-4 py-3 font-semibold">{isEu ? "Egoitza" : "Sede"}</th>
+                    <th className="px-4 py-3 font-semibold">{isEu ? "Ikasleak" : "Alumnos"}</th>
+                    <th className="px-4 py-3 font-semibold">{isEu ? "Taldeak" : "Grupos"}</th>
+                    <th className="px-4 py-3 font-semibold">{isEu ? "Ordainduak" : "Cobrados"}</th>
+                    <th className="px-4 py-3 font-semibold">{isEu ? "Falta direnak" : "Pendientes"}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {summary.perSite.length === 0 ? (
                     <tr>
                       <td className="px-4 py-6 text-ink-muted" colSpan={5}>
-                        Sin datos todavia. Ejecuta migraciones y seed para cargar informacion de ejemplo.
+                        {isEu
+                          ? "Oraindik ez dago daturik. Exekutatu migrazioak eta seed komandoa adibideko informazioa kargatzeko."
+                          : "Sin datos todavia. Ejecuta migraciones y seed para cargar informacion de ejemplo."}
                       </td>
                     </tr>
                   ) : (

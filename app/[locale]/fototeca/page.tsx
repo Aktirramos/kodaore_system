@@ -29,7 +29,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
           <div>
             <div className="k-hover-soft inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface-strong px-3 py-1.5">
               <span className="relative h-7 w-7 overflow-hidden rounded-full">
-                <Image src="/logo-kodaore.png" alt="Kodaore logo" fill sizes="28px" className="object-contain p-1" />
+                <Image src="/logo-kodaore.png" alt={locale === "eu" ? "Kodaore logoa" : "Logo de Kodaore"} fill sizes="28px" className="object-contain p-1" />
               </span>
               <span className="font-heading text-sm font-semibold tracking-[0.08em]">
                 <span className="text-brand-emphasis">Ko</span>

@@ -33,6 +33,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
     ? "Klubeko sudaderak, kamisetak eta osagarriak galeria bisual batean. Ikusi estiloak eta hurrengo bildumen inspirazioa hartu."
     : "Sudaderas, camisetas y accesorios del club en una galeria visual. Mira estilos e inspírate para las proximas colecciones.";
   const storeCta = locale === "eu" ? "Erropak ikusi" : "Ver ropa";
+  const finalImageAlt = locale === "eu" ? "Kodaore argazki nabarmendua" : "Destacado fotografico de Kodaore";
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -69,7 +70,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
                 <SmartImage
                   src={sitePreviewMedia[site.slug]?.src ?? "/media/hero-1.jpg"}
                   fallbackSrc={sitePreviewMedia[site.slug]?.fallbackSrc ?? "/media/photo-fallback-1.svg"}
-                  alt={`${site.name} preview`}
+                  alt={locale === "eu" ? `${site.name} aurrebista` : `Vista previa de ${site.name}`}
                   fill
                   parallax
                   className="object-cover transition duration-700 group-hover:scale-105"
@@ -101,7 +102,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-black/25" />
             <div className="absolute left-4 top-4 rounded-full border border-white/25 bg-black/35 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
-              {locale === "eu" ? "Galeria" : "Galeria"}
+              {locale === "eu" ? "Argazki bilduma" : "Galeria"}
             </div>
           </article>
 
@@ -146,7 +147,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <SmartImage
               src="/media/hero-3.jpg"
               fallbackSrc="/media/photo-fallback-3.svg"
-              alt="Kodaore photography highlight"
+              alt={finalImageAlt}
               fill
               className="object-cover transition duration-700 group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, 50vw"

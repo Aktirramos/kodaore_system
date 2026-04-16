@@ -21,7 +21,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
           {isEu ? "Lege informazioa" : "Informacion legal"}
         </p>
         <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          {isEu ? "Zerbitzuaren baldintzak" : "Terminos del servicio"}
+          {isEu ? "Zerbitzuen baldintzak" : "Terminos del servicio"}
         </h1>
         <p className="mt-3 text-sm text-ink-muted md:text-base">
           {isEu

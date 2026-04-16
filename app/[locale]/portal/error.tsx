@@ -60,7 +60,7 @@ export default function PortalError({ error, unstable_retry }: PortalErrorProps)
             href={`/${locale}/portal`}
             className="k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-white/20 bg-white/5 px-5 py-2 text-sm font-semibold text-foreground"
           >
-            {isEu ? "Portalera itzuli" : "Volver al portal"}
+            {isEu ? "Atarira itzuli" : "Volver al portal"}
           </Link>
         </div>
       </section>

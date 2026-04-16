@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
 const START_SCALE = 2.8;
@@ -69,6 +70,9 @@ function getResponsiveLogoSize() {
 }
 
 export function InitialLoader() {
+  const pathname = usePathname() ?? "/eu";
+  const isEu = pathname.startsWith("/eu");
+
   const startScaleRef = useRef(START_SCALE);
   const logoBaseSizeRef = useRef(DESKTOP_LOGO_SIZE);
   const [phase, setPhase] = useState<LoaderPhase>("visible");
@@ -251,6 +255,9 @@ export function InitialLoader() {
   const containerStyle = {
     "--loader-progress": motion.progress,
   } as CSSProperties;
+  const loaderAriaLabel = isEu ? "Kodaore karga pantaila" : "Pantalla de carga de Kodaore";
+  const logoAlt = isEu ? "Kodaore logoa" : "Logo de Kodaore";
+  const scrollHint = isEu ? "Egin scroll edo irristatu jarraitzeko" : "Haz scroll o desliza para continuar";
 
   const chromeOpacity = motion.progress > 0.01 ? 0 : 1;
 
@@ -260,7 +267,7 @@ export function InitialLoader() {
       style={containerStyle}
       role="status"
       aria-live="polite"
-      aria-label="Kodaore loading screen"
+      aria-label={loaderAriaLabel}
     >
       <div className="kodaore-loader-backdrop" aria-hidden="true" />
 
@@ -275,7 +282,7 @@ export function InitialLoader() {
           <div className="relative h-28 w-28 overflow-hidden rounded-full md:h-32 md:w-32">
             <Image
               src="/logo-kodaore.png"
-              alt="Kodaore logo"
+              alt={logoAlt}
               fill
               priority
               sizes="(max-width: 768px) 112px, 128px"
@@ -300,7 +307,7 @@ export function InitialLoader() {
         <div className="kodaore-loader-wave" style={{ opacity: chromeOpacity, transition: "opacity 90ms linear" }} aria-hidden="true" />
 
         <p className={`kodaore-loader-hint ${showScrollHint ? "is-visible" : ""}`} aria-hidden={!showScrollHint}>
-          Haz scroll o desliza para continuar
+          {scrollHint}
         </p>
       </div>
     </div>

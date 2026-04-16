@@ -29,7 +29,7 @@ export default async function AccessPage({ params }: AccessPageProps) {
 
   return (
     <div className="fade-rise mx-auto max-w-lg rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">Acceso</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">{locale === "eu" ? "Sarbidea" : "Acceso"}</p>
       <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground">
         {locale === "eu" ? "Saioa hasi" : "Iniciar sesion"}
       </h1>

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SmartImage } from "@/components/smart-image";
 import { VantaWavesBackground } from "@/components/vanta-waves-background";
@@ -23,7 +24,14 @@ function getInitialReadyState() {
 }
 
 export function HomeHero({ tagline, heroTitle, scrollProgress, heroId }: HomeHeroProps) {
+  const pathname = usePathname() ?? "/eu";
+  const isEu = pathname.startsWith("/eu");
+
   const [ready, setReady] = useState(getInitialReadyState);
+
+  const heroImageAlt = isEu ? "Kodaore hero irudia" : "Imagen hero de Kodaore";
+  const sideImageAlt = isEu ? "Kodaore alboko irudia" : "Imagen lateral de Kodaore";
+  const logoAlt = isEu ? "Kodaore logoa" : "Logo de Kodaore";
 
   useEffect(() => {
     const html = document.documentElement;
@@ -62,7 +70,7 @@ export function HomeHero({ tagline, heroTitle, scrollProgress, heroId }: HomeHer
           <SmartImage
             src="/media/hero-1.jpg"
             fallbackSrc="/media/photo-fallback-1.svg"
-            alt="Kodaore hero visual"
+            alt={heroImageAlt}
             fill
             className="object-cover transition duration-700 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 100vw, 62vw"
@@ -75,7 +83,7 @@ export function HomeHero({ tagline, heroTitle, scrollProgress, heroId }: HomeHer
             <SmartImage
               src="/media/hero-2.jpg"
               fallbackSrc="/media/photo-fallback-2.svg"
-              alt="Kodaore side visual"
+              alt={sideImageAlt}
               fill
               className="object-cover transition duration-700 group-hover:scale-105"
               sizes="(max-width: 768px) 46vw, 26vw"
@@ -89,7 +97,7 @@ export function HomeHero({ tagline, heroTitle, scrollProgress, heroId }: HomeHer
               <div className={`relative aspect-square w-full max-w-[82px] overflow-hidden rounded-full md:max-w-[96px] ${ready ? "fade-rise fade-rise-delay-400" : "opacity-0"}`}>
                 <Image
                   src="/logo-kodaore.png"
-                  alt="Kodaore logo"
+                  alt={logoAlt}
                   fill
                   priority
                   sizes="96px"

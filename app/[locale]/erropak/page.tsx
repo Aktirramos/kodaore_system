@@ -72,7 +72,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
   }
 
   const isEu = locale === "eu";
-  const heroTag = isEu ? "Kolekzio bisuala" : "Coleccion visual";
+  const heroTag = isEu ? "Ikus-bilduma" : "Coleccion visual";
   const heroTitle = isEu ? "Kodaore Erropak" : "Kodaore Erropak";
   const heroDescription = isEu
     ? "Momentuz ez da denda transakzionala: piezak ikusi, handitu eta gustuko dituzunak aukeratu. Ondoren klubarekin lotu zaitezke informazioa jasotzeko."
@@ -131,7 +131,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
               {isEu ? "Nola funtzionatzen du?" : "Como funciona"}
             </h2>
             <ol className="relative mt-3 space-y-2 text-sm text-ink-muted">
-              <li>{isEu ? "1. Galerian piezak filtratu eta handitu." : "1. Filtra y amplia prendas en la galeria."}</li>
+              <li>{isEu ? "1. Piezak filtratu eta handitu." : "1. Filtra y amplia prendas en la galeria."}</li>
               <li>{isEu ? "2. Gustuko konbinazioak aukeratu." : "2. Elige combinaciones que te encajen."}</li>
               <li>{isEu ? "3. Informazioa eskatu klubari." : "3. Solicita informacion al club."}</li>
             </ol>
@@ -174,7 +174,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
             href={`/${locale}`}
             className="k-focus-ring k-hover-action relative mt-5 inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:border-white/40"
           >
-            {isEu ? "Hasierara itzuli" : "Volver al inicio"}
+            {isEu ? "Hasiera itzuli" : "Volver al inicio"}
           </Link>
         </div>
       </section>
