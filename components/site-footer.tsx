@@ -140,7 +140,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
                       href={social.href}
                       target="_blank"
                       rel="noreferrer"
-                      className={`kodaore-social-icon ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
+                      className={`k-focus-ring inline-flex h-9 w-9 items-center justify-center text-white/85 transition-transform duration-300 hover:scale-110 hover:text-white ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
                       style={{ animationDelay: revealed ? `${200 + index * 90}ms` : undefined }}
                       aria-label={social.label}
                     >
