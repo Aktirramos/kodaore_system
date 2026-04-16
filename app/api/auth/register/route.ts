@@ -18,6 +18,8 @@ const registerSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(320),
   phone: z.string().trim().min(6).max(40),
   password: z.string().min(10).max(72),
+  acceptedTerms: z.literal(true),
+  acceptedPrivacy: z.literal(true),
   locale: z.string(),
   captchaToken: z.string().trim().min(20).max(2048).optional(),
 });
@@ -166,7 +168,7 @@ export async function POST(request: Request) {
     return errorResponse("Invalid registration data.", 400);
   }
 
-  const { firstName, lastName, email, password, phone, locale, captchaToken } = parsed.data;
+  const { firstName, lastName, email, password, phone, locale, captchaToken, acceptedTerms, acceptedPrivacy } = parsed.data;
   const clientIp = extractClientIp(request.headers);
   const throttleKeys = buildRegisterRateLimitKeys(email, clientIp);
   const now = new Date();
@@ -226,6 +228,10 @@ export async function POST(request: Request) {
           lastName,
           phone: normalizedPhone,
           preferredLocale: locale as Locale,
+          acceptedTerms,
+          acceptedTermsAt: acceptedTerms ? now : null,
+          acceptedPrivacy,
+          acceptedPrivacyAt: acceptedPrivacy ? now : null,
           status: UserStatus.ACTIVE,
         },
         select: { id: true },

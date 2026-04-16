@@ -130,6 +130,10 @@ model User {
   lastName            String
   phone               String?
   preferredLocale     Locale           @default(eu)
+  acceptedTerms       Boolean          @default(false)
+  acceptedTermsAt     DateTime?
+  acceptedPrivacy     Boolean          @default(false)
+  acceptedPrivacyAt   DateTime?
   status              UserStatus       @default(ACTIVE)
   lastLoginAt         DateTime?
   createdAt           DateTime         @default(now())

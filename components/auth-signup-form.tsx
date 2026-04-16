@@ -80,6 +80,8 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -148,6 +150,15 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
       return;
     }
 
+    if (!acceptedTerms || !acceptedPrivacy) {
+      setError(
+        locale === "eu"
+          ? "Jarraitzeko, baldintzak eta pribatutasun politika onartu behar dituzu."
+          : "Para continuar debes aceptar los terminos y la politica de privacidad.",
+      );
+      return;
+    }
+
     if (captchaEnabled && !captchaToken) {
       setError(locale === "eu" ? "Mesedez, osatu captcha." : "Por favor, completa el captcha.");
       return;
@@ -167,6 +178,8 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
         email,
         phone: normalizedPhone,
         password,
+        acceptedTerms,
+        acceptedPrivacy,
         locale,
         captchaToken,
       }),
@@ -280,6 +293,42 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             onChange={(event) => setConfirmPassword(event.target.value)}
             className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
           />
+        </label>
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-neutral-300">
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            required
+            checked={acceptedTerms}
+            onChange={(event) => setAcceptedTerms(event.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-white/30 bg-black/30"
+          />
+          <span>
+            {locale === "eu" ? "Onartzen ditut " : "Acepto los "}
+            <Link href={`/${locale}/legal/terms`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-white">
+              {locale === "eu" ? "zerbitzuaren baldintzak" : "terminos del servicio"}
+            </Link>
+            .
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            required
+            checked={acceptedPrivacy}
+            onChange={(event) => setAcceptedPrivacy(event.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-white/30 bg-black/30"
+          />
+          <span>
+            {locale === "eu" ? "Onartzen dut " : "Acepto la "}
+            <Link href={`/${locale}/legal/privacy`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-white">
+              {locale === "eu" ? "pribatutasun politika" : "politica de privacidad"}
+            </Link>
+            .
+          </span>
         </label>
       </div>
 
