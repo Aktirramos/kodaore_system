@@ -8,9 +8,9 @@ type LocaleSedesProps = {
 };
 
 const siteImages = [
-  { src: "/media/hero-1.jpg", fallback: "/media/photo-fallback-1.svg" },
-  { src: "/media/hero-2.jpg", fallback: "/media/photo-fallback-2.svg" },
-  { src: "/media/hero-3.jpg", fallback: "/media/photo-fallback-3.svg" },
+  { src: "/media/sedes/azkoitia-poli.jpg", fallback: "/media/photo-fallback-1.svg" },
+  { src: "/media/sedes/azpeitia-poli.jpg", fallback: "/media/photo-fallback-2.svg" },
+  { src: "/media/sedes/zumaia-poli.jpg", fallback: "/media/photo-fallback-3.svg" },
 ];
 
 const headerSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";

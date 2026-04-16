@@ -9,28 +9,28 @@ type LocaleSitePageProps = {
 
 const siteVisuals: Record<string, { hero: string; fallback: string; gallery: Array<{ src: string; fallback: string }> }> = {
   azkoitia: {
-    hero: "/media/hero-1.jpg",
+    hero: "/media/sedes/azkoitia-poli.jpg",
     fallback: "/media/photo-fallback-1.svg",
     gallery: [
-      { src: "/media/hero-1.jpg", fallback: "/media/photo-fallback-1.svg" },
+      { src: "/media/sedes/azkoitia-poli.jpg", fallback: "/media/photo-fallback-1.svg" },
       { src: "/media/judo-4.jpg", fallback: "/media/photo-fallback-1.svg" },
       { src: "/media/judo-6.jpg", fallback: "/media/photo-fallback-3.svg" },
     ],
   },
   azpeitia: {
-    hero: "/media/hero-2.jpg",
+    hero: "/media/sedes/azpeitia-poli.jpg",
     fallback: "/media/photo-fallback-2.svg",
     gallery: [
-      { src: "/media/hero-2.jpg", fallback: "/media/photo-fallback-2.svg" },
+      { src: "/media/sedes/azpeitia-poli.jpg", fallback: "/media/photo-fallback-2.svg" },
       { src: "/media/judo-5.jpg", fallback: "/media/photo-fallback-2.svg" },
       { src: "/media/judo-4.jpg", fallback: "/media/photo-fallback-1.svg" },
     ],
   },
   zumaia: {
-    hero: "/media/hero-3.jpg",
+    hero: "/media/sedes/zumaia-poli.jpg",
     fallback: "/media/photo-fallback-3.svg",
     gallery: [
-      { src: "/media/hero-3.jpg", fallback: "/media/photo-fallback-3.svg" },
+      { src: "/media/sedes/zumaia-poli.jpg", fallback: "/media/photo-fallback-3.svg" },
       { src: "/media/judo-6.jpg", fallback: "/media/photo-fallback-3.svg" },
       { src: "/media/judo-5.jpg", fallback: "/media/photo-fallback-2.svg" },
     ],
