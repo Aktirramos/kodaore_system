@@ -32,9 +32,20 @@ function FacebookIcon() {
   );
 }
 
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 4h3.5l12.5 16H16.5L4 4Z" />
+      <path d="M20 4l-6 6" />
+      <path d="M10 14l-6 6" />
+    </svg>
+  );
+}
+
 const socialLinks: SocialLink[] = [
-  { label: "Instagram", href: "https://instagram.com", icon: <InstagramIcon /> },
-  { label: "Facebook", href: "https://facebook.com", icon: <FacebookIcon /> },
+  { label: "Instagram", href: "https://www.instagram.com/judoclubkodaore/", icon: <InstagramIcon /> },
+  { label: "X", href: "https://x.com/JudoClubKodaore", icon: <XIcon /> },
+  { label: "Facebook", href: "https://www.facebook.com/kodaore", icon: <FacebookIcon /> },
 ];
 
 export function SiteFooter({ locale }: SiteFooterProps) {
