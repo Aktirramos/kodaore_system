@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { AnimatedSiteHeader } from "@/components/animated-site-header";
@@ -10,6 +11,60 @@ type LocaleLayoutProps = {
   children: ReactNode;
   params: Promise<{ locale: string }>;
 };
+
+type LocaleMetadata = {
+  title: string;
+  description: string;
+};
+
+const localeMetadata: Record<LocaleCode, LocaleMetadata> = {
+  eu: {
+    title: "Kodaore | Judo kluba eta familien plataforma",
+    description:
+      "Kodaoreko web plataforma: Azkoitia, Azpeitia eta Zumaia egoitzetako informazioa, familiei zuzendutako ataria eta kudeaketa digitala.",
+  },
+  es: {
+    title: "Kodaore | Club de judo y plataforma para familias",
+    description:
+      "Plataforma web de Kodaore con informacion de las sedes de Azkoitia, Azpeitia y Zumaia, acceso para familias y gestion digital del club.",
+  },
+};
+
+function getMetadataBase() {
+  const fallbackBase = "http://localhost:3000";
+  const configuredBase = process.env.NEXTAUTH_URL?.trim() || fallbackBase;
+  return new URL(configuredBase);
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    notFound();
+  }
+
+  const current = localeMetadata[locale as LocaleCode];
+
+  return {
+    metadataBase: getMetadataBase(),
+    title: current.title,
+    description: current.description,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        eu: "/eu",
+        es: "/es",
+      },
+    },
+    openGraph: {
+      title: current.title,
+      description: current.description,
+      locale: locale === "eu" ? "eu_ES" : "es_ES",
+      type: "website",
+      url: `/${locale}`,
+    },
+  };
+}
 
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { locale } = await params;
