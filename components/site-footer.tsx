@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { LocaleCode } from "@/lib/i18n";
 
 type SiteFooterProps = {
@@ -12,13 +12,40 @@ type SiteFooterProps = {
 type SocialLink = {
   label: string;
   href: string;
-  short: string;
+  icon: ReactNode;
 };
 
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="5" />
+      <circle cx="12" cy="12" r="3.9" />
+      <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function YouTubeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M21 8.6a2.9 2.9 0 0 0-2.1-2.1C17 6 12 6 12 6S7 6 5.1 6.5A2.9 2.9 0 0 0 3 8.6 30.2 30.2 0 0 0 3 15.4a2.9 2.9 0 0 0 2.1 2.1C7 18 12 18 12 18s5 0 6.9-.5a2.9 2.9 0 0 0 2.1-2.1A30.2 30.2 0 0 0 21 8.6Z" />
+      <path d="m10.2 9.6 5 2.4-5 2.4V9.6Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M14.6 8.2h2.2V4.9h-2.6c-3 0-4.7 1.8-4.7 4.9v2H7.2V15h2.3v4.1h3.3V15h3l.5-3.2h-3.5v-1.7c0-1 .4-1.9 1.8-1.9Z" />
+    </svg>
+  );
+}
+
 const socialLinks: SocialLink[] = [
-  { label: "Instagram", href: "https://instagram.com", short: "IG" },
-  { label: "YouTube", href: "https://youtube.com", short: "YT" },
-  { label: "Facebook", href: "https://facebook.com", short: "FB" },
+  { label: "Instagram", href: "https://instagram.com", icon: <InstagramIcon /> },
+  { label: "YouTube", href: "https://youtube.com", icon: <YouTubeIcon /> },
+  { label: "Facebook", href: "https://facebook.com", icon: <FacebookIcon /> },
 ];
 
 export function SiteFooter({ locale }: SiteFooterProps) {
@@ -79,6 +106,10 @@ export function SiteFooter({ locale }: SiteFooterProps) {
     locale === "eu"
       ? "Kodaore Judo Elkartea. Eskubide guztiak erreserbatuak."
       : "Kodaore Judo Elkartea. Todos los derechos reservados.";
+  const appsLabel = locale === "eu" ? "Aplikazioak" : "Apps";
+  const legalLabel = locale === "eu" ? "Lege loturak" : "Enlaces legales";
+  const termsLabel = locale === "eu" ? "Baldintzak" : "Terminos";
+  const privacyLabel = locale === "eu" ? "Pribatutasuna" : "Privacidad";
   const backTopLabel = locale === "eu" ? "Gora" : "Arriba";
 
   return (
@@ -99,22 +130,44 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base">{footerDescription}</p>
             </div>
 
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <nav className="flex items-center gap-3 md:gap-4" aria-label="Social links">
-                {socialLinks.map((social, index) => (
+            <div className="flex flex-wrap items-end justify-between gap-8">
+              <div className="space-y-3">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">{appsLabel}</p>
+                <nav className="flex items-center gap-3 md:gap-4" aria-label="Social links">
+                  {socialLinks.map((social, index) => (
+                    <Link
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`kodaore-social-icon ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
+                      style={{ animationDelay: revealed ? `${200 + index * 90}ms` : undefined }}
+                      aria-label={social.label}
+                    >
+                      {social.icon}
+                      <span className="sr-only">{social.label}</span>
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">{legalLabel}</p>
+                <nav className="flex items-center gap-4 text-sm text-white/80" aria-label={legalLabel}>
                   <Link
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`kodaore-social-icon ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
-                    style={{ animationDelay: revealed ? `${200 + index * 90}ms` : undefined }}
-                    aria-label={social.label}
+                    href={`/${locale}/legal/terms`}
+                    className="k-focus-ring underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-[color:var(--brand-emphasis)]"
                   >
-                    <span className="text-[11px] font-bold uppercase tracking-[0.12em]">{social.short}</span>
+                    {termsLabel}
                   </Link>
-                ))}
-              </nav>
+                  <Link
+                    href={`/${locale}/legal/privacy`}
+                    className="k-focus-ring underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-[color:var(--brand-emphasis)]"
+                  >
+                    {privacyLabel}
+                  </Link>
+                </nav>
+              </div>
 
               <p
                 className={`text-xs tracking-[0.05em] text-white/60 md:text-sm ${
