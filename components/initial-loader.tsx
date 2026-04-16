@@ -12,6 +12,7 @@ const DESKTOP_LOGO_SIZE = 128;
 const MOBILE_LOGO_SIZE = 112;
 const DEPTH_FROM_WHEEL_FACTOR = 0.9;
 const DEPTH_FROM_TOUCH_FACTOR = 9;
+const SCROLL_HINT_DELAY_MS = 2000;
 const Y_PROGRESS_TRAVEL = 24;
 const Z_PROGRESS_TRAVEL = 640;
 
@@ -71,6 +72,7 @@ export function InitialLoader() {
   const startScaleRef = useRef(START_SCALE);
   const logoBaseSizeRef = useRef(DESKTOP_LOGO_SIZE);
   const [phase, setPhase] = useState<LoaderPhase>("visible");
+  const [showScrollHint, setShowScrollHint] = useState(false);
   const [motion, setMotion] = useState<LoaderMotion>(() => calculateLoaderMotion(0, START_SCALE, DESKTOP_LOGO_SIZE));
 
   const rafRef = useRef<number | null>(null);
@@ -136,6 +138,24 @@ export function InitialLoader() {
 
     return () => {
       window.clearTimeout(hide);
+    };
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "visible") {
+      return;
+    }
+
+    setShowScrollHint(false);
+
+    const hintTimer = window.setTimeout(() => {
+      if (depthRef.current < MAX_DEPTH && !exitedRef.current) {
+        setShowScrollHint(true);
+      }
+    }, SCROLL_HINT_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(hintTimer);
     };
   }, [phase]);
 
@@ -278,6 +298,10 @@ export function InitialLoader() {
         </p>
 
         <div className="kodaore-loader-wave" style={{ opacity: chromeOpacity, transition: "opacity 90ms linear" }} aria-hidden="true" />
+
+        <p className={`kodaore-loader-hint ${showScrollHint ? "is-visible" : ""}`} aria-hidden={!showScrollHint}>
+          Haz scroll o desliza para continuar
+        </p>
       </div>
     </div>
   );

@@ -360,6 +360,24 @@ body::after {
   animation: loader-wave-sweep 1.25s ease-in-out infinite;
 }
 
+.kodaore-loader-hint {
+  margin-top: 0.3rem;
+  font-size: clamp(0.74rem, 1.9vw, 0.88rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #f2f2f2 78%, var(--brand) 22%);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  text-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.kodaore-loader-hint.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: loader-hint-bob 1.2s ease-in-out infinite;
+}
+
 .kodaore-footer-top-line {
   height: 1px;
   width: 100%;
@@ -467,6 +485,16 @@ body::after {
   }
 }
 
+@keyframes loader-hint-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
 @media (hover: none) {
   .k-hover-lift,
   .k-hover-action,
@@ -497,6 +525,7 @@ body::after {
   .kodaore-loader-backdrop,
   .kodaore-loader-content,
   .kodaore-loader-word,
+  .kodaore-loader-hint,
   .kodaore-loader-wave::after,
   .kodaore-loader-logo-wrap,
   .kodaore-footer-top-line,
