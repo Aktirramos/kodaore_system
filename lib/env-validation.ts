@@ -4,6 +4,8 @@ export type ValidatedEnv = {
   DATABASE_URL: string;
   NEXTAUTH_SECRET: string;
   NEXTAUTH_URL: string | null;
+  AUTH_EMAIL_SERVER: string | null;
+  AUTH_EMAIL_FROM: string | null;
   OBSERVABILITY_WEBHOOK_URL: string | null;
   TURNSTILE_SECRET_KEY: string | null;
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: string | null;
@@ -34,6 +36,8 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
   const DATABASE_URL = getRequiredEnv(source, "DATABASE_URL");
   const NEXTAUTH_SECRET = getRequiredEnv(source, "NEXTAUTH_SECRET");
   const NEXTAUTH_URL = source.NEXTAUTH_URL;
+  const AUTH_EMAIL_SERVER = source.AUTH_EMAIL_SERVER?.trim() || null;
+  const AUTH_EMAIL_FROM = source.AUTH_EMAIL_FROM?.trim() || null;
   const OBSERVABILITY_WEBHOOK_URL = source.OBSERVABILITY_WEBHOOK_URL;
   const TURNSTILE_SECRET_KEY = source.TURNSTILE_SECRET_KEY?.trim() || null;
   const NEXT_PUBLIC_TURNSTILE_SITE_KEY = source.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
@@ -56,6 +60,19 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
     validateUrl("OBSERVABILITY_WEBHOOK_URL", OBSERVABILITY_WEBHOOK_URL);
   }
 
+  if (Boolean(AUTH_EMAIL_SERVER) !== Boolean(AUTH_EMAIL_FROM)) {
+    throw new Error("AUTH_EMAIL_SERVER and AUTH_EMAIL_FROM must be set together.");
+  }
+
+  if (AUTH_EMAIL_SERVER) {
+    validateUrl("AUTH_EMAIL_SERVER", AUTH_EMAIL_SERVER);
+
+    const parsedServer = new URL(AUTH_EMAIL_SERVER);
+    if (parsedServer.protocol !== "smtp:" && parsedServer.protocol !== "smtps:") {
+      throw new Error("AUTH_EMAIL_SERVER must use smtp:// or smtps:// protocol.");
+    }
+  }
+
   if (Boolean(TURNSTILE_SECRET_KEY) !== Boolean(NEXT_PUBLIC_TURNSTILE_SITE_KEY)) {
     throw new Error("TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY must be set together.");
   }
@@ -66,6 +83,8 @@ export function buildValidatedEnv(source: Record<string, string | undefined>): V
     DATABASE_URL,
     NEXTAUTH_SECRET,
     NEXTAUTH_URL: NEXTAUTH_URL ?? null,
+    AUTH_EMAIL_SERVER,
+    AUTH_EMAIL_FROM,
     OBSERVABILITY_WEBHOOK_URL: OBSERVABILITY_WEBHOOK_URL ?? null,
     TURNSTILE_SECRET_KEY,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY,

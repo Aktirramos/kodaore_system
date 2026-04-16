@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import { isLocale } from "@/lib/i18n";
+import { sendWelcomeEmail } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
 import { buildRateLimitKey, extractClientIp } from "@/lib/security/rate-limit";
 
@@ -257,6 +258,11 @@ export async function POST(request: Request) {
     });
 
     await clearRegisterFailures(throttleKeys);
+    await sendWelcomeEmail({
+      to: email,
+      firstName,
+      locale,
+    });
 
     return registrationAcceptedResponse();
   } catch (error) {

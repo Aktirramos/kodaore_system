@@ -47,6 +47,36 @@ describe("env validation", () => {
     expect(env.NEXTAUTH_URL).toBe(null);
   });
 
+  it("requires AUTH_EMAIL_SERVER and AUTH_EMAIL_FROM together", () => {
+    expect(() =>
+      buildValidatedEnv({
+        ...baseEnv,
+        AUTH_EMAIL_SERVER: "smtps://user:pass@smtp.example.com:465",
+      }),
+    ).toThrow(/AUTH_EMAIL_SERVER and AUTH_EMAIL_FROM must be set together/);
+  });
+
+  it("requires smtp protocol in AUTH_EMAIL_SERVER", () => {
+    expect(() =>
+      buildValidatedEnv({
+        ...baseEnv,
+        AUTH_EMAIL_SERVER: "https://smtp.example.com",
+        AUTH_EMAIL_FROM: "Kodaore <noreply@kodaore.example.com>",
+      }),
+    ).toThrow(/AUTH_EMAIL_SERVER must use smtp:\/\/ or smtps:\/\//);
+  });
+
+  it("accepts AUTH_EMAIL_SERVER and AUTH_EMAIL_FROM when both are valid", () => {
+    const env = buildValidatedEnv({
+      ...baseEnv,
+      AUTH_EMAIL_SERVER: "smtps://user:pass@smtp.example.com:465",
+      AUTH_EMAIL_FROM: "Kodaore <noreply@kodaore.example.com>",
+    });
+
+    expect(env.AUTH_EMAIL_SERVER).toBe("smtps://user:pass@smtp.example.com:465");
+    expect(env.AUTH_EMAIL_FROM).toBe("Kodaore <noreply@kodaore.example.com>");
+  });
+
   it("requires Turnstile server and public keys together", () => {
     expect(() =>
       buildValidatedEnv({
