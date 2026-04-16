@@ -8,6 +8,8 @@ Guia operativa para incidencias, rollback y recuperacion en Kodaore System.
 
 - CI en verde: lint, unit, build, e2e smoke.
 - Variables de entorno de produccion configuradas.
+- `NEXTAUTH_SECRET` con longitud minima de 32 caracteres.
+- Si se activa captcha, `TURNSTILE_SECRET_KEY` y `NEXT_PUBLIC_TURNSTILE_SITE_KEY` configuradas en pareja.
 - `npm run db:migrate:deploy` probado en entorno de staging.
 - Backup reciente de la base de datos.
 
@@ -28,6 +30,11 @@ curl -fsS https://TU_DOMINIO/api/health
 ```
 
 5. Verificar login gestion y familia manualmente.
+6. Verificar rutas privadas criticas:
+
+- `/eu/admin`
+- `/eu/portal`
+- `/api/health`
 
 ## 4. Rollback de aplicacion
 
@@ -37,6 +44,7 @@ Validaciones tras rollback:
 
 - Health endpoint en estado `ok` o `degraded` controlado.
 - Login y rutas privadas operativas.
+- Sin incremento anomalo en alertas de `segment-runtime`.
 
 ## 5. Rollback de datos
 
@@ -76,9 +84,19 @@ Pasos de respuesta:
 3. Comunicar estado y ETA.
 4. Ejecutar postmortem en <48h.
 
+Escenarios frecuentes:
+
+- `NO_SECRET` o errores de auth al arrancar en produccion:
+  Revisar `NEXTAUTH_SECRET` y `NEXTAUTH_URL`.
+- Picos de bloqueos de autenticacion:
+  Revisar tabla `AuthRateLimit` y ejecutar cleanup si procede.
+- Errores en segmentos privados (`admin/portal`):
+  Revisar `POST /api/observability/error` y el canal de alertas.
+
 ## 8. Verificaciones periodicas
 
 - Workflow `Maintenance` ejecutando limpieza sin errores.
 - Workflow `Uptime Monitor` ejecutando correctamente.
 - `npm run maintenance:cleanup-rate-limit` probado manualmente en mantenimiento mensual.
 - `npm run test:load:smoke` en staging antes de cambios mayores.
+- Simulacro de login familia y gestion al menos una vez por release.

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
+const scriptSrcDirective = isProduction
+  ? "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com";
 
 const cspDirectives = [
   "default-src 'self'",
@@ -10,7 +13,7 @@ const cspDirectives = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+  scriptSrcDirective,
   "connect-src 'self' https://challenges.cloudflare.com",
   "frame-src https://challenges.cloudflare.com",
   "worker-src 'self' blob:",

@@ -1,24 +1,26 @@
 # Kodaore System
 
-Sistema web de gestion para el club Kodaore con tres sedes: Azkoitia, Azpeitia y Zumaia.
+Sistema web del club Kodaore para gestion administrativa y portal de familias, con tres sedes: Azkoitia, Azpeitia y Zumaia.
 
 ## Estado actual
 
-Base V1 implementada con:
+Version activa con:
 
-- Modelo de datos multi-sede en Prisma
-- Roles y permisos por sede
-- Semilla inicial con usuarios, sedes y datos demo
-- Home bilingue (eu/es)
-- Panel admin inicial con metricas
-- Endpoint de salud en API
+- App Router con localizacion `eu/es`
+- NextAuth (credenciales) con login por usuario para gestion y por email para familias
+- Registro de cuentas de familia con rate-limit y soporte opcional de Turnstile
+- Backoffice (`/[locale]/admin`) con modulos de alumnos, grupos y cobros
+- Portal familiar (`/[locale]/portal`) con resumen, perfil, pagos y comunicaciones
+- Observabilidad basica (`/api/health` y `/api/observability/error`)
+- Prisma + PostgreSQL con seed operativo
+- Suite de QA: lint, unit tests, build y smoke e2e
 
 ## Requisitos
 
 - Node.js 20+
 - PostgreSQL 14+
 
-## Configuracion
+## Configuracion local
 
 1. Instala dependencias:
 
@@ -26,58 +28,58 @@ Base V1 implementada con:
 npm install
 ```
 
-2. Crea el archivo `.env` con la cadena de conexion:
+2. Crea `.env` con valores minimos:
 
 ```bash
 DATABASE_URL="postgresql://usuario:password@localhost:5432/kodaore"
-SEED_DEFAULT_PASSWORD="Kodaore2026!"
-NEXTAUTH_SECRET="genera-un-secreto-largo-y-aleatorio"
+NEXTAUTH_SECRET="genera-un-secreto-largo-y-aleatorio-min-32"
 NEXTAUTH_URL="http://localhost:3000"
-OBSERVABILITY_WEBHOOK_URL="https://tu-webhook-de-alertas"
+SEED_DEFAULT_PASSWORD="Kodaore2026!"
+OBSERVABILITY_WEBHOOK_URL="https://tu-webhook-opcional"
 ```
 
-3. Genera cliente y aplica migracion:
+3. Genera cliente y aplica migraciones de desarrollo:
 
 ```bash
 npm run db:generate
-npm run db:migrate -- --name init_kodaore_v1
+npm run db:migrate -- --name init
 ```
 
-4. Carga datos base:
+4. Carga datos demo:
 
 ```bash
 npm run db:seed
 ```
 
-5. Arranca el proyecto:
+5. Arranca la app:
 
 ```bash
 npm run dev
 ```
 
-## Preparacion para produccion
+## Produccion
 
-1. Crea variables de entorno de produccion:
+1. Prepara entorno:
 
 ```bash
 cp .env.production.example .env.production
 ```
 
-2. Ajusta en `.env.production`:
+2. Variables clave:
 
-- `DATABASE_URL` apuntando a tu Postgres real.
-- `NEXTAUTH_SECRET` con un secreto aleatorio de al menos 32 caracteres.
-- `NEXTAUTH_URL` con la URL publica final (https).
-- `TURNSTILE_SECRET_KEY` y `NEXT_PUBLIC_TURNSTILE_SITE_KEY` si activas captcha en registro.
-- `OBSERVABILITY_WEBHOOK_URL` opcional para recibir alertas de errores runtime y degradacion de salud.
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET` (>= 32 chars)
+- `NEXTAUTH_URL` (https publica)
+- `TURNSTILE_SECRET_KEY` y `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (deben ir juntas)
+- `OBSERVABILITY_WEBHOOK_URL` (opcional)
 
-3. Aplica migraciones en produccion:
+3. Migra base de datos:
 
 ```bash
 npm run db:migrate:deploy
 ```
 
-4. Build y arranque en modo produccion:
+4. Build + start:
 
 ```bash
 npm run build
@@ -87,52 +89,36 @@ npm run start
 5. Verifica salud:
 
 ```bash
-curl -i http://localhost:3000/api/health
+curl -i https://TU_DOMINIO/api/health
 ```
 
-Si defines `OBSERVABILITY_WEBHOOK_URL`, se enviaran alertas con cooldown desde:
+## Operacion
 
-- `POST /api/observability/error` para errores runtime en segmentos privados.
-- `GET /api/health` cuando el estado sea `degraded` por latencia o error de DB.
+### Limpieza programada
 
-Nota:
-En desarrollo local usa `npm run db:migrate` (migrate dev). En produccion usa siempre `npm run db:migrate:deploy`.
+Workflow `Maintenance` limpia `AuthRateLimit` y `OpsAlertState`.
 
-## Mantenimiento de rate-limit
-
-Las tablas `AuthRateLimit` y `OpsAlertState` se limpian automaticamente con el workflow programado `Maintenance`.
-
-Requisitos:
-
-- Configurar `DATABASE_URL` como secret de GitHub Actions en el repositorio.
-
-Comandos utiles:
+Comando manual:
 
 ```bash
 npm run maintenance:cleanup-rate-limit
 ```
 
-Variables opcionales del cleanup:
+Variables opcionales:
 
-- `AUTH_RATE_LIMIT_RETENTION_DAYS` (por defecto `30`)
-- `AUTH_RATE_LIMIT_LOCK_GRACE_HOURS` (por defecto `24`)
-- `OPS_ALERT_STATE_RETENTION_DAYS` (por defecto `90`)
+- `AUTH_RATE_LIMIT_RETENTION_DAYS` (default: `30`)
+- `AUTH_RATE_LIMIT_LOCK_GRACE_HOURS` (default: `24`)
+- `OPS_ALERT_STATE_RETENTION_DAYS` (default: `90`)
 
-## Monitor externo de disponibilidad
+### Monitor externo
 
-El workflow `Uptime Monitor` ejecuta ping externo a health endpoint cada 10 minutos.
+Workflow `Uptime Monitor` consulta `HEALTHCHECK_URL` cada 10 minutos.
 
-Requisitos:
-
-- Configurar `HEALTHCHECK_URL` como secret de GitHub Actions.
-
-Ejemplo recomendado:
+Ejemplo:
 
 - `https://TU_DOMINIO/api/health`
 
-## Prueba de carga minima
-
-Para una validacion rapida de rendimiento en staging:
+### Prueba de carga minima
 
 ```bash
 npm run test:load:smoke
@@ -140,34 +126,51 @@ npm run test:load:smoke
 
 Variables opcionales:
 
-- `LOAD_BASE_URL` (por defecto `http://127.0.0.1:3000`)
-- `LOAD_DURATION_SECONDS` (por defecto `30`)
-- `LOAD_CONCURRENCY` (por defecto `8`)
-- `LOAD_TIMEOUT_MS` (por defecto `8000`)
-- `LOAD_MAX_ERROR_RATE_PERCENT` (por defecto `2`)
+- `LOAD_BASE_URL` (default: `http://127.0.0.1:3000`)
+- `LOAD_DURATION_SECONDS` (default: `30`)
+- `LOAD_CONCURRENCY` (default: `8`)
+- `LOAD_TIMEOUT_MS` (default: `8000`)
+- `LOAD_MAX_ERROR_RATE_PERCENT` (default: `2`)
 
-## Runbook operativo
+## QA
 
-Existe una guia operativa completa en `docs/produccion-runbook.md` con:
+```bash
+npm run lint
+npm run test:unit
+npm run build
+npm run test:e2e
+```
 
-- Despliegue estandar
-- Rollback de aplicacion y datos
-- Respuesta a incidencias
-- Politica de backup y prueba de restauracion
+Para e2e con login real:
 
-## Rutas iniciales
+```bash
+E2E_AUTH_ENABLED=true \
+E2E_FAMILY_IDENTIFIER=familia@kodaore.eus \
+E2E_MANAGEMENT_IDENTIFIER=developer \
+E2E_PASSWORD=Kodaore2026! \
+npm run test:e2e
+```
 
-- `http://localhost:3000` redirige a `/eu`
-- `http://localhost:3000/eu`
-- `http://localhost:3000/es`
-- `http://localhost:3000/eu/acceso`
-- `http://localhost:3000/eu/admin`
-- `http://localhost:3000/eu/portal`
-- `http://localhost:3000/api/health`
+## Rutas principales
 
-## Credenciales seed
+- `/` redirige a `/eu`
+- `/[locale]`
+- `/[locale]/acceso`
+- `/[locale]/acceso/crear-cuenta`
+- `/[locale]/admin`
+- `/[locale]/admin/students`
+- `/[locale]/admin/groups`
+- `/[locale]/admin/billing`
+- `/[locale]/portal`
+- `/[locale]/portal/profile`
+- `/[locale]/portal/payments`
+- `/[locale]/portal/messages`
+- `/api/health`
+- `/api/auth/register`
 
-Gestion (login por usuario):
+## Credenciales de seed
+
+Gestion (usuario):
 
 - `developer`
 - `admin.global`
@@ -181,64 +184,13 @@ Gestion (login por usuario):
 - `operador.azpeitia`
 - `operador.zumaia`
 
-Familias (login por email):
+Familia (email):
 
 - `familia@kodaore.eus`
 
-Password: valor de `SEED_DEFAULT_PASSWORD`.
+Password seed: valor de `SEED_DEFAULT_PASSWORD`.
 
-Acceso real:
+## Documentacion adicional
 
-- Login en `/eu/acceso` o `/es/acceso`
-- `/[locale]/admin` requiere rol de administracion
-- `/[locale]/portal` requiere sesion iniciada
-
-## Siguiente sprint recomendado
-
-- Guardas de permisos en server actions y API
-- CRUD completo de alumnos/profesores/grupos
-- Importador Excel operativo
-- Flujo de remesas con export bancario
-
-## QA automatizada (inicio)
-
-Se ha iniciado la base e2e con Playwright en `tests/e2e/smoke.spec.ts`.
-
-1. Instala navegadores de Playwright (una vez):
-
-```bash
-npx playwright install --with-deps chromium
-```
-
-2. Ejecuta tests e2e:
-
-```bash
-npm run test:e2e
-```
-
-Para incluir flujos reales de autenticacion (familia y gestion), activa:
-
-```bash
-E2E_AUTH_ENABLED=true \
-E2E_FAMILY_IDENTIFIER=familia@kodaore.eus \
-E2E_MANAGEMENT_IDENTIFIER=developer \
-E2E_PASSWORD=Kodaore2026! \
-npm run test:e2e
-```
-
-Opcionales:
-
-```bash
-npm run test:e2e:headed
-npm run test:e2e:ui
-```
-
-## Fototeca con assets locales
-
-La fototeca usa imagenes locales definidas en `lib/fototeca.ts` mediante `DEFAULT_FOTOTECA_ITEMS`.
-
-Si quieres cambiar las fotos:
-
-1. Coloca los archivos en `public/media`.
-2. Actualiza las rutas `image` y `fallback` en `lib/fototeca.ts`.
-3. Reinicia el servidor si estas en produccion.
+- Arquitectura: `docs/arquitectura-v1.md`
+- Operacion: `docs/produccion-runbook.md`
