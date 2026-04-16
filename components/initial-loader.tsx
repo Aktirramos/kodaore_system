@@ -11,6 +11,7 @@ const LOGO_Y_OFFSET = 10;
 const DESKTOP_LOGO_SIZE = 128;
 const MOBILE_LOGO_SIZE = 112;
 const DEPTH_FROM_WHEEL_FACTOR = 0.9;
+const DEPTH_FROM_TOUCH_FACTOR = 9;
 const Y_PROGRESS_TRAVEL = 24;
 const Z_PROGRESS_TRAVEL = 640;
 
@@ -116,27 +117,6 @@ export function InitialLoader() {
   }, [applyDepth]);
 
   useEffect(() => {
-    if (phase !== "visible") {
-      return;
-    }
-
-    const autoExitMs = prefersReducedMotion() ? 900 : 2800;
-
-    const startExit = window.setTimeout(() => {
-      if (!exitedRef.current) {
-        exitedRef.current = true;
-        depthRef.current = MAX_DEPTH;
-        queueDepth(MAX_DEPTH);
-        setPhase("exit");
-      }
-    }, autoExitMs);
-
-    return () => {
-      window.clearTimeout(startExit);
-    };
-  }, [phase, queueDepth]);
-
-  useEffect(() => {
     document.documentElement.setAttribute("data-loader-phase", phase);
   }, [phase]);
 
@@ -176,10 +156,34 @@ export function InitialLoader() {
     window.scrollTo(0, 0);
 
     startScrollYRef.current = window.scrollY;
+    let previousTouchY: number | null = null;
 
     const handleWheel = (event: WheelEvent) => {
       depthRef.current = Math.max(0, Math.min(MAX_DEPTH, depthRef.current + event.deltaY * DEPTH_FROM_WHEEL_FACTOR));
       queueDepth(depthRef.current);
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      previousTouchY = touch ? touch.clientY : null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+
+      if (!touch || previousTouchY === null) {
+        return;
+      }
+
+      const deltaY = previousTouchY - touch.clientY;
+      previousTouchY = touch.clientY;
+
+      depthRef.current = Math.max(0, Math.min(MAX_DEPTH, depthRef.current + deltaY * DEPTH_FROM_TOUCH_FACTOR));
+      queueDepth(depthRef.current);
+    };
+
+    const handleTouchEnd = () => {
+      previousTouchY = null;
     };
 
     const handleScroll = () => {
@@ -191,6 +195,10 @@ export function InitialLoader() {
     };
 
     window.addEventListener("wheel", handleWheel, { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", handleTouchEnd, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
@@ -198,6 +206,10 @@ export function InitialLoader() {
       body.style.overflow = previousBodyOverflow;
       html.style.overscrollBehaviorY = previousOverscroll;
       window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchEnd);
       window.removeEventListener("scroll", handleScroll);
       if (rafRef.current !== null) {
         window.cancelAnimationFrame(rafRef.current);
