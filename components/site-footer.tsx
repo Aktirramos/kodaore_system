@@ -20,16 +20,6 @@ function InstagramIcon() {
     <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
       <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="5" />
       <circle cx="12" cy="12" r="3.9" />
-      <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function YouTubeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M21 8.6a2.9 2.9 0 0 0-2.1-2.1C17 6 12 6 12 6S7 6 5.1 6.5A2.9 2.9 0 0 0 3 8.6 30.2 30.2 0 0 0 3 15.4a2.9 2.9 0 0 0 2.1 2.1C7 18 12 18 12 18s5 0 6.9-.5a2.9 2.9 0 0 0 2.1-2.1A30.2 30.2 0 0 0 21 8.6Z" />
-      <path d="m10.2 9.6 5 2.4-5 2.4V9.6Z" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -44,7 +34,6 @@ function FacebookIcon() {
 
 const socialLinks: SocialLink[] = [
   { label: "Instagram", href: "https://instagram.com", icon: <InstagramIcon /> },
-  { label: "YouTube", href: "https://youtube.com", icon: <YouTubeIcon /> },
   { label: "Facebook", href: "https://facebook.com", icon: <FacebookIcon /> },
 ];
 

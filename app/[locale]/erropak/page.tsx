@@ -124,11 +124,13 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-white/15 bg-black/25 p-5">
-            <h2 className="font-heading text-xl font-semibold text-foreground md:text-2xl">
+          <article className="k-hover-soft group/how relative overflow-hidden rounded-2xl border border-white/15 bg-black/25 p-5">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/how:opacity-100" />
+
+            <h2 className="relative font-heading text-xl font-semibold text-foreground md:text-2xl">
               {isEu ? "Nola funtzionatzen du?" : "Como funciona"}
             </h2>
-            <ol className="mt-3 space-y-2 text-sm text-ink-muted">
+            <ol className="relative mt-3 space-y-2 text-sm text-ink-muted">
               <li>{isEu ? "1. Galerian piezak filtratu eta handitu." : "1. Filtra y amplia prendas en la galeria."}</li>
               <li>{isEu ? "2. Gustuko konbinazioak aukeratu." : "2. Elige combinaciones que te encajen."}</li>
               <li>{isEu ? "3. Informazioa eskatu klubari." : "3. Solicita informacion al club."}</li>
@@ -136,7 +138,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
             <Link
               href={interestCtaHref}
-              className="k-focus-ring k-hover-action mt-5 inline-flex rounded-full border border-brand/45 bg-brand/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis"
+              className="k-focus-ring k-hover-action relative mt-5 inline-flex rounded-full border border-brand/45 bg-brand/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis"
             >
               {interestCtaLabel}
             </Link>
@@ -146,9 +148,10 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
       <section className="fade-rise grid gap-3 md:grid-cols-3">
         {highlights.map((item) => (
-          <article key={item.title} className="rounded-2xl border border-white/10 bg-surface-strong/70 p-4">
-            <h2 className="font-heading text-xl font-semibold text-foreground">{item.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-ink-muted">{item.text}</p>
+          <article key={item.title} className="k-hover-soft group/highlight relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong/70 p-4">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/highlight:opacity-100" />
+            <h2 className="relative font-heading text-xl font-semibold text-foreground">{item.title}</h2>
+            <p className="relative mt-2 text-sm leading-relaxed text-ink-muted">{item.text}</p>
           </article>
         ))}
       </section>
