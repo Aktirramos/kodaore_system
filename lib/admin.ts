@@ -346,7 +346,18 @@ export async function getAdminGroupsData(): Promise<AdminGroupsData> {
 }
 
 export async function getAdminBillingData(): Promise<AdminBillingData> {
+  const session = await getAuthSession();
+  const adminSedeSiteIds = getAdminSedeScopeSiteIds(session?.user?.roles);
+
   const receipts = await prisma.receipt.findMany({
+    where:
+      adminSedeSiteIds === null
+        ? undefined
+        : {
+            siteId: {
+              in: adminSedeSiteIds,
+            },
+          },
     orderBy: [{ dueDate: "desc" }, { createdAt: "desc" }],
     take: 80,
     select: {
