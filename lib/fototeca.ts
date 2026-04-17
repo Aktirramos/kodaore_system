@@ -4,7 +4,7 @@ export type FototecaItem = {
   name?: string;
 };
 
-export const DEFAULT_FOTOTECA_ITEMS: FototecaItem[] = [
+const DEFAULT_FOTOTECA_ITEMS: FototecaItem[] = [
   {
     image: "/media/hero-1.jpg",
     fallback: "/media/photo-fallback-1.svg",

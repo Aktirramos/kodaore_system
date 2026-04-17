@@ -1,13 +1,10 @@
-export const ROLE_CODES = {
-  DEVELOPER: "DEVELOPER",
-  ADMIN_GLOBAL: "ADMIN_GLOBAL",
-  ADMIN_SEDE: "ADMIN_SEDE",
-  OPERADOR_SEDE: "OPERADOR_SEDE",
-  PROFESOR_SEDE: "PROFESOR_SEDE",
-  ALUMNO_TUTOR: "ALUMNO_TUTOR",
-} as const;
-
-export type RoleCode = (typeof ROLE_CODES)[keyof typeof ROLE_CODES];
+export type RoleCode =
+  | "DEVELOPER"
+  | "ADMIN_GLOBAL"
+  | "ADMIN_SEDE"
+  | "OPERADOR_SEDE"
+  | "PROFESOR_SEDE"
+  | "ALUMNO_TUTOR";
 
 export const PERMISSIONS = {
   DASHBOARD_READ: "dashboard.read",

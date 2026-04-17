@@ -32,7 +32,7 @@ export function normalizeIp(rawValue: string) {
   return candidate || null;
 }
 
-export function getHeaderValue(headers: unknown, name: string) {
+function getHeaderValue(headers: unknown, name: string) {
   if (!headers) {
     return null;
   }

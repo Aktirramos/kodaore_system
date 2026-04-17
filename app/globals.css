@@ -106,6 +106,10 @@ body::after {
   animation: fade-reveal-left 0.65s ease forwards;
 }
 
+.kodaore-route-motion {
+  animation: fade-rise 0.5s ease both;
+}
+
 .kodaore-route-motion .fade-rise,
 .kodaore-route-motion .fade-reveal-left {
   animation: none !important;
@@ -434,6 +438,31 @@ body::after {
   opacity: 1;
 }
 
+.k-back-top {
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    visibility 260ms ease;
+}
+
+.k-back-top.is-hidden {
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.k-back-top.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.k-back-top-label {
+  animation: back-top-bob 1.8s ease-in-out infinite;
+}
+
 @keyframes fade-rise {
   from {
     opacity: 0;
@@ -495,6 +524,16 @@ body::after {
   }
 }
 
+@keyframes back-top-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
 @media (hover: none) {
   .k-hover-lift,
   .k-hover-action,
@@ -508,6 +547,7 @@ body::after {
 
   .k-hover-lift:hover,
   .k-hover-action:hover,
+  .k-back-top:hover,
   .kodaore-social-icon:hover {
     transform: none !important;
     box-shadow: none !important;
@@ -531,6 +571,8 @@ body::after {
   .kodaore-footer-top-line,
   .kodaore-social-icon,
   .kodaore-social-icon::after,
+  .k-back-top,
+  .k-back-top-label,
   .fade-rise,
   .fade-reveal-left,
   .k-hover-lift,

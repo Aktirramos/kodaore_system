@@ -1,3 +1,4 @@
+import { ReceiptStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type SiteOverview = {
@@ -32,41 +33,73 @@ const emptySummary: DashboardSummary = {
 
 export async function getDashboardSummary(): Promise<DashboardSummary> {
   try {
-    const sites = await prisma.site.findMany({
-      where: { isActive: true },
-      orderBy: { name: "asc" },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        studentsMain: {
-          where: { isActive: true },
-          select: { id: true },
+    const [sites, receiptTotals] = await Promise.all([
+      prisma.site.findMany({
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          _count: {
+            select: {
+              studentsMain: {
+                where: { isActive: true },
+              },
+              groups: {
+                where: { isActive: true },
+              },
+            },
+          },
         },
-        groups: {
-          where: { isActive: true },
-          select: { id: true },
+      }),
+      prisma.receipt.groupBy({
+        by: ["siteId", "status"],
+        where: {
+          site: {
+            isActive: true,
+          },
+          status: {
+            in: [
+              ReceiptStatus.PAID,
+              ReceiptStatus.PENDING,
+              ReceiptStatus.PREPARED,
+              ReceiptStatus.SENT,
+              ReceiptStatus.RETURNED,
+            ],
+          },
         },
-        receipts: {
-          select: { status: true },
+        _count: {
+          _all: true,
         },
-      },
-    });
+      }),
+    ]);
+
+    const receiptCountsBySite = new Map<string, { paid: number; pending: number }>();
+
+    for (const total of receiptTotals) {
+      const entry = receiptCountsBySite.get(total.siteId) ?? { paid: 0, pending: 0 };
+
+      if (total.status === ReceiptStatus.PAID) {
+        entry.paid = total._count._all;
+      } else {
+        entry.pending += total._count._all;
+      }
+
+      receiptCountsBySite.set(total.siteId, entry);
+    }
 
     const perSite = sites.map((site) => {
-      const paidReceipts = site.receipts.filter((receipt) => receipt.status === "PAID").length;
-      const pendingReceipts = site.receipts.filter((receipt) =>
-        ["PENDING", "PREPARED", "SENT", "RETURNED"].includes(receipt.status),
-      ).length;
+      const receiptCounts = receiptCountsBySite.get(site.id) ?? { paid: 0, pending: 0 };
 
       return {
         id: site.id,
         code: site.code,
         name: site.name,
-        activeStudents: site.studentsMain.length,
-        activeGroups: site.groups.length,
-        paidReceipts,
-        pendingReceipts,
+        activeStudents: site._count.studentsMain,
+        activeGroups: site._count.groups,
+        paidReceipts: receiptCounts.paid,
+        pendingReceipts: receiptCounts.pending,
       };
     });
 

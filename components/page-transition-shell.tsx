@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { type ReactNode } from "react";
 
@@ -9,17 +8,11 @@ type PageTransitionShellProps = {
   routeKey: string;
 };
 
-export function PageTransitionShell({ children, routeKey }: PageTransitionShellProps) {
+function PageTransitionShell({ children, routeKey }: PageTransitionShellProps) {
   return (
-    <motion.div
-      className="kodaore-route-motion"
-      key={routeKey}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
+    <div className="kodaore-route-motion" key={routeKey}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
