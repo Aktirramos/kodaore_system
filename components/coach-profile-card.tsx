@@ -17,18 +17,30 @@ type CoachProfileCardProps = {
 };
 
 export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSrc }: CoachProfileCardProps) {
-  const [open, setOpen] = useState(false);
+  const [modalMounted, setModalMounted] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const isEu = locale === "eu";
 
+  const openModal = () => {
+    setModalMounted(true);
+    window.requestAnimationFrame(() => {
+      setModalVisible(true);
+    });
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   useEffect(() => {
-    if (!open) {
+    if (!modalMounted) {
       return;
     }
 
     const previousOverflow = document.body.style.overflow;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setOpen(false);
+        closeModal();
       }
     };
 
@@ -39,7 +51,21 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [modalMounted]);
+
+  useEffect(() => {
+    if (!modalMounted || modalVisible) {
+      return;
+    }
+
+    const unmountTimer = window.setTimeout(() => {
+      setModalMounted(false);
+    }, 420);
+
+    return () => {
+      window.clearTimeout(unmountTimer);
+    };
+  }, [modalMounted, modalVisible]);
 
   return (
     <>
@@ -65,7 +91,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
           <p className="text-sm leading-relaxed text-ink-muted">{coach.focus}</p>
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={openModal}
             className="k-focus-ring k-hover-action mt-3 inline-flex rounded-full border border-brand/35 bg-surface px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-emphasis hover:border-brand/60"
           >
             {isEu ? "Fitxa ireki" : "Abrir ficha"}
@@ -73,54 +99,96 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
         </div>
       </article>
 
-      {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+      {modalMounted ? (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
+            modalVisible ? "bg-black/75 backdrop-blur-md" : "bg-black/0 backdrop-blur-none"
+          }`}
+        >
           <button
             type="button"
             aria-label={isEu ? "Itxi" : "Cerrar"}
-            className="absolute inset-0 cursor-default"
-            onClick={() => setOpen(false)}
+            className={`absolute inset-0 cursor-default transition-opacity duration-500 ${modalVisible ? "opacity-100" : "opacity-0"}`}
+            onClick={closeModal}
           />
 
           <section
             role="dialog"
             aria-modal="true"
             aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
-            className="relative z-10 w-full max-w-2xl overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
+            className={`relative z-10 w-full max-w-2xl overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              modalVisible
+                ? "translate-y-0 scale-100 opacity-100 rotate-0"
+                : "translate-y-10 scale-90 opacity-0 -rotate-1"
+            }`}
           >
             <div className="relative min-h-[220px] overflow-hidden border-b border-white/10">
+              <div
+                className={`pointer-events-none absolute -left-24 -right-24 -top-28 h-44 rotate-6 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ${
+                  modalVisible ? "translate-y-0" : "-translate-y-20"
+                }`}
+              />
               <SmartImage
                 src={photoSrc}
                 fallbackSrc={fallbackSrc}
                 alt={coach.name}
                 fill
-                className="object-cover"
+                className={`object-cover transition-transform duration-700 ${modalVisible ? "scale-100" : "scale-110"}`}
                 sizes="(max-width: 768px) 100vw, 800px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-emphasis">Kodaore</p>
-                <h3 className="mt-1 font-heading text-3xl font-semibold text-white">{coach.name}</h3>
+                <p
+                  className={`text-xs font-semibold uppercase tracking-[0.15em] text-brand-emphasis transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "110ms" : "0ms" }}
+                >
+                  Kodaore
+                </p>
+                <h3
+                  className={`mt-1 font-heading text-3xl font-semibold text-white transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "170ms" : "0ms" }}
+                >
+                  {coach.name}
+                </h3>
               </div>
             </div>
 
             <div className="space-y-4 p-5 md:p-6">
               <div className="grid gap-3 md:grid-cols-3">
-                <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <article
+                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "190ms" : "0ms" }}
+                >
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
                     {isEu ? "Rola" : "Rol"}
                   </p>
                   <p className="mt-1 text-sm text-foreground">{coach.profile}</p>
                 </article>
 
-                <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <article
+                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "250ms" : "0ms" }}
+                >
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
                     {isEu ? "Graduazioa" : "Graduacion"}
                   </p>
                   <p className="mt-1 text-sm text-foreground">{coach.focus}</p>
                 </article>
 
-                <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <article
+                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
+                >
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
                     {isEu ? "Aitorpenak" : "Acreditaciones"}
                   </p>
@@ -128,10 +196,15 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                 </article>
               </div>
 
-              <div className="flex justify-end">
+              <div
+                className={`flex justify-end transition-all duration-500 ${
+                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                }`}
+                style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
+              >
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={closeModal}
                   className="k-focus-ring k-hover-action rounded-full border border-white/20 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-white/90 hover:border-brand/45"
                 >
                   {isEu ? "Itxi" : "Cerrar"}
