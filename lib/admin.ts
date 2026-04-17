@@ -1,4 +1,6 @@
-import { ReceiptStatus } from "@prisma/client";
+import { RoleCode, ReceiptStatus } from "@prisma/client";
+import { ADMIN_ROLE_CODES, getAuthSession } from "@/lib/auth";
+import { createAuditLogForChanges } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 
 const pendingReceiptStatuses = new Set<ReceiptStatus>([
@@ -7,6 +9,30 @@ const pendingReceiptStatuses = new Set<ReceiptStatus>([
   ReceiptStatus.SENT,
   ReceiptStatus.RETURNED,
 ]);
+
+const adminRoleSet = new Set<RoleCode>(ADMIN_ROLE_CODES);
+
+const studentAuditSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  address: true,
+  schoolName: true,
+  schoolCourse: true,
+  sportsCenterMemberCode: true,
+  mainSiteId: true,
+  isActive: true,
+} as const;
+
+const paymentAuditSelect = {
+  id: true,
+  siteId: true,
+  amountCents: true,
+  status: true,
+  dueDate: true,
+  ibanMasked: true,
+} as const;
 
 export type AdminStudentsData = {
   totals: {
@@ -67,6 +93,69 @@ export type AdminBillingData = {
       | null;
   }>;
 };
+
+export type UpdateAdminStudentInput = {
+  firstName?: string;
+  lastName?: string;
+  phone?: string | null;
+  address?: string | null;
+  schoolName?: string | null;
+  schoolCourse?: string | null;
+  sportsCenterMemberCode?: string | null;
+  mainSiteId?: string;
+  isActive?: boolean;
+};
+
+export type UpdateAdminPaymentInput = {
+  amountCents?: number;
+  status?: ReceiptStatus;
+  dueDate?: Date | string | null;
+  ibanMasked?: string | null;
+};
+
+function hasAdminRole(roles: Array<{ code: RoleCode }> | undefined) {
+  if (!roles || roles.length === 0) {
+    return false;
+  }
+
+  return roles.some((role) => adminRoleSet.has(role.code));
+}
+
+async function requireAdminActorUserId() {
+  const session = await getAuthSession();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasAdminRole(session.user.roles)) {
+    throw new Error("Forbidden");
+  }
+
+  return session.user.id;
+}
+
+function normalizeOptionalDate(value: Date | string | null | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error("Invalid dueDate value");
+  }
+
+  return parsed;
+}
 
 export async function getAdminStudentsData(): Promise<AdminStudentsData> {
   const students = await prisma.student.findMany({
@@ -258,4 +347,91 @@ export async function getAdminBillingData(): Promise<AdminBillingData> {
         : null,
     })),
   };
+}
+
+export async function updateAdminStudentAction(studentId: string, input: UpdateAdminStudentInput) {
+  "use server";
+
+  const actorUserId = await requireAdminActorUserId();
+
+  return prisma.$transaction(async (tx) => {
+    const before = await tx.student.findUnique({
+      where: { id: studentId },
+      select: studentAuditSelect,
+    });
+
+    if (!before) {
+      throw new Error("Student not found");
+    }
+
+    const after = await tx.student.update({
+      where: { id: studentId },
+      data: {
+        firstName: input.firstName,
+        lastName: input.lastName,
+        phone: input.phone,
+        address: input.address,
+        schoolName: input.schoolName,
+        schoolCourse: input.schoolCourse,
+        sportsCenterMemberCode: input.sportsCenterMemberCode,
+        mainSiteId: input.mainSiteId,
+        isActive: input.isActive,
+      },
+      select: studentAuditSelect,
+    });
+
+    await createAuditLogForChanges({
+      db: tx,
+      actorUserId,
+      siteId: after.mainSiteId,
+      entity: "STUDENT",
+      entityId: after.id,
+      action: "UPDATE_STUDENT",
+      before,
+      after,
+    });
+
+    return after;
+  });
+}
+
+export async function updateAdminPaymentAction(receiptId: string, input: UpdateAdminPaymentInput) {
+  "use server";
+
+  const actorUserId = await requireAdminActorUserId();
+
+  return prisma.$transaction(async (tx) => {
+    const before = await tx.receipt.findUnique({
+      where: { id: receiptId },
+      select: paymentAuditSelect,
+    });
+
+    if (!before) {
+      throw new Error("Payment receipt not found");
+    }
+
+    const after = await tx.receipt.update({
+      where: { id: receiptId },
+      data: {
+        amountCents: input.amountCents,
+        status: input.status,
+        dueDate: normalizeOptionalDate(input.dueDate),
+        ibanMasked: input.ibanMasked,
+      },
+      select: paymentAuditSelect,
+    });
+
+    await createAuditLogForChanges({
+      db: tx,
+      actorUserId,
+      siteId: after.siteId,
+      entity: "RECEIPT",
+      entityId: after.id,
+      action: "UPDATE_PAYMENT",
+      before,
+      after,
+    });
+
+    return after;
+  });
 }
