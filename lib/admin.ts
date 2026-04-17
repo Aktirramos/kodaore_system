@@ -23,6 +23,7 @@ const studentAuditSelect = {
   sportsCenterMemberCode: true,
   mainSiteId: true,
   isActive: true,
+  deletedAt: true,
 } as const;
 
 const paymentAuditSelect = {
@@ -499,6 +500,56 @@ export async function updateAdminPaymentAction(receiptId: string, input: UpdateA
       entity: "RECEIPT",
       entityId: after.id,
       action: "UPDATE_PAYMENT",
+      before,
+      after,
+    });
+
+    return after;
+  });
+}
+
+export async function deleteAdminStudentAction(studentId: string) {
+  "use server";
+
+  const session = await getAuthSession();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasAdminRole(session.user.roles)) {
+    throw new Error("Forbidden");
+  }
+
+  const adminSedeSiteIds = getAdminSedeScopeSiteIds(session.user.roles);
+  const actorUserId = session.user.id;
+
+  return prisma.$transaction(async (tx) => {
+    const before = await tx.student.findUnique({
+      where: { id: studentId },
+      select: studentAuditSelect,
+    });
+
+    if (!before) {
+      throw new Error("Student not found");
+    }
+
+    if (adminSedeSiteIds !== null && !adminSedeSiteIds.includes(before.mainSiteId)) {
+      throw new Error("Forbidden");
+    }
+
+    const after = await tx.student.delete({
+      where: { id: studentId },
+      select: studentAuditSelect,
+    });
+
+    await createAuditLogForChanges({
+      db: tx,
+      actorUserId,
+      siteId: after.mainSiteId,
+      entity: "STUDENT",
+      entityId: after.id,
+      action: "DELETE_STUDENT",
       before,
       after,
     });
