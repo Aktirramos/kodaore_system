@@ -255,6 +255,20 @@ export async function POST(request: Request) {
           preferredLocale: locale as Locale,
         },
       });
+
+      await tx.auditLog.create({
+        data: {
+          actorUserId: user.id,
+          entity: "USER",
+          entityId: user.id,
+          action: "REGISTER_FAMILY_ACCOUNT",
+          ipAddress: clientIp,
+          afterData: {
+            email,
+            locale,
+          },
+        },
+      });
     });
 
     await clearRegisterFailures(throttleKeys);
