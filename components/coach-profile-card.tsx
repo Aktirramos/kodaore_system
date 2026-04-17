@@ -261,27 +261,23 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                 </ul>
               </article>
 
-              <article
-                className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
-                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                }`}
-                style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
-                <ul className="mt-2 space-y-2">
-                  {accreditationDetails.length > 0 ? (
-                    accreditationDetails.map((item) => (
+              {accreditationDetails.length > 0 ? (
+                <article
+                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
+                  <ul className="mt-2 space-y-2">
+                    {accreditationDetails.map((item) => (
                       <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
                         {item}
                       </li>
-                    ))
-                  ) : (
-                    <li className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
-                      {isEu ? "Aitorpen gehigarririk ez" : "Sin acreditaciones adicionales"}
-                    </li>
-                  )}
-                </ul>
-              </article>
+                    ))}
+                  </ul>
+                </article>
+              ) : null}
 
               <div
                 className={`flex justify-end transition-all duration-500 ${
