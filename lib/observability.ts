@@ -7,6 +7,7 @@ type SegmentErrorPayload = {
   message?: string;
   digest?: string;
   at?: string;
+  requestId?: string;
 };
 
 function trimValue(value: string | undefined, maxLength: number) {
@@ -22,7 +23,17 @@ function trimValue(value: string | undefined, maxLength: number) {
   return normalized.slice(0, maxLength);
 }
 
+function createRequestId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export async function reportSegmentClientError(payload: SegmentErrorPayload) {
+  const requestId = trimValue(payload.requestId, 128) ?? createRequestId();
+
   const body: SegmentErrorPayload = {
     source: payload.source,
     locale: payload.locale,
@@ -30,6 +41,7 @@ export async function reportSegmentClientError(payload: SegmentErrorPayload) {
     message: trimValue(payload.message, 500),
     digest: trimValue(payload.digest, 128),
     at: payload.at ?? new Date().toISOString(),
+    requestId,
   };
 
   const serialized = JSON.stringify(body);
@@ -45,6 +57,7 @@ export async function reportSegmentClientError(payload: SegmentErrorPayload) {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        "x-request-id": requestId,
       },
       body: serialized,
       cache: "no-store",

@@ -17,6 +17,7 @@ const payloadSchema = z.object({
   message: z.string().max(500).optional(),
   digest: z.string().max(128).optional(),
   at: z.string().datetime().optional(),
+  requestId: z.string().min(1).max(128).optional(),
 });
 
 function normalizeIp(raw: string | null) {
@@ -181,6 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = parsed.data;
+    const requestId = payload.requestId ?? request.headers.get("x-request-id") ?? null;
     const fingerprint = `${payload.source}:${payload.locale}:${payload.pathname}:${payload.digest ?? "-"}`;
     const rateLimitKeys = buildErrorRateLimitKeys(ip, fingerprint);
 
@@ -193,6 +195,7 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get("user-agent")?.slice(0, 220) ?? null;
 
     console.error("[segment-runtime-error]", {
+      requestId,
       source: payload.source,
       locale: payload.locale,
       pathname: payload.pathname,
@@ -209,6 +212,7 @@ export async function POST(request: NextRequest) {
       title: `Runtime error in ${payload.source}`,
       severity: "warning",
       details: {
+        requestId,
         locale: payload.locale,
         pathname: payload.pathname,
         digest: payload.digest ?? null,

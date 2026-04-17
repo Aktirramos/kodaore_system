@@ -13,12 +13,20 @@ const REGISTER_RATE_LIMIT_LOCK_MS = 30 * 60 * 1000;
 const REGISTER_RATE_LIMIT_MAX_ATTEMPTS = 5;
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
+const strongPasswordSchema = z
+  .string()
+  .min(10, "Password must be at least 10 characters long.")
+  .max(72, "Password must be at most 72 characters long.")
+  .regex(/[A-Z]/, "Password must include at least one uppercase letter.")
+  .regex(/[0-9]/, "Password must include at least one number.")
+  .regex(/[^A-Za-z0-9]/, "Password must include at least one special character.");
+
 const registerSchema = z.object({
   firstName: z.string().trim().min(2).max(80),
   lastName: z.string().trim().min(2).max(120),
   email: z.string().trim().toLowerCase().email().max(320),
   phone: z.string().trim().min(6).max(40),
-  password: z.string().min(10).max(72).regex(/[A-Z]/).regex(/[0-9]/).regex(/[^A-Za-z0-9]/),
+  password: strongPasswordSchema,
   acceptedTerms: z.literal(true),
   acceptedPrivacy: z.literal(true),
   locale: z.string(),
