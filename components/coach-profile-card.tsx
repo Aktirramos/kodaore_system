@@ -16,6 +16,45 @@ type CoachProfileCardProps = {
   fallbackSrc: string;
 };
 
+const teacherTitleCatalog = [
+  {
+    eu: "Maisu entrenatzaile nazionala",
+    es: "Maestro entrenador nacional",
+    variants: ["Maisu entrenatzaile nazionala", "Maestro entrenador nacional"],
+  },
+  {
+    eu: "Monitore Autonomikoa",
+    es: "Monitor autonomico",
+    variants: ["Monitore Autonomikoa", "Monitor autonomico"],
+  },
+  {
+    eu: "Monitore irakaslea",
+    es: "Monitor titulado",
+    variants: ["Monitore irakaslea", "Monitor titulado", "Monitor titulada"],
+  },
+] as const;
+
+function normalizeText(value: string) {
+  return value.toLocaleLowerCase();
+}
+
+function containsAnyVariant(value: string, variants: ReadonlyArray<string>) {
+  const normalizedValue = normalizeText(value);
+  return variants.some((variant) => normalizedValue.includes(normalizeText(variant)));
+}
+
+function isTeacherTitleDetail(value: string) {
+  return teacherTitleCatalog.some((title) => containsAnyVariant(value, title.variants));
+}
+
+function getTeacherTitles(values: string[], locale: string) {
+  const labels = teacherTitleCatalog
+    .filter((title) => values.some((value) => containsAnyVariant(value, title.variants)))
+    .map((title) => (locale === "eu" ? title.eu : title.es));
+
+  return Array.from(new Set(labels));
+}
+
 function splitDetails(value: string) {
   return value
     .split(",")
@@ -31,10 +70,13 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
   const beltGrade = focusParts[0] ?? coach.focus;
   const focusExtras = focusParts.slice(1);
   const accreditationParts = splitDetails(coach.experience);
+  const credentialSource = [...focusExtras, ...accreditationParts];
+  const teacherTitles = getTeacherTitles(credentialSource, locale);
+  const accreditationDetails = credentialSource.filter((item) => !isTeacherTitleDetail(item));
 
   const roleLabel = isEu ? "Rola" : "Rol";
   const beltLabel = isEu ? "Gerriko maila" : "Grado de cinturon";
-  const focusLabel = isEu ? "Espezializazioa" : "Especializacion";
+  const focusLabel = isEu ? "Irakasle titulua" : "Titulo de entrenador";
   const accreditationLabel = isEu ? "Aitorpenak" : "Acreditaciones";
 
   const openModal = () => {
@@ -197,23 +239,27 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                 <p className="mt-2 font-heading text-3xl font-semibold text-white">{beltGrade}</p>
               </article>
 
-              {focusExtras.length > 0 ? (
-                <article
-                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
-                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                  }`}
-                  style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{focusLabel}</p>
-                  <ul className="mt-2 space-y-2">
-                    {focusExtras.map((item) => (
+              <article
+                className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
+                style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{focusLabel}</p>
+                <ul className="mt-2 space-y-2">
+                  {teacherTitles.length > 0 ? (
+                    teacherTitles.map((item) => (
                       <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
                         {item}
                       </li>
-                    ))}
-                  </ul>
-                </article>
-              ) : null}
+                    ))
+                  ) : (
+                    <li className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                      {isEu ? "Titulurik gabe" : "Sin titulo"}
+                    </li>
+                  )}
+                </ul>
+              </article>
 
               <article
                 className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
@@ -223,11 +269,17 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
               >
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
                 <ul className="mt-2 space-y-2">
-                  {accreditationParts.map((item) => (
-                    <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
-                      {item}
+                  {accreditationDetails.length > 0 ? (
+                    accreditationDetails.map((item) => (
+                      <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                        {item}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                      {isEu ? "Aitorpen gehigarririk ez" : "Sin acreditaciones adicionales"}
                     </li>
-                  ))}
+                  )}
                 </ul>
               </article>
 
