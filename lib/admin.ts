@@ -121,6 +121,36 @@ function hasAdminRole(roles: Array<{ code: RoleCode }> | undefined) {
   return roles.some((role) => adminRoleSet.has(role.code));
 }
 
+function getAdminSedeScopeSiteIds(
+  roles: Array<{ code: RoleCode; siteId?: string | null }> | undefined,
+) {
+  if (!roles || roles.length === 0) {
+    return null;
+  }
+
+  const hasGlobalScope = roles.some(
+    (role) => role.code === RoleCode.ADMIN_GLOBAL || role.code === RoleCode.DEVELOPER,
+  );
+
+  if (hasGlobalScope) {
+    return null;
+  }
+
+  const adminSedeRoles = roles.filter((role) => role.code === RoleCode.ADMIN_SEDE);
+
+  if (adminSedeRoles.length === 0) {
+    return null;
+  }
+
+  return Array.from(
+    new Set(
+      adminSedeRoles
+        .map((role) => role.siteId)
+        .filter((siteId): siteId is string => Boolean(siteId)),
+    ),
+  );
+}
+
 async function requireAdminActorUserId() {
   const session = await getAuthSession();
 
@@ -158,8 +188,19 @@ function normalizeOptionalDate(value: Date | string | null | undefined) {
 }
 
 export async function getAdminStudentsData(): Promise<AdminStudentsData> {
+  const session = await getAuthSession();
+  const adminSedeSiteIds = getAdminSedeScopeSiteIds(session?.user?.roles);
+
   const students = await prisma.student.findMany({
-    where: { isActive: true },
+    where:
+      adminSedeSiteIds === null
+        ? { isActive: true }
+        : {
+            isActive: true,
+            mainSiteId: {
+              in: adminSedeSiteIds,
+            },
+          },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
     select: {
       id: true,
@@ -216,10 +257,20 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
 export async function getAdminGroupsData(): Promise<AdminGroupsData> {
   const now = new Date();
   const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const session = await getAuthSession();
+  const adminSedeSiteIds = getAdminSedeScopeSiteIds(session?.user?.roles);
 
   const [groups, next7DaysSessions] = await Promise.all([
     prisma.group.findMany({
-      where: { isActive: true },
+      where:
+        adminSedeSiteIds === null
+          ? { isActive: true }
+          : {
+              isActive: true,
+              siteId: {
+                in: adminSedeSiteIds,
+              },
+            },
       orderBy: [{ name: "asc" }],
       select: {
         id: true,
@@ -261,6 +312,15 @@ export async function getAdminGroupsData(): Promise<AdminGroupsData> {
           gte: now,
           lt: nextWeek,
         },
+        ...(adminSedeSiteIds === null
+          ? {}
+          : {
+              group: {
+                siteId: {
+                  in: adminSedeSiteIds,
+                },
+              },
+            }),
       },
     }),
   ]);
