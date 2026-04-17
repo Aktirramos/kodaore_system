@@ -1,45 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CoachProfileCard } from "@/components/coach-profile-card";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
+import { getSiteMedia } from "@/lib/site-media";
 
 type LocaleSitePageProps = {
   params: Promise<{ locale: string; site: string }>;
 };
 
-const siteVisuals: Record<string, { hero: string; fallback: string; gallery: Array<{ src: string; fallback: string }> }> = {
-  azkoitia: {
-    hero: "/media/sedes/azkoitia-poli.jpg",
-    fallback: "/media/photo-fallback-1.svg",
-    gallery: [
-      { src: "/media/sedes/azkoitia-poli.jpg", fallback: "/media/photo-fallback-1.svg" },
-      { src: "/media/judo-4.jpg", fallback: "/media/photo-fallback-1.svg" },
-      { src: "/media/judo-6.jpg", fallback: "/media/photo-fallback-3.svg" },
-    ],
-  },
-  azpeitia: {
-    hero: "/media/sedes/azpeitia-poli.jpg",
-    fallback: "/media/photo-fallback-2.svg",
-    gallery: [
-      { src: "/media/sedes/azpeitia-poli.jpg", fallback: "/media/photo-fallback-2.svg" },
-      { src: "/media/judo-5.jpg", fallback: "/media/photo-fallback-2.svg" },
-      { src: "/media/judo-4.jpg", fallback: "/media/photo-fallback-1.svg" },
-    ],
-  },
-  zumaia: {
-    hero: "/media/sedes/zumaia-poli.jpg",
-    fallback: "/media/photo-fallback-3.svg",
-    gallery: [
-      { src: "/media/sedes/zumaia-poli.jpg", fallback: "/media/photo-fallback-3.svg" },
-      { src: "/media/judo-6.jpg", fallback: "/media/photo-fallback-3.svg" },
-      { src: "/media/judo-5.jpg", fallback: "/media/photo-fallback-2.svg" },
-    ],
-  },
-};
-
 const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const textHoverBoxClass = "k-hover-soft group/text relative overflow-hidden rounded-xl border border-transparent p-3";
-const coachTextHoverBoxClass = "k-hover-soft group/text relative overflow-hidden space-y-2 px-5 pb-5 pt-4";
 
 export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
   const { locale, site } = await params;
@@ -55,7 +26,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
     notFound();
   }
 
-  const visuals = siteVisuals[site] ?? siteVisuals.azkoitia;
+  const visuals = getSiteMedia(site);
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -90,8 +61,8 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
 
           <article className="k-hover-lift group relative mt-4 min-h-[280px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[420px]">
             <SmartImage
-              src={visuals.hero}
-              fallbackSrc={visuals.fallback}
+              src={visuals.coverSrc}
+              fallbackSrc={visuals.fallbackSrc}
               alt={selectedSite.name}
               fill
               className="object-cover transition duration-700 group-hover:scale-[1.03]"
@@ -114,27 +85,14 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
             const coachPhoto = coach.photo ?? galleryFallback.src;
 
             return (
-              <article key={coach.name} className="k-hover-lift overflow-hidden rounded-[1.6rem] border border-white/8 bg-gradient-to-b from-surface-strong to-surface/80">
-                <div className="group relative min-h-[220px] overflow-hidden">
-                  <SmartImage
-                    src={coachPhoto}
-                    fallbackSrc={galleryFallback.fallback}
-                    alt={coach.name}
-                    fill
-                    className="object-cover transition duration-700 group-hover:scale-[1.03]"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/12 to-transparent" />
-                </div>
-
-                <div className={coachTextHoverBoxClass}>
-                  <div className="pointer-events-none absolute inset-2 rounded-2xl bg-gradient-to-br from-brand/10 via-transparent to-brand-warm/10 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
-                  <h3 className="relative font-heading text-xl font-semibold text-foreground transition-colors duration-500 group-hover/text:text-white">{coach.name}</h3>
-                  <p className="relative text-sm text-brand-emphasis">{coach.profile}</p>
-                  <p className="relative text-sm leading-relaxed text-ink-muted transition-colors duration-500 group-hover/text:text-foreground">{coach.focus}</p>
-                  <p className="relative text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted transition-colors duration-500 group-hover/text:text-foreground">{coach.experience}</p>
-                </div>
-              </article>
+              <CoachProfileCard
+                key={coach.name}
+                locale={locale}
+                siteName={selectedSite.name}
+                coach={coach}
+                photoSrc={coachPhoto}
+                fallbackSrc={galleryFallback.fallbackSrc}
+              />
             );
           })}
         </div>

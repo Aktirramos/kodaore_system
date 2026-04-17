@@ -2,16 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
+import { getSiteMedia } from "@/lib/site-media";
 
 type LocaleSedesProps = {
   params: Promise<{ locale: string }>;
 };
-
-const siteImages = [
-  { src: "/media/sedes/azkoitia-poli.jpg", fallback: "/media/photo-fallback-1.svg" },
-  { src: "/media/sedes/azpeitia-poli.jpg", fallback: "/media/photo-fallback-2.svg" },
-  { src: "/media/sedes/zumaia-poli.jpg", fallback: "/media/photo-fallback-3.svg" },
-];
 
 const headerSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const siteCardClass = "k-hover-lift group overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-surface-strong via-surface-strong to-surface/80 shadow-[0_16px_34px_rgba(15,23,42,0.24)]";
@@ -57,8 +52,8 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-3">
-        {copy.home.sites.map((site, index) => {
-          const visual = siteImages[index % siteImages.length];
+        {copy.home.sites.map((site) => {
+          const visual = getSiteMedia(site.slug);
 
           return (
             <Link
@@ -68,8 +63,8 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
             >
                 <div className="group relative h-50 overflow-hidden">
                 <SmartImage
-                  src={visual.src}
-                  fallbackSrc={visual.fallback}
+                  src={visual.coverSrc}
+                  fallbackSrc={visual.fallbackSrc}
                   alt={site.name}
                   fill
                   className="object-cover transition duration-700 group-hover:scale-[1.03]"

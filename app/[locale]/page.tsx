@@ -3,15 +3,10 @@ import { notFound } from "next/navigation";
 import { HomeHeroScrollSync } from "@/components/home-hero-scroll-sync";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
+import { getSiteMedia } from "@/lib/site-media";
 
 type LocaleHomeProps = {
   params: Promise<{ locale: string }>;
-};
-
-const sitePreviewMedia: Record<string, { src: string; fallbackSrc: string }> = {
-  azkoitia: { src: "/media/judo-4.jpg", fallbackSrc: "/media/photo-fallback-1.svg" },
-  azpeitia: { src: "/media/judo-5.jpg", fallbackSrc: "/media/photo-fallback-2.svg" },
-  zumaia: { src: "/media/judo-6.jpg", fallbackSrc: "/media/photo-fallback-3.svg" },
 };
 
 const sitesSectionClass = "fade-rise fade-rise-delay-200 rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
@@ -56,20 +51,23 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {copy.home.sites.map((site) => (
-            <Link
-              key={site.slug}
-              href={`/${locale}/sedes/${site.slug}`}
-              className={siteCardClass}
-            >
+          {copy.home.sites.map((site) => {
+            const media = getSiteMedia(site.slug);
+
+            return (
+              <Link
+                key={site.slug}
+                href={`/${locale}/sedes/${site.slug}`}
+                className={siteCardClass}
+              >
               <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand/18 via-transparent to-brand-warm/18" />
               </div>
 
               <div className="relative h-44 overflow-hidden rounded-xl border border-white/10">
                 <SmartImage
-                  src={sitePreviewMedia[site.slug]?.src ?? "/media/hero-1.jpg"}
-                  fallbackSrc={sitePreviewMedia[site.slug]?.fallbackSrc ?? "/media/photo-fallback-1.svg"}
+                  src={media.coverSrc}
+                  fallbackSrc={media.fallbackSrc}
                   alt={locale === "eu" ? `${site.name} aurrebista` : `Vista previa de ${site.name}`}
                   fill
                   parallax
@@ -84,8 +82,9 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
                 <h3 className="mt-1 font-heading text-2xl font-semibold text-foreground">{site.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-muted">{site.description}</p>
               </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
