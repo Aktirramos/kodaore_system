@@ -281,6 +281,7 @@ model Student {
   internalCode            String        @unique
   mainSiteId              String
   isActive                Boolean       @default(true)
+  deletedAt               DateTime?
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   familyAccount           FamilyAccount @relation(fields: [familyAccountId], references: [id], onDelete: Restrict)
@@ -329,6 +330,7 @@ model Enrollment {
   startsAt      DateTime
   endsAt        DateTime?
   status        EnrollmentStatus @default(ACTIVE)
+  deletedAt     DateTime?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   student       Student          @relation(fields: [studentId], references: [id], onDelete: Restrict)
@@ -397,6 +399,7 @@ model Receipt {
   status          ReceiptStatus  @default(PENDING)
   dueDate         DateTime?
   ibanMasked      String?
+  deletedAt       DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   site            Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
