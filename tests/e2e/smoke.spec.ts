@@ -5,8 +5,22 @@ const E2E_FAMILY_IDENTIFIER = process.env.E2E_FAMILY_IDENTIFIER ?? "familia@koda
 const E2E_MANAGEMENT_IDENTIFIER = process.env.E2E_MANAGEMENT_IDENTIFIER ?? "developer";
 const E2E_PASSWORD = process.env.E2E_PASSWORD ?? process.env.SEED_DEFAULT_PASSWORD ?? "Kodaore2026!";
 
+async function dismissInitialLoader(page: Page) {
+  const loader = page.locator(".kodaore-loader");
+
+  if ((await loader.count()) === 0) {
+    return;
+  }
+
+  // Initial loader advances with user scroll/drag input.
+  await page.mouse.wheel(0, 2000);
+  await page.mouse.wheel(0, 2000);
+  await expect(loader).toHaveCount(0, { timeout: 8_000 });
+}
+
 async function login(page: Page, identifier: string, password: string) {
   await page.goto("/eu/acceso");
+  await dismissInitialLoader(page);
 
   await page.locator('input[autocomplete="username"]').fill(identifier);
   await page.locator('input[autocomplete="current-password"]').fill(password);

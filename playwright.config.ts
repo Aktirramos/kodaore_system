@@ -28,6 +28,11 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: baseURL,
+    env: {
+      ...process.env,
+      NEXTAUTH_URL: baseURL,
+      NEXTAUTH_URL_INTERNAL: baseURL,
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
