@@ -75,7 +75,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
   const heroTag = isEu ? "Ikus-bilduma" : "Coleccion visual";
   const heroTitle = isEu ? "Kodaore Erropak" : "Kodaore Erropak";
   const heroDescription = isEu
-    ? "Momentuz ez da denda transakzionala: piezak ikusi, handitu eta gustuko dituzunak aukeratu. Ondoren klubarekin lotu zaitezke informazioa jasotzeko."
+    ? "Momentuz denda honetarako da: piezak ikusi, handitu eta gustuko dituzunak aukeratzeko. Ondoren klubarekin hitz egin informazioa jasotzeko."
     : "Por ahora no es una tienda transaccional: mira prendas, amplialas y guarda tus favoritas para despues pedir informacion al club.";
 
   const highlights = [
@@ -157,27 +157,6 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
       </section>
 
       <ErropakGallery items={clothingItems} locale={locale as LocaleCode} />
-
-      <section className="fade-rise rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7">
-        <div className="k-hover-soft group/info relative overflow-hidden rounded-2xl border border-white/15 bg-black/25 p-5">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/info:opacity-100" />
-          <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">
-            {isEu ? "Laster gehiago" : "Muy pronto mas"}
-          </h2>
-          <p className="relative mt-3 max-w-2xl text-sm leading-relaxed text-white/85 md:text-base">
-            {isEu
-              ? "Neurri gida, kolore aukera berriak eta taldeko edizio bereziak prestatzen ari gara."
-              : "Estamos preparando guia de tallas, nuevos colores y ediciones especiales del club."}
-          </p>
-
-          <Link
-            href={`/${locale}`}
-            className="k-focus-ring k-hover-action relative mt-5 inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:border-white/40"
-          >
-            {isEu ? "Hasiera itzuli" : "Volver al inicio"}
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
