@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 import { z } from "zod";
 import { sendOpsAlert } from "@/lib/alerting";
 import { env } from "@/lib/env";
+import { reportSegmentRuntimeError } from "@/lib/observability";
 import { prisma } from "@/lib/prisma";
 
 const ERROR_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -182,7 +183,8 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = parsed.data;
-    const requestId = payload.requestId ?? request.headers.get("x-request-id") ?? null;
+    const requestIdFromHeader = request.headers.get("x-request-id")?.trim() ?? null;
+    const requestId = payload.requestId ?? requestIdFromHeader;
     const fingerprint = `${payload.source}:${payload.locale}:${payload.pathname}:${payload.digest ?? "-"}`;
     const rateLimitKeys = buildErrorRateLimitKeys(ip, fingerprint);
 
@@ -194,17 +196,19 @@ export async function POST(request: NextRequest) {
 
     const userAgent = request.headers.get("user-agent")?.slice(0, 220) ?? null;
 
-    console.error("[segment-runtime-error]", {
-      requestId,
-      source: payload.source,
-      locale: payload.locale,
-      pathname: payload.pathname,
-      digest: payload.digest ?? null,
-      message: payload.message ?? null,
-      at: payload.at ?? new Date().toISOString(),
-      ip,
-      userAgent,
-    });
+    reportSegmentRuntimeError(
+      {
+        source: payload.source,
+        locale: payload.locale,
+        pathname: payload.pathname,
+        digest: payload.digest ?? null,
+        message: payload.message ?? null,
+        at: payload.at,
+        ip,
+        userAgent,
+      },
+      requestId ?? undefined,
+    );
 
     await sendOpsAlert({
       key: `segment-error:${payload.source}:${payload.digest ?? payload.pathname}`,
