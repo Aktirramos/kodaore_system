@@ -16,10 +16,26 @@ type CoachProfileCardProps = {
   fallbackSrc: string;
 };
 
+function splitDetails(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSrc }: CoachProfileCardProps) {
   const [modalMounted, setModalMounted] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const isEu = locale === "eu";
+  const focusParts = splitDetails(coach.focus);
+  const beltGrade = focusParts[0] ?? coach.focus;
+  const focusExtras = focusParts.slice(1);
+  const accreditationParts = splitDetails(coach.experience);
+
+  const roleLabel = isEu ? "Rola" : "Rol";
+  const beltLabel = isEu ? "Gerriko maila" : "Grado de cinturon";
+  const focusLabel = isEu ? "Espezializazioa" : "Especializacion";
+  const accreditationLabel = isEu ? "Aitorpenak" : "Acreditaciones";
 
   const openModal = () => {
     setModalMounted(true);
@@ -88,7 +104,10 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
         <div className="relative space-y-2 px-5 pb-5 pt-4">
           <h3 className="font-heading text-xl font-semibold text-foreground">{coach.name}</h3>
           <p className="text-sm text-brand-emphasis">{coach.profile}</p>
-          <p className="text-sm leading-relaxed text-ink-muted">{coach.focus}</p>
+          <p className="inline-flex rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-brand-emphasis">
+            {beltGrade}
+          </p>
+          <p className="text-sm leading-relaxed text-ink-muted">{focusExtras[0] ?? coach.experience}</p>
           <button
             type="button"
             onClick={openModal}
@@ -116,13 +135,13 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
             role="dialog"
             aria-modal="true"
             aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
-            className={`relative z-10 w-full max-w-2xl overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            className={`relative z-10 w-full max-w-xl overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               modalVisible
                 ? "translate-y-0 scale-100 opacity-100 rotate-0"
                 : "translate-y-10 scale-90 opacity-0 -rotate-1"
             }`}
           >
-            <div className="relative min-h-[220px] overflow-hidden border-b border-white/10">
+            <div className="relative min-h-[250px] overflow-hidden border-b border-white/10">
               <div
                 className={`pointer-events-none absolute -left-24 -right-24 -top-28 h-44 rotate-6 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ${
                   modalVisible ? "translate-y-0" : "-translate-y-20"
@@ -157,44 +176,60 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
               </div>
             </div>
 
-            <div className="space-y-4 p-5 md:p-6">
-              <div className="grid gap-3 md:grid-cols-3">
-                <article
-                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
-                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                  }`}
-                  style={{ transitionDelay: modalVisible ? "190ms" : "0ms" }}
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
-                    {isEu ? "Rola" : "Rol"}
-                  </p>
-                  <p className="mt-1 text-sm text-foreground">{coach.profile}</p>
-                </article>
+            <div className="max-h-[calc(88svh-250px)] space-y-4 overflow-y-auto p-5 md:p-6">
+              <article
+                className={`rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ${
+                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
+                style={{ transitionDelay: modalVisible ? "190ms" : "0ms" }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{roleLabel}</p>
+                <p className="mt-1 text-sm text-foreground">{coach.profile}</p>
+              </article>
 
-                <article
-                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
-                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                  }`}
-                  style={{ transitionDelay: modalVisible ? "250ms" : "0ms" }}
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
-                    {isEu ? "Graduazioa" : "Graduacion"}
-                  </p>
-                  <p className="mt-1 text-sm text-foreground">{coach.focus}</p>
-                </article>
+              <article
+                className={`rounded-xl border border-brand/25 bg-gradient-to-br from-brand/12 via-white/[0.03] to-brand-warm/12 p-4 transition-all duration-500 ${
+                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
+                style={{ transitionDelay: modalVisible ? "250ms" : "0ms" }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{beltLabel}</p>
+                <p className="mt-2 font-heading text-3xl font-semibold text-white">{beltGrade}</p>
+              </article>
 
+              {focusExtras.length > 0 ? (
                 <article
                   className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
                     modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                   }`}
                   style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
                 >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
-                    {isEu ? "Aitorpenak" : "Acreditaciones"}
-                  </p>
-                  <p className="mt-1 text-sm text-foreground">{coach.experience}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{focusLabel}</p>
+                  <ul className="mt-2 space-y-2">
+                    {focusExtras.map((item) => (
+                      <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </article>
-              </div>
+              ) : null}
+
+              <article
+                className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
+                style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
+                <ul className="mt-2 space-y-2">
+                  {accreditationParts.map((item) => (
+                    <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </article>
 
               <div
                 className={`flex justify-end transition-all duration-500 ${
