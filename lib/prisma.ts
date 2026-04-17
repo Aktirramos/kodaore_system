@@ -41,7 +41,7 @@ export const prisma = prismaBase.$extends({
         }
 
         const modelKey = `${model.charAt(0).toLowerCase()}${model.slice(1)}`;
-        const delegate = prismaBase as Record<string, unknown>;
+        const delegate = prismaBase as unknown as Record<string, unknown>;
         const modelDelegate = delegate[modelKey] as
           | {
               findFirst: (args: Record<string, unknown>) => Promise<unknown>;

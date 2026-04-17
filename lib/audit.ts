@@ -2,8 +2,11 @@ import { type Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 type JsonPrimitive = string | number | boolean | null;
-type JsonValue = JsonPrimitive | JsonValue[] | JsonObject;
-type JsonObject = Record<string, JsonValue>;
+type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+
+interface JsonObject {
+  [key: string]: JsonValue;
+}
 
 type AuditLogClient = {
   auditLog: {
