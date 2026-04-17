@@ -257,7 +257,7 @@ export function InitialLoader() {
   } as CSSProperties;
   const loaderAriaLabel = isEu ? "Kodaore karga pantaila" : "Pantalla de carga de Kodaore";
   const logoAlt = isEu ? "Kodaore logoa" : "Logo de Kodaore";
-  const scrollHint = isEu ? "Egin scroll edo irristatu jarraitzeko" : "Haz scroll o desliza para continuar";
+  const scrollHint = isEu ? "Egin scroll edo arrastatu jarraitzeko" : "Haz scroll o desliza para continuar";
 
   const chromeOpacity = motion.progress > 0.01 ? 0 : 1;
 
