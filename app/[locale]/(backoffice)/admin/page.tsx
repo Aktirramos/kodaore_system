@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
 import { getDashboardSummary } from "@/lib/dashboard";
 import { isLocale } from "@/lib/i18n";
+import { AdminStatCard } from "./_shared/_components/admin-stat-card";
+import { requireAdminAuth } from "./_shared/_server/require-admin-auth.server";
 
 type AdminPageProps = {
   params: Promise<{ locale: string }>;
@@ -15,11 +16,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
     notFound();
   }
 
-  await requireAuth({
-    locale,
-    allowedRoles: ADMIN_ROLE_CODES,
-    forbiddenRedirectTo: `/${locale}/portal`,
-  });
+  await requireAdminAuth(locale);
 
   const isEu = locale === "eu";
 
@@ -40,10 +37,14 @@ export default async function AdminPage({ params }: AdminPageProps) {
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-4">
-        <StatCard label={isEu ? "Ikasle aktiboak" : "Alumnos activos"} value={summary.totals.students} />
-        <StatCard label={isEu ? "Talde aktiboak" : "Grupos activos"} value={summary.totals.groups} />
-        <StatCard label={isEu ? "Ordainagiri ordainduak" : "Recibos cobrados"} value={summary.totals.paidReceipts} />
-        <StatCard label={isEu ? "Falta diren ordainagiriak" : "Recibos pendientes"} value={summary.totals.pendingReceipts} tone="warning" />
+        <AdminStatCard label={isEu ? "Ikasle aktiboak" : "Alumnos activos"} value={summary.totals.students} />
+        <AdminStatCard label={isEu ? "Talde aktiboak" : "Grupos activos"} value={summary.totals.groups} />
+        <AdminStatCard label={isEu ? "Ordainagiri ordainduak" : "Recibos cobrados"} value={summary.totals.paidReceipts} />
+        <AdminStatCard
+          label={isEu ? "Falta diren ordainagiriak" : "Recibos pendientes"}
+          value={summary.totals.pendingReceipts}
+          tone="warning"
+        />
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-3">
@@ -143,25 +144,6 @@ export default async function AdminPage({ params }: AdminPageProps) {
         </div>
       </section>
     </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  tone = "normal",
-}: {
-  label: string;
-  value: number;
-  tone?: "normal" | "warning";
-}) {
-  const toneClass = tone === "warning" ? "bg-[#2a1b21]" : "bg-surface";
-
-  return (
-    <article className={`k-hover-lift rounded-2xl border border-white/10 p-5 ${toneClass}`}>
-      <p className="text-sm text-ink-muted">{label}</p>
-      <p className="mt-1 font-heading text-3xl font-semibold text-foreground">{value}</p>
-    </article>
   );
 }
 

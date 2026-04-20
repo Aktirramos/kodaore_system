@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ReceiptStatus } from "@prisma/client";
 import { notFound } from "next/navigation";
-import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
 import { getAdminStudentProfileData } from "@/lib/admin";
 import { isLocale } from "@/lib/i18n";
+import { requireAdminAuth } from "../../_shared/_server/require-admin-auth.server";
 
 type AdminStudentProfilePageProps = {
   params: Promise<{ locale: string; studentId: string }>;
@@ -16,11 +16,7 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
     notFound();
   }
 
-  await requireAuth({
-    locale,
-    allowedRoles: ADMIN_ROLE_CODES,
-    forbiddenRedirectTo: `/${locale}/portal`,
-  });
+  await requireAdminAuth(locale);
 
   const isEu = locale === "eu";
   const copy = isEu

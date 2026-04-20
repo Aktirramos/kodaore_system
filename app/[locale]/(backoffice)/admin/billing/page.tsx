@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { AdminBillingActionsTable } from "@/components/admin-billing-actions-table";
-import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
 import { getAdminBillingData, updateAdminPaymentAction } from "@/lib/admin";
 import { isLocale } from "@/lib/i18n";
+import { AdminStatCard } from "../_shared/_components/admin-stat-card";
+import { requireAdminAuth } from "../_shared/_server/require-admin-auth.server";
 
 type AdminBillingPageProps = {
   params: Promise<{ locale: string }>;
@@ -15,11 +16,7 @@ export default async function AdminBillingPage({ params }: AdminBillingPageProps
     notFound();
   }
 
-  await requireAuth({
-    locale,
-    allowedRoles: ADMIN_ROLE_CODES,
-    forbiddenRedirectTo: `/${locale}/portal`,
-  });
+  await requireAdminAuth(locale);
 
   const isEu = locale === "eu";
   const data = await getAdminBillingData();
@@ -41,14 +38,20 @@ export default async function AdminBillingPage({ params }: AdminBillingPageProps
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-4">
-        <StatCard label={isEu ? "Ordainduta" : "Pagado"} value={formatCurrency(data.totals.paidAmountCents, locale)} />
-        <StatCard
+        <AdminStatCard label={isEu ? "Ordainduta" : "Pagado"} value={formatCurrency(data.totals.paidAmountCents, locale)} compact />
+        <AdminStatCard
           label={isEu ? "Ordaindu gabe" : "Pendiente"}
           value={formatCurrency(data.totals.pendingAmountCents, locale)}
           tone="warning"
+          compact
         />
-        <StatCard label={isEu ? "Ordainagiri ordainduak" : "Recibos pagados"} value={String(data.totals.paidCount)} />
-        <StatCard label={isEu ? "Falta diren ordainagiriak" : "Recibos pendientes"} value={String(data.totals.pendingCount)} tone="warning" />
+        <AdminStatCard label={isEu ? "Ordainagiri ordainduak" : "Recibos pagados"} value={data.totals.paidCount} compact />
+        <AdminStatCard
+          label={isEu ? "Falta diren ordainagiriak" : "Recibos pendientes"}
+          value={data.totals.pendingCount}
+          tone="warning"
+          compact
+        />
       </section>
 
       <AdminBillingActionsTable
@@ -57,25 +60,6 @@ export default async function AdminBillingPage({ params }: AdminBillingPageProps
         updatePaymentAction={updateAdminPaymentAction}
       />
     </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  tone = "normal",
-}: {
-  label: string;
-  value: string;
-  tone?: "normal" | "warning";
-}) {
-  const toneClass = tone === "warning" ? "bg-[#2a1b21]" : "bg-surface";
-
-  return (
-    <article className={`k-hover-lift rounded-2xl border border-white/10 p-5 ${toneClass}`}>
-      <p className="text-sm text-ink-muted">{label}</p>
-      <p className="mt-1 font-heading text-2xl font-semibold text-foreground md:text-3xl">{value}</p>
-    </article>
   );
 }
 

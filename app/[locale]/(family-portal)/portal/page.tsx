@@ -1,9 +1,11 @@
-import Link from "next/link";
 import { RoleCode } from "@prisma/client";
 import { notFound } from "next/navigation";
 import { requireAuth } from "@/lib/auth";
 import { getCopy, isLocale } from "@/lib/i18n";
 import { getPortalSummaryData } from "@/lib/portal";
+import { PortalQuickLinkCard } from "./_components/portal-quick-link-card";
+import { PortalSummaryStatCard } from "./_components/portal-summary-stat-card";
+import { formatPortalCurrency, formatPortalDate } from "./_utils/format";
 
 type PortalPageProps = {
   params: Promise<{ locale: string }>;
@@ -48,22 +50,22 @@ export default async function PortalPage({ params }: PortalPageProps) {
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-4">
-        <StatCard
+        <PortalSummaryStatCard
           label={isEu ? "Ikasle aktiboak" : "Alumnos activos"}
           value={String(summary.totals.activeStudents)}
           tone="neutral"
         />
-        <StatCard
+        <PortalSummaryStatCard
           label={isEu ? "Ordaintzeko daudenak" : "Pagos pendientes"}
           value={String(summary.totals.pendingReceipts)}
           tone="warning"
         />
-        <StatCard
+        <PortalSummaryStatCard
           label={isEu ? "Ordaindutako kuotak" : "Cuotas pagadas"}
           value={String(summary.totals.paidReceipts)}
           tone="success"
         />
-        <StatCard
+        <PortalSummaryStatCard
           label={isEu ? "Komunikazioak" : "Comunicaciones"}
           value={String(summary.totals.recentCommunications)}
           tone="neutral"
@@ -71,19 +73,19 @@ export default async function PortalPage({ params }: PortalPageProps) {
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-3">
-        <QuickLinkCard
+        <PortalQuickLinkCard
           href={`/${locale}/portal/profile`}
           title={isEu ? "Datu pertsonalak" : "Datos personales"}
           text={isEu ? "Familiaren fitxa eta ikasleen datuak kontsultatu." : "Consulta ficha familiar y datos del alumnado."}
           cta={isEu ? "Ikusi xehetasunak" : "Ver detalles"}
         />
-        <QuickLinkCard
+        <PortalQuickLinkCard
           href={`/${locale}/portal/payments`}
           title={isEu ? "Ordainketak" : "Pagos"}
           text={isEu ? "Kuoten egoera eta azken mugimenduak ikusi." : "Revisa estado de cuotas y movimientos recientes."}
           cta={isEu ? "Ikusi xehetasunak" : "Ver detalles"}
         />
-        <QuickLinkCard
+        <PortalQuickLinkCard
           href={`/${locale}/portal/messages`}
           title={isEu ? "Komunikazioak" : "Comunicaciones"}
           text={isEu ? "Egoitzako mezuak eta abisuak berrikusi." : "Lee avisos y mensajes de la sede."}
@@ -97,13 +99,13 @@ export default async function PortalPage({ params }: PortalPageProps) {
           {summary.latestReceipt ? (
             <>
               <p className="mt-2 text-lg font-semibold text-foreground">
-                {formatCurrency(summary.latestReceipt.amountCents, locale)}
+                {formatPortalCurrency(summary.latestReceipt.amountCents, locale)}
               </p>
               <p className="mt-1 text-sm text-ink-muted">
                 {summary.latestReceipt.studentName} - {summary.latestReceipt.siteName}
               </p>
               <p className="mt-1 text-sm text-ink-muted">
-                {formatDate(summary.latestReceipt.periodStart, locale)} - {formatDate(summary.latestReceipt.periodEnd, locale)}
+                {formatPortalDate(summary.latestReceipt.periodStart, locale)} - {formatPortalDate(summary.latestReceipt.periodEnd, locale)}
               </p>
             </>
           ) : (
@@ -140,56 +142,4 @@ export default async function PortalPage({ params }: PortalPageProps) {
       </section>
     </div>
   );
-}
-
-function StatCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "neutral" | "warning" | "success";
-}) {
-  const toneClass =
-    tone === "warning"
-      ? "border-amber-300/20 bg-amber-500/5"
-      : tone === "success"
-        ? "border-emerald-300/20 bg-emerald-500/5"
-        : "border-white/10 bg-surface";
-
-  return (
-    <article className={`k-hover-lift rounded-2xl border p-5 ${toneClass}`}>
-      <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">{label}</p>
-      <p className="mt-2 font-heading text-3xl font-semibold text-foreground">{value}</p>
-    </article>
-  );
-}
-
-function QuickLinkCard({ href, title, text, cta }: { href: string; title: string; text: string; cta: string }) {
-  return (
-    <Link
-      href={href}
-      className="k-focus-ring k-hover-lift group rounded-2xl border border-white/10 bg-surface p-5 hover:border-white/30 hover:bg-surface-strong/50"
-    >
-      <h3 className="font-heading text-lg font-semibold text-foreground">{title}</h3>
-      <p className="mt-2 text-sm text-ink-muted">{text}</p>
-      <p className="mt-4 text-xs uppercase tracking-[0.12em] text-brand-emphasis">{cta}</p>
-    </Link>
-  );
-}
-
-function formatCurrency(amountCents: number, locale: string) {
-  return new Intl.NumberFormat(locale === "eu" ? "eu-ES" : "es-ES", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amountCents / 100);
-}
-
-function formatDate(value: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale === "eu" ? "eu-ES" : "es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(value);
 }
