@@ -162,7 +162,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
       {modalMounted ? (
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
+          className={`fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 md:items-center md:p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
             modalVisible ? "bg-black/75 backdrop-blur-md" : "bg-black/0 backdrop-blur-none"
           }`}
         >
@@ -177,13 +177,13 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
             role="dialog"
             aria-modal="true"
             aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
-            className={`relative z-10 w-full max-w-xl overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            className={`relative z-10 mt-3 grid w-full max-w-xl grid-rows-[minmax(0,240px)_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:mt-0 md:max-h-[88svh] md:grid-rows-[minmax(0,250px)_minmax(0,1fr)] ${
               modalVisible
                 ? "translate-y-0 scale-100 opacity-100 rotate-0"
                 : "translate-y-10 scale-90 opacity-0 -rotate-1"
             }`}
           >
-            <div className="relative min-h-[250px] overflow-hidden border-b border-white/10">
+            <div className="relative overflow-hidden border-b border-white/10">
               <div
                 className={`pointer-events-none absolute -left-24 -right-24 -top-28 h-44 rotate-6 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ${
                   modalVisible ? "translate-y-0" : "-translate-y-20"
@@ -218,7 +218,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
               </div>
             </div>
 
-            <div className="max-h-[calc(88svh-250px)] space-y-4 overflow-y-auto p-5 md:p-6">
+            <div className="min-h-0 space-y-4 overflow-y-auto p-5 md:p-6">
               <article
                 className={`rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ${
                   modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
