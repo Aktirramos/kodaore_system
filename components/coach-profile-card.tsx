@@ -12,6 +12,11 @@ type CoachProfileCardProps = {
     profile: string;
     focus: string;
     experience: string;
+    disciplines?: Array<{
+      name: string;
+      summary?: string;
+      details: string[];
+    }>;
   };
   photoSrc: string;
   fallbackSrc: string;
@@ -63,10 +68,29 @@ function splitDetails(value: string) {
     .filter(Boolean);
 }
 
+function getValidDisciplines(
+  disciplines: CoachProfileCardProps["coach"]["disciplines"],
+): Array<{ name: string; summary?: string; details: string[] }> {
+  if (!disciplines) {
+    return [];
+  }
+
+  return disciplines
+    .map((discipline) => {
+      const details = discipline.details.map((item) => item.trim()).filter(Boolean);
+      return {
+        ...discipline,
+        details,
+      };
+    })
+    .filter((discipline) => discipline.name.trim().length > 0 && discipline.details.length > 0);
+}
+
 export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSrc }: CoachProfileCardProps) {
   const [modalMounted, setModalMounted] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
+  const [activeDisciplineIndex, setActiveDisciplineIndex] = useState(0);
   const isEu = locale === "eu";
   const focusParts = splitDetails(coach.focus);
   const beltGrade = focusParts[0] ?? coach.focus;
@@ -75,11 +99,20 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
   const credentialSource = [...focusExtras, ...accreditationParts];
   const teacherTitles = getTeacherTitles(credentialSource, locale);
   const accreditationDetails = credentialSource.filter((item) => !isTeacherTitleDetail(item));
+  const disciplineEntries = getValidDisciplines(coach.disciplines);
+  const hasDisciplineTabs = disciplineEntries.length > 0;
+  const activeDiscipline = disciplineEntries[activeDisciplineIndex] ?? disciplineEntries[0];
+  const coachId = coach.name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-");
 
   const roleLabel = isEu ? "Rola" : "Rol";
   const beltLabel = isEu ? "Gerriko maila" : "Grado de cinturon";
   const focusLabel = isEu ? "Irakasle titulua" : "Titulo de entrenador";
   const accreditationLabel = isEu ? "Aitorpenak" : "Acreditaciones";
+  const disciplinesLabel = isEu ? "Diziplinak" : "Disciplinas";
+  const disciplineDetailsLabel = isEu ? "Diziplinaren fitxa" : "Ficha de la disciplina";
+  const detailPreview = hasDisciplineTabs
+    ? (disciplineEntries[0]?.summary ?? disciplineEntries[0]?.details[0] ?? coach.experience)
+    : (focusExtras[0] ?? coach.experience);
 
   const openModal = () => {
     setModalMounted(true);
@@ -95,6 +128,14 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
   useEffect(() => {
     setPortalReady(true);
   }, []);
+
+  useEffect(() => {
+    if (!modalMounted) {
+      return;
+    }
+
+    setActiveDisciplineIndex(0);
+  }, [coach.name, modalMounted]);
 
   useEffect(() => {
     if (!modalMounted) {
@@ -210,38 +251,100 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                 <p className="mt-2 font-heading text-3xl font-semibold text-white">{beltGrade}</p>
               </article>
 
-              <article
-                className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
-                  modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                }`}
-                style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{focusLabel}</p>
-                <ul className="mt-2 space-y-2">
-                  {teacherTitles.length > 0 ? (
-                    teacherTitles.map((item) => (
-                      <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
-                        {item}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
-                      {isEu ? "Titulurik gabe" : "Sin titulo"}
-                    </li>
-                  )}
-                </ul>
-              </article>
-
-              {accreditationDetails.length > 0 ? (
+              {hasDisciplineTabs ? (
                 <article
+                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                    modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                  }`}
+                  style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{disciplinesLabel}</p>
+                  <div className="mt-2 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={disciplinesLabel}>
+                    {disciplineEntries.map((discipline, index) => {
+                      const isActive = index === activeDisciplineIndex;
+                      const panelId = `discipline-panel-${coachId}-${index}`;
+                      const tabId = `discipline-tab-${coachId}-${index}`;
+
+                      return (
+                        <button
+                          key={`${discipline.name}-${index}`}
+                          type="button"
+                          role="tab"
+                          id={tabId}
+                          aria-controls={panelId}
+                          aria-selected={isActive}
+                          onClick={() => setActiveDisciplineIndex(index)}
+                          className={`k-focus-ring shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.11em] transition-colors ${
+                            isActive
+                              ? "border-brand/65 bg-brand/25 text-brand-emphasis"
+                              : "border-white/20 bg-black/25 text-white/80 hover:border-brand/45"
+                          }`}
+                        >
+                          {discipline.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </article>
+
+              ) : (
+                <>
+                  <article
+                    className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                      modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                    }`}
+                    style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{focusLabel}</p>
+                    <ul className="mt-2 space-y-2">
+                      {teacherTitles.length > 0 ? (
+                        teacherTitles.map((item) => (
+                          <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                            {item}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                          {isEu ? "Titulurik gabe" : "Sin titulo"}
+                        </li>
+                      )}
+                    </ul>
+                  </article>
+
+                  {accreditationDetails.length > 0 ? (
+                    <article
+                      className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                        modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                      }`}
+                      style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
+                    >
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
+                      <ul className="mt-2 space-y-2">
+                        {accreditationDetails.map((item) => (
+                          <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ) : null}
+                </>
+              )}
+
+              {hasDisciplineTabs && activeDiscipline ? (
+                <article
+                  role="tabpanel"
+                  id={`discipline-panel-${coachId}-${activeDisciplineIndex}`}
+                  aria-labelledby={`discipline-tab-${coachId}-${activeDisciplineIndex}`}
                   className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
                     modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                   }`}
                   style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
                 >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{disciplineDetailsLabel}</p>
+                  {activeDiscipline.summary ? <p className="mt-2 text-sm text-foreground/95">{activeDiscipline.summary}</p> : null}
                   <ul className="mt-2 space-y-2">
-                    {accreditationDetails.map((item) => (
+                    {activeDiscipline.details.map((item) => (
                       <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
                         {item}
                       </li>
@@ -293,7 +396,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
           <p className="inline-flex rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-brand-emphasis">
             {beltGrade}
           </p>
-          <p className="text-sm leading-relaxed text-ink-muted">{focusExtras[0] ?? coach.experience}</p>
+          <p className="text-sm leading-relaxed text-ink-muted">{detailPreview}</p>
           <button
             type="button"
             onClick={openModal}

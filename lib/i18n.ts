@@ -67,6 +67,18 @@ const copy = {
               profile: "Lehen irakaslea",
               focus: "2. DANa",
               experience: "Monitore irakaslea",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Irakaskuntza esperientzia",
+                  details: ["Irakasten 2022tik."],
+                },
+                {
+                  name: "Defentsa pertsonala",
+                  summary: "1. DAN eta emakumeen defentsa pertsonalean espezialista",
+                  details: ["Gerriko beltza 1. DAN.", "Emakumeen defentsa pertsonalean espezialista."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -74,6 +86,18 @@ const copy = {
               profile: "Laguntzailea",
               focus: "1. DANa",
               experience: "Monitore irakaslea",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Teknikari formakuntza",
+                  details: ["Judoan 1. mailako kirol teknikaria.", "Irakasten 2025etik."],
+                },
+                {
+                  name: "Defentsa pertsonala",
+                  summary: "Teknikari formakuntza",
+                  details: ["Defentsa pertsonalean 1. mailako kirol teknikaria.", "Irakasten 2025etik."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
           ],
@@ -88,6 +112,13 @@ const copy = {
               profile: "Lehen irakaslea",
               focus: "6. DANa, Maisu entrenatzaile nazionala",
               experience: "Epaile autonomikoa, Kata epaile nazionala (Nage no Kata eta Kime no Kata)",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Ibilbide luzea judoan",
+                  details: ["Judoa 1991tik.", "Judoa irakasten 2002tik."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -95,6 +126,13 @@ const copy = {
               profile: "Laguntzailea",
               focus: "2. DANa, Mahai epailea",
               experience: "Monitore irakaslea",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Lehiaketako eta irakaskuntzako esperientzia",
+                  details: ["2. DANa.", "Mahai epailea.", "Monitore irakaslea."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -102,6 +140,18 @@ const copy = {
               profile: "Laguntzailea",
               focus: "2. DANa",
               experience: "Monitore irakaslea",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Oinarri sendoa eta irakaskuntza",
+                  details: ["Judoa 2010etik.", "Judoa irakasten 2022tik.", "Judoan 1. mailako kirol teknikaria."],
+                },
+                {
+                  name: "Defentsa pertsonala",
+                  summary: "Teknikari formakuntza",
+                  details: ["Defentsa pertsonalean 1. mailako kirol teknikaria."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
           ],
@@ -116,6 +166,27 @@ const copy = {
               profile: "Lehen irakaslea",
               focus: "3. DANa, Maisu entrenatzaile nazionala",
               experience: "Epaile autonomikoa, Kata epaile nazionala (Nage no Kata eta Katame no Kata)",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Ibilbide historikoa",
+                  details: [
+                    "1985etik judoan.",
+                    "Judoa irakasten 2013tik.",
+                    "Kata epailea: Nage No Kata (2018), Katame No Kata (2018), Kime No Kata (2020).",
+                  ],
+                },
+                {
+                  name: "Defentsa pertsonala",
+                  summary: "Titulazioa eta irakaskuntza",
+                  details: ["1. DAN eta monitorea."],
+                },
+                {
+                  name: "Defentsa pertsonal poliziala",
+                  summary: "Titulazioa eta irakaskuntza",
+                  details: ["1. DAN eta monitorea."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -123,6 +194,22 @@ const copy = {
               profile: "Laguntzailea",
               focus: "3. DANa, Epaile autonomikoa",
               experience: "Monitore irakaslea",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Prestakuntza eta jarraipena",
+                  details: ["Judoa 2003tik."],
+                },
+                {
+                  name: "Defentsa pertsonala",
+                  summary: "Prestakuntza espezifikoa",
+                  details: [
+                    "1. DAN.",
+                    "Emakumeen defentsa pertsonalean espezialista.",
+                    "Irakasten 2020tik.",
+                  ],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -130,6 +217,18 @@ const copy = {
               profile: "Laguntzailea",
               focus: "2. DANa",
               experience: "Monitore irakaslea",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Teknikari profila",
+                  details: ["Judoa 2008tik.", "Judoan 1. mailako kirol teknikaria.", "Irakasten 2020tik."],
+                },
+                {
+                  name: "Defentsa pertsonala",
+                  summary: "Teknikari profila",
+                  details: ["Defentsa pertsonalean 1. mailako kirol teknikaria.", "Irakasten 2020tik."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
           ],
@@ -223,6 +322,18 @@ const copy = {
               profile: "Profesor principal",
               focus: "2.º DAN",
               experience: "Monitor titulado",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Experiencia docente",
+                  details: ["Ensenando desde 2022."],
+                },
+                {
+                  name: "Defensa personal",
+                  summary: "Cinturon negro 1.º Dan y especialidad",
+                  details: ["Cinturon negro 1.º Dan.", "Especialista en defensa personal de la mujer."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -230,6 +341,18 @@ const copy = {
               profile: "Profesora asistente",
               focus: "1.º DAN",
               experience: "Monitor titulada",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Formacion tecnica",
+                  details: ["Tecnico deportivo nivel 1 en judo.", "Ensenando desde 2025."],
+                },
+                {
+                  name: "Defensa personal",
+                  summary: "Formacion tecnica",
+                  details: ["Tecnico deportivo nivel 1 en defensa personal.", "Ensenando desde 2025."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
           ],
@@ -244,6 +367,13 @@ const copy = {
               profile: "Profesor principal",
               focus: "6.º DAN, Maestro entrenador nacional",
               experience: "Arbitro autonomico, Juez nacional de kata (Nage no Kata y Kime no Kata)",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Trayectoria consolidada",
+                  details: ["Judo desde 1991.", "Ensenando judo desde 2002."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -251,6 +381,13 @@ const copy = {
               profile: "Profesor asistente",
               focus: "2.º DAN, Juez de mesa",
               experience: "Monitor titulado",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Experiencia competitiva y docente",
+                  details: ["2.º DAN.", "Juez de mesa.", "Monitor titulado."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -258,6 +395,18 @@ const copy = {
               profile: "Profesor asistente",
               focus: "2.º DAN",
               experience: "Monitor titulado",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Base tecnica y docencia",
+                  details: ["Judo desde 2010.", "Ensenando desde 2022.", "Tecnico deportivo nivel 1 en judo."],
+                },
+                {
+                  name: "Defensa personal",
+                  summary: "Formacion tecnica",
+                  details: ["Tecnico deportivo nivel 1 en defensa personal."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
           ],
@@ -272,6 +421,27 @@ const copy = {
               profile: "Profesor principal",
               focus: "3.º DAN, Maestro entrenador nacional",
               experience: "Arbitro autonomico, Juez nacional de kata (Nage no Kata y Katame no Kata)",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Trayectoria historica",
+                  details: [
+                    "Desde 1985.",
+                    "Ensenando desde 2013.",
+                    "Juez de Kata: Nage No Kata (2018), Katame No Kata (2018), Kime No Kata (2020).",
+                  ],
+                },
+                {
+                  name: "Defensa personal",
+                  summary: "Titulacion y monitor",
+                  details: ["1.º Dan y monitor."],
+                },
+                {
+                  name: "Defensa personal policial",
+                  summary: "Titulacion y monitor",
+                  details: ["1.º Dan y monitor."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -279,6 +449,22 @@ const copy = {
               profile: "Profesor asistente",
               focus: "3.º DAN, Arbitro autonomico",
               experience: "Monitor titulado",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Desarrollo continuado",
+                  details: ["Judo desde 2003."],
+                },
+                {
+                  name: "Defensa personal",
+                  summary: "Especializacion",
+                  details: [
+                    "1.º Dan.",
+                    "Especialista en defensa personal para la mujer.",
+                    "Ensenando desde 2020.",
+                  ],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
             {
@@ -286,6 +472,18 @@ const copy = {
               profile: "Profesor asistente",
               focus: "2.º DAN",
               experience: "Monitor titulado",
+              disciplines: [
+                {
+                  name: "Judo",
+                  summary: "Perfil tecnico",
+                  details: ["Judo desde 2008.", "Tecnico deportivo nivel 1 en judo.", "Ensenando desde 2020."],
+                },
+                {
+                  name: "Defensa personal",
+                  summary: "Perfil tecnico",
+                  details: ["Tecnico deportivo nivel 1 en defensa personal.", "Ensenando desde 2020."],
+                },
+              ],
               photo: "/media/profesores/anonimo.png",
             },
           ],
