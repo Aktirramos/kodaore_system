@@ -98,7 +98,7 @@ function buildGroupSchema(copy: AdminGroupsActionsCopy["form"]) {
   return z.object({
     name: z.string().trim().min(1, copy.requiredName),
     level: z.string(),
-    capacity: z.coerce.number().int().min(1, copy.requiredCapacity),
+    capacity: z.number().int().min(1, copy.requiredCapacity),
     siteId: z.string().trim().min(1),
     leadTeacherId: z.string(),
     isActive: z.boolean(),
