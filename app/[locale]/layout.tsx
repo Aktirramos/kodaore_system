@@ -38,6 +38,13 @@ const localeAlternates = supportedLocales.reduce(
   {} as Record<LocaleCode, string>,
 );
 
+const defaultSocialImage = {
+  url: "/media/hero-1.jpg",
+  width: 1600,
+  height: 900,
+  alt: "Kodaore judo kluba - Azkoitia, Azpeitia eta Zumaia",
+};
+
 function getMetadataBase() {
   const fallbackBase = "http://localhost:3000";
   const configuredBase = process.env.NEXTAUTH_URL?.trim() || fallbackBase;
@@ -52,6 +59,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   const current = localeMetadata[locale as LocaleCode];
+  const ogLocale = locale === "eu" ? "eu_ES" : "es_ES";
+  const alternateOgLocale = locale === "eu" ? "es_ES" : "eu_ES";
 
   return {
     metadataBase: getMetadataBase(),
@@ -64,9 +73,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     openGraph: {
       title: current.title,
       description: current.description,
-      locale: locale === "eu" ? "eu_ES" : "es_ES",
+      siteName: "Kodaore",
+      locale: ogLocale,
+      alternateLocale: [alternateOgLocale],
       type: "website",
       url: "./",
+      images: [defaultSocialImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: current.title,
+      description: current.description,
+      images: [defaultSocialImage.url],
     },
   };
 }
