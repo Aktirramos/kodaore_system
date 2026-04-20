@@ -5,6 +5,7 @@ import {
   RoleCode,
   ReceiptStatus,
 } from "@prisma/client";
+import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import { getAuthSession } from "@/lib/auth";
 import { createAuditLogForChanges } from "./audit";
@@ -43,6 +44,8 @@ const adminActionMessages = {
   studentUpdateFailed: "No se ha podido actualizar el alumno. Intentalo de nuevo.",
   studentDeleteFailed: "No se ha podido eliminar el alumno. Intentalo de nuevo.",
   paymentUpdateFailed: "No se ha podido actualizar el recibo. Intentalo de nuevo.",
+  bulkImportInvalidPayload: "El formato de importacion no es valido.",
+  bulkImportFailed: "No se ha podido completar la importacion de alumnos.",
 } as const;
 
 class AdminActionError extends Error {
@@ -316,6 +319,43 @@ export type UpdateAdminGroupInput = {
   isActive?: boolean;
 };
 
+type BulkImportSite = {
+  id: string;
+  code: string;
+  name: string;
+};
+
+type BulkImportSiteLookup = {
+  byId: Map<string, BulkImportSite>;
+  byCode: Map<string, BulkImportSite>;
+  byName: Map<string, BulkImportSite>;
+};
+
+type BulkImportStudentResult =
+  | {
+      rowIndex: number;
+      status: "IMPORTED";
+      studentId: string;
+      familyAccountId: string;
+      internalCode: string;
+      siteId: string;
+      familyEmail: string;
+    }
+  | {
+      rowIndex: number;
+      status: "FAILED";
+      reason: string;
+      familyEmail: string | null;
+      siteInput: string | null;
+    };
+
+export type BulkImportStudentsResult = {
+  total: number;
+  imported: number;
+  failed: number;
+  results: BulkImportStudentResult[];
+};
+
 function hasAdminMutationRole(roles: Array<{ code: RoleCode }> | undefined) {
   if (!roles || roles.length === 0) {
     return false;
@@ -505,6 +545,263 @@ function buildStudentInternalCode(siteCode: string) {
   const token = randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
 
   return `ALU-${safeSiteCode}-${year}-${token}`;
+}
+
+async function generateUniqueStudentInternalCode(
+  tx: {
+    student: {
+      findUnique: (args: {
+        where: { internalCode: string };
+        select: { id: true };
+      }) => PromiseLike<{ id: string } | null>;
+    };
+  },
+  siteCode: string,
+) {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const candidate = buildStudentInternalCode(siteCode);
+    const existing = await tx.student.findUnique({
+      where: { internalCode: candidate },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+const bulkImportFieldAliases = {
+  firstName: ["firstName", "first_name", "nombre", "nombre_alumno", "alumno_nombre"],
+  lastName: ["lastName", "last_name", "apellido", "apellido_alumno", "alumno_apellido"],
+  familyEmail: ["familyEmail", "family_email", "email_familia", "correo_familia", "email"],
+  site: [
+    "mainSiteId",
+    "main_site_id",
+    "siteId",
+    "site_id",
+    "sede_id",
+    "siteCode",
+    "site_code",
+    "sede_codigo",
+    "sede",
+    "site",
+    "siteName",
+    "site_name",
+    "sede_nombre",
+  ],
+  birthDate: ["birthDate", "birth_date", "fechaNacimiento", "fecha_nacimiento", "nacimiento"],
+  studentPhone: ["phone", "studentPhone", "student_phone", "telefono", "telefono_alumno"],
+  studentAddress: ["address", "studentAddress", "student_address", "direccion"],
+  schoolName: ["schoolName", "school_name", "colegio", "centro_escolar"],
+  schoolCourse: ["schoolCourse", "school_course", "curso", "curso_escolar"],
+  sportsCenterMemberCode: [
+    "sportsCenterMemberCode",
+    "sports_center_member_code",
+    "codigo_socio",
+    "codigo_de_socio",
+  ],
+  isActive: ["isActive", "is_active", "activo"],
+  familyFirstName: [
+    "familyFirstName",
+    "family_first_name",
+    "nombre_familia",
+    "nombre_tutor",
+    "tutor_nombre",
+  ],
+  familyLastName: [
+    "familyLastName",
+    "family_last_name",
+    "apellido_familia",
+    "apellido_tutor",
+    "tutor_apellido",
+  ],
+  familyPhone: ["familyPhone", "family_phone", "telefono_familia", "tutor_telefono"],
+  familyAddress: ["familyAddress", "family_address", "direccion_familia", "tutor_direccion"],
+} as const;
+
+function normalizeImportScalar(value: unknown) {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+
+  return undefined;
+}
+
+function normalizeImportRow(row: unknown): Record<string, unknown> | null {
+  if (typeof row !== "object" || row === null || Array.isArray(row)) {
+    return null;
+  }
+
+  return row as Record<string, unknown>;
+}
+
+function getImportValue(
+  row: Record<string, unknown>,
+  keys: readonly string[],
+): unknown {
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(row, key)) {
+      return row[key];
+    }
+  }
+
+  return undefined;
+}
+
+function getImportText(
+  row: Record<string, unknown>,
+  keys: readonly string[],
+) {
+  const value = getImportValue(row, keys);
+  return normalizeImportScalar(value);
+}
+
+function normalizeImportBirthDate(value: unknown): Date | null {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    const parsed = new Date(trimmed);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (value > 100_000_000_000) {
+      const timestampDate = new Date(value);
+      return Number.isNaN(timestampDate.getTime()) ? null : timestampDate;
+    }
+
+    const excelEpochUtc = Date.UTC(1899, 11, 30);
+    const excelDate = new Date(excelEpochUtc + Math.round(value * 24 * 60 * 60 * 1000));
+    return Number.isNaN(excelDate.getTime()) ? null : excelDate;
+  }
+
+  return null;
+}
+
+function normalizeImportBoolean(value: unknown) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    if (value === 1) {
+      return true;
+    }
+
+    if (value === 0) {
+      return false;
+    }
+
+    return undefined;
+  }
+
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (["true", "1", "si", "yes", "activo"].includes(normalized)) {
+    return true;
+  }
+
+  if (["false", "0", "no", "inactive", "inactivo"].includes(normalized)) {
+    return false;
+  }
+
+  return undefined;
+}
+
+function buildBulkImportSiteLookup(sites: BulkImportSite[]): BulkImportSiteLookup {
+  const byId = new Map<string, BulkImportSite>();
+  const byCode = new Map<string, BulkImportSite>();
+  const byName = new Map<string, BulkImportSite>();
+
+  for (const site of sites) {
+    byId.set(site.id, site);
+    byCode.set(site.code.trim().toLowerCase(), site);
+    byName.set(site.name.trim().toLowerCase(), site);
+  }
+
+  return {
+    byId,
+    byCode,
+    byName,
+  };
+}
+
+function resolveBulkImportSite(
+  row: Record<string, unknown>,
+  siteLookup: BulkImportSiteLookup,
+) {
+  let fallbackInput: string | null = null;
+
+  for (const key of bulkImportFieldAliases.site) {
+    if (!Object.prototype.hasOwnProperty.call(row, key)) {
+      continue;
+    }
+
+    const rawValue = normalizeImportScalar(row[key]);
+
+    if (!rawValue) {
+      continue;
+    }
+
+    fallbackInput = fallbackInput ?? rawValue;
+    const normalized = rawValue.toLowerCase();
+    const resolvedSite =
+      siteLookup.byId.get(rawValue) ??
+      siteLookup.byCode.get(normalized) ??
+      siteLookup.byName.get(normalized);
+
+    if (resolvedSite) {
+      return {
+        site: resolvedSite,
+        siteInput: rawValue,
+      };
+    }
+  }
+
+  return {
+    site: null,
+    siteInput: fallbackInput,
+  };
+}
+
+function getBulkImportErrorReason(error: unknown) {
+  if (error instanceof AdminActionError) {
+    return error.message;
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    return adminActionMessages.studentCreateFailed;
+  }
+
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return adminActionMessages.bulkImportFailed;
 }
 
 export async function getAdminStudentsData(): Promise<AdminStudentsData> {
@@ -950,20 +1247,7 @@ export async function createAdminStudentAction(input: CreateAdminStudentInput) {
         failAdminAction(adminActionMessages.familyAccountNotFound);
       }
 
-      let internalCode = "";
-
-      for (let attempt = 0; attempt < 6; attempt += 1) {
-        const candidate = buildStudentInternalCode(site.code);
-        const existing = await tx.student.findUnique({
-          where: { internalCode: candidate },
-          select: { id: true },
-        });
-
-        if (!existing) {
-          internalCode = candidate;
-          break;
-        }
-      }
+      const internalCode = await generateUniqueStudentInternalCode(tx, site.code);
 
       if (!internalCode) {
         failAdminAction(adminActionMessages.studentCreateFailed);
@@ -1002,6 +1286,312 @@ export async function createAdminStudentAction(input: CreateAdminStudentInput) {
     });
   } catch (error) {
     throw toAdminActionError(error, adminActionMessages.studentCreateFailed);
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Import rows are dynamic by design.
+export async function bulkImportStudentsAction(data: any[]): Promise<BulkImportStudentsResult> {
+  "use server";
+
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+    if (!Array.isArray(data)) {
+      failAdminAction(adminActionMessages.bulkImportInvalidPayload);
+    }
+
+    const familyRole = await prisma.role.findUnique({
+      where: { code: RoleCode.ALUMNO_TUTOR },
+      select: { id: true },
+    });
+
+    if (!familyRole) {
+      failAdminAction(adminActionMessages.bulkImportFailed);
+    }
+
+    const sitesInScope = await prisma.site.findMany({
+      where:
+        adminSedeSiteIds === null
+          ? { isActive: true }
+          : {
+              isActive: true,
+              id: {
+                in: adminSedeSiteIds,
+              },
+            },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+      },
+    });
+
+    const siteLookup = buildBulkImportSiteLookup(sitesInScope);
+    const results: BulkImportStudentResult[] = [];
+    let imported = 0;
+    let failed = 0;
+
+    for (let rowIndex = 0; rowIndex < data.length; rowIndex += 1) {
+      const row = normalizeImportRow(data[rowIndex]);
+
+      if (!row) {
+        failed += 1;
+        results.push({
+          rowIndex,
+          status: "FAILED",
+          reason: adminActionMessages.bulkImportInvalidPayload,
+          familyEmail: null,
+          siteInput: null,
+        });
+        continue;
+      }
+
+      const firstName = getImportText(row, bulkImportFieldAliases.firstName);
+      const lastName = getImportText(row, bulkImportFieldAliases.lastName);
+      const familyEmail = getImportText(row, bulkImportFieldAliases.familyEmail)?.toLowerCase();
+      const birthDate = normalizeImportBirthDate(getImportValue(row, bulkImportFieldAliases.birthDate));
+      const { site, siteInput } = resolveBulkImportSite(row, siteLookup);
+
+      if (!firstName || !lastName || !familyEmail || !birthDate || !site) {
+        const missingFields: string[] = [];
+
+        if (!firstName) {
+          missingFields.push("nombre");
+        }
+
+        if (!lastName) {
+          missingFields.push("apellido");
+        }
+
+        if (!familyEmail) {
+          missingFields.push("email_familia");
+        }
+
+        if (!birthDate) {
+          missingFields.push("fecha_nacimiento");
+        }
+
+        if (!site) {
+          missingFields.push("sede");
+        }
+
+        failed += 1;
+        results.push({
+          rowIndex,
+          status: "FAILED",
+          reason: `Campos invalidos o vacios: ${missingFields.join(", ")}.`,
+          familyEmail: familyEmail ?? null,
+          siteInput,
+        });
+        continue;
+      }
+
+      const studentPhone = getImportText(row, bulkImportFieldAliases.studentPhone) ?? null;
+      const studentAddress = getImportText(row, bulkImportFieldAliases.studentAddress) ?? null;
+      const schoolName = getImportText(row, bulkImportFieldAliases.schoolName) ?? null;
+      const schoolCourse = getImportText(row, bulkImportFieldAliases.schoolCourse) ?? null;
+      const sportsCenterMemberCode =
+        getImportText(row, bulkImportFieldAliases.sportsCenterMemberCode) ?? null;
+      const isActive = normalizeImportBoolean(getImportValue(row, bulkImportFieldAliases.isActive)) ?? true;
+
+      const familyFirstName = getImportText(row, bulkImportFieldAliases.familyFirstName) ?? "Tutor";
+      const familyLastName =
+        getImportText(row, bulkImportFieldAliases.familyLastName) ?? `${lastName} Familia`;
+      const familyPhone = getImportText(row, bulkImportFieldAliases.familyPhone) ?? null;
+      const familyAddress = getImportText(row, bulkImportFieldAliases.familyAddress) ?? null;
+
+      try {
+        assertSiteInScope(site.id, adminSedeSiteIds);
+
+        const created = await prisma.$transaction(async (tx) => {
+          let familyAccount = await tx.familyAccount.findFirst({
+            where: {
+              email: {
+                equals: familyEmail,
+                mode: "insensitive",
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          if (!familyAccount) {
+            let ownerUser = await tx.user.findFirst({
+              where: {
+                email: {
+                  equals: familyEmail,
+                  mode: "insensitive",
+                },
+              },
+              select: {
+                id: true,
+              },
+            });
+
+            if (!ownerUser) {
+              const passwordHash = await hash(randomUUID(), 12);
+
+              ownerUser = await tx.user.create({
+                data: {
+                  username: null,
+                  email: familyEmail,
+                  passwordHash,
+                  firstName: familyFirstName,
+                  lastName: familyLastName,
+                  phone: familyPhone,
+                },
+                select: {
+                  id: true,
+                },
+              });
+            }
+
+            const roleLink = await tx.userSiteRole.findFirst({
+              where: {
+                userId: ownerUser.id,
+                roleId: familyRole.id,
+                siteId: null,
+              },
+              select: {
+                id: true,
+              },
+            });
+
+            if (!roleLink) {
+              await tx.userSiteRole.create({
+                data: {
+                  userId: ownerUser.id,
+                  roleId: familyRole.id,
+                  siteId: null,
+                  isActive: true,
+                },
+              });
+            }
+
+            const familyAccountByOwner = await tx.familyAccount.findUnique({
+              where: {
+                ownerId: ownerUser.id,
+              },
+              select: {
+                id: true,
+                email: true,
+              },
+            });
+
+            if (familyAccountByOwner) {
+              if (familyAccountByOwner.email.toLowerCase() === familyEmail) {
+                familyAccount = {
+                  id: familyAccountByOwner.id,
+                };
+              } else {
+                const updatedFamilyAccount = await tx.familyAccount.update({
+                  where: {
+                    ownerId: ownerUser.id,
+                  },
+                  data: {
+                    email: familyEmail,
+                  },
+                  select: {
+                    id: true,
+                  },
+                });
+
+                familyAccount = {
+                  id: updatedFamilyAccount.id,
+                };
+              }
+            } else {
+              familyAccount = await tx.familyAccount.create({
+                data: {
+                  ownerId: ownerUser.id,
+                  email: familyEmail,
+                  phone: familyPhone,
+                  address: familyAddress,
+                },
+                select: {
+                  id: true,
+                },
+              });
+            }
+          }
+
+          const internalCode = await generateUniqueStudentInternalCode(tx, site.code);
+
+          if (!internalCode) {
+            failAdminAction(adminActionMessages.studentCreateFailed);
+          }
+
+          const after = await tx.student.create({
+            data: {
+              familyAccountId: familyAccount.id,
+              firstName,
+              lastName,
+              birthDate,
+              phone: studentPhone,
+              address: studentAddress,
+              schoolName,
+              schoolCourse,
+              sportsCenterMemberCode,
+              internalCode,
+              mainSiteId: site.id,
+              isActive,
+            },
+            select: {
+              id: true,
+              internalCode: true,
+              mainSiteId: true,
+            },
+          });
+
+          await createAuditLogForChanges({
+            db: tx,
+            actorUserId,
+            siteId: after.mainSiteId,
+            entity: "STUDENT",
+            entityId: after.id,
+            action: "BULK_IMPORT_STUDENTS",
+            before: null,
+            after,
+          });
+
+          return {
+            studentId: after.id,
+            internalCode: after.internalCode,
+            familyAccountId: familyAccount.id,
+          };
+        });
+
+        imported += 1;
+        results.push({
+          rowIndex,
+          status: "IMPORTED",
+          studentId: created.studentId,
+          familyAccountId: created.familyAccountId,
+          internalCode: created.internalCode,
+          siteId: site.id,
+          familyEmail,
+        });
+      } catch (error) {
+        failed += 1;
+        results.push({
+          rowIndex,
+          status: "FAILED",
+          reason: getBulkImportErrorReason(error),
+          familyEmail,
+          siteInput,
+        });
+      }
+    }
+
+    return {
+      total: data.length,
+      imported,
+      failed,
+      results,
+    };
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.bulkImportFailed);
   }
 }
 
