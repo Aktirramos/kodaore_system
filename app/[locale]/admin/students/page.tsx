@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { AdminStudentsActionsTable } from "@/components/admin-students-actions-table";
 import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
 import {
+  bulkImportStudentsAction,
   createAdminStudentAction,
   deleteAdminStudentAction,
   getAdminStudentsData,
@@ -32,6 +33,18 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
     ? {
         form: {
           addStudentLabel: "Ikaslea gehitu",
+          importStudentsLabel: "XLSX/CSV inportatu",
+          importingStudentsLabel: "Inportatzen...",
+          importSuccessPrefix: "Inportazioa osatu da:",
+          importResultSummary: "arrakastaz, erroreak:",
+          importFailedDetailsPrefix: "Lehen erroreak:",
+          importEmptyFile: "Fitxategia hutsik dago.",
+          importNoRows: "Ez da errenkadarik aurkitu fitxategian.",
+          importMissingSheet: "Ez da kalkulu-orririk aurkitu fitxategian.",
+          importInvalidFile: "Fitxategi mota ez da bateragarria. Erabili XLSX, XLS edo CSV.",
+          importErrorFallback: "Ezin izan da ikasleen inportazioa osatu.",
+          importAcceptedFormats:
+            "Inportaziorako formatuak: .xlsx, .xls, .csv. Goiburu gomendatuak: nombre, apellido, email_familia, sede, fecha_nacimiento.",
           createModalTitle: "Ikasle berria sortu",
           createModalDescription: "Sartu ikaslearen oinarrizko datuak eta esleitu egoitza.",
           familyEmailLabel: "Familiaren emaila",
@@ -68,6 +81,18 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
     : {
         form: {
           addStudentLabel: "Anadir alumno",
+          importStudentsLabel: "Importar XLSX/CSV",
+          importingStudentsLabel: "Importando...",
+          importSuccessPrefix: "Importacion completada:",
+          importResultSummary: "correctos, errores:",
+          importFailedDetailsPrefix: "Primeros errores:",
+          importEmptyFile: "El archivo esta vacio.",
+          importNoRows: "No se han encontrado filas en el archivo.",
+          importMissingSheet: "No se ha encontrado ninguna hoja en el archivo.",
+          importInvalidFile: "Tipo de archivo no valido. Usa XLSX, XLS o CSV.",
+          importErrorFallback: "No se ha podido completar la importacion de alumnos.",
+          importAcceptedFormats:
+            "Formatos admitidos: .xlsx, .xls, .csv. Cabeceras recomendadas: nombre, apellido, email_familia, sede, fecha_nacimiento.",
           createModalTitle: "Crear nuevo alumno",
           createModalDescription: "Introduce los datos basicos del alumno y asigna su sede.",
           familyEmailLabel: "Email de familia",
@@ -132,6 +157,7 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
         createStudentAction={createAdminStudentAction}
         updateStudentAction={updateAdminStudentAction}
         deleteStudentAction={deleteAdminStudentAction}
+        bulkImportStudentsAction={bulkImportStudentsAction}
       />
     </div>
   );

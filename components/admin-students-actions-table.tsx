@@ -3,11 +3,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ActionToast } from "@/components/action-toast";
-import type { CreateAdminStudentInput, UpdateAdminStudentInput } from "@/lib/admin";
+import type {
+  BulkImportStudentsResult,
+  CreateAdminStudentInput,
+  UpdateAdminStudentInput,
+} from "@/lib/admin";
 import type { LocaleCode } from "@/lib/i18n";
 
 type AdminSiteOption = {
@@ -36,6 +40,17 @@ type AdminStudentRow = {
 export type AdminStudentsActionsCopy = {
   form: {
     addStudentLabel: string;
+    importStudentsLabel: string;
+    importingStudentsLabel: string;
+    importSuccessPrefix: string;
+    importResultSummary: string;
+    importFailedDetailsPrefix: string;
+    importEmptyFile: string;
+    importNoRows: string;
+    importMissingSheet: string;
+    importInvalidFile: string;
+    importErrorFallback: string;
+    importAcceptedFormats: string;
     createModalTitle: string;
     createModalDescription: string;
     familyEmailLabel: string;
@@ -78,6 +93,7 @@ type AdminStudentsActionsTableProps = {
   createStudentAction: (input: CreateAdminStudentInput) => Promise<unknown>;
   updateStudentAction: (studentId: string, input: UpdateAdminStudentInput) => Promise<unknown>;
   deleteStudentAction: (studentId: string) => Promise<unknown>;
+  bulkImportStudentsAction: (data: unknown[]) => Promise<BulkImportStudentsResult>;
 };
 
 type ToastState = {
@@ -189,6 +205,7 @@ export function AdminStudentsActionsTable({
   createStudentAction,
   updateStudentAction,
   deleteStudentAction,
+  bulkImportStudentsAction,
 }: AdminStudentsActionsTableProps) {
   const router = useRouter();
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -198,6 +215,7 @@ export function AdminStudentsActionsTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSiteId, setSelectedSiteId] = useState<string>("all");
   const [showInactive, setShowInactive] = useState(false);
+  const importFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const isEu = locale === "eu";
@@ -208,6 +226,7 @@ export function AdminStudentsActionsTable({
     ? "Ez dago bilaketarekin bat datorren ikaslerik."
     : "No hay alumnos que coincidan con los filtros.";
   const addStudentLabel = copy.form.addStudentLabel;
+  const importStudentsLabel = copy.form.importStudentsLabel;
   const profileLabel = isEu ? "Fitxa" : "Ficha";
   const editLabel = copy.form.editLabel;
   const deactivateLabel = isEu ? "Inaktibatu" : "Inactivar";
@@ -380,10 +399,130 @@ export function AdminStudentsActionsTable({
   const editingActionId = editingStudent ? `edit:${editingStudent.id}` : null;
   const editModalPending = Boolean(editingActionId && isPending && pendingActionId === editingActionId);
   const createModalPending = isPending && pendingActionId === "create";
+  const importPending = isPending && pendingActionId === "bulk-import";
+
+  const parseImportFileToRows = async (file: File) => {
+    const extension = file.name.split(".").pop()?.toLowerCase();
+
+    if (!extension || !["xlsx", "xls", "csv"].includes(extension)) {
+      throw new Error(copy.form.importInvalidFile);
+    }
+
+    const buffer = await file.arrayBuffer();
+
+    if (buffer.byteLength === 0) {
+      throw new Error(copy.form.importEmptyFile);
+    }
+
+    const xlsx = await import("xlsx");
+    const workbook = xlsx.read(buffer, {
+      type: "array",
+      cellDates: true,
+    });
+
+    const firstSheetName = workbook.SheetNames[0];
+
+    if (!firstSheetName) {
+      throw new Error(copy.form.importMissingSheet);
+    }
+
+    const firstSheet = workbook.Sheets[firstSheetName];
+
+    if (!firstSheet) {
+      throw new Error(copy.form.importMissingSheet);
+    }
+
+    const rows = xlsx.utils.sheet_to_json<Record<string, unknown>>(firstSheet, {
+      raw: true,
+      defval: "",
+    });
+
+    if (rows.length === 0) {
+      throw new Error(copy.form.importNoRows);
+    }
+
+    return rows;
+  };
+
+  const formatImportResultMessage = (result: BulkImportStudentsResult) => {
+    const base = `${copy.form.importSuccessPrefix} ${result.imported} ${copy.form.importResultSummary} ${result.failed}.`;
+
+    if (result.failed === 0) {
+      return base;
+    }
+
+    const failedDetails = result.results
+      .filter((item) => item.status === "FAILED")
+      .slice(0, 3)
+      .map((item) => `#${item.rowIndex + 1}: ${item.reason}`);
+
+    if (failedDetails.length === 0) {
+      return base;
+    }
+
+    return `${base} ${copy.form.importFailedDetailsPrefix} ${failedDetails.join(" | ")}`;
+  };
+
+  const handleOpenImportPicker = () => {
+    if (isPending) {
+      return;
+    }
+
+    importFileInputRef.current?.click();
+  };
+
+  const handleImportFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0] ?? null;
+    event.target.value = "";
+
+    if (!selectedFile) {
+      return;
+    }
+
+    setPendingActionId("bulk-import");
+
+    startTransition(() => {
+      void (async () => {
+        try {
+          const rows = await parseImportFileToRows(selectedFile);
+          const result = await bulkImportStudentsAction(rows);
+          const allFailed = result.imported === 0 && result.failed > 0;
+
+          setToast({
+            message: formatImportResultMessage(result),
+            variant: allFailed ? "error" : "success",
+          });
+
+          if (result.imported > 0) {
+            router.refresh();
+          }
+        } catch (error) {
+          setToast({ message: getErrorMessage(error, copy.form.importErrorFallback), variant: "error" });
+        } finally {
+          setPendingActionId(null);
+        }
+      })();
+    });
+  };
 
   return (
     <>
-      <div className="fade-rise flex justify-end">
+      <div className="fade-rise flex flex-wrap justify-end gap-2">
+        <input
+          ref={importFileInputRef}
+          type="file"
+          accept=".xlsx,.xls,.csv"
+          onChange={handleImportFileChange}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={handleOpenImportPicker}
+          disabled={importPending}
+          className="k-focus-ring rounded-lg border border-white/20 bg-surface-strong/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-foreground hover:bg-surface-strong/70 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {importPending ? copy.form.importingStudentsLabel : importStudentsLabel}
+        </button>
         <button
           type="button"
           onClick={handleOpenCreateModal}
@@ -392,6 +531,8 @@ export function AdminStudentsActionsTable({
           {addStudentLabel}
         </button>
       </div>
+
+      <p className="fade-rise text-xs text-ink-muted">{copy.form.importAcceptedFormats}</p>
 
       <section className="fade-rise rounded-2xl border border-white/10 bg-surface p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-end">
