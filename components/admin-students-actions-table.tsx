@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -130,6 +131,7 @@ export function AdminStudentsActionsTable({
   const noDataMessage = isEu
     ? "Ez dago ikasle aktiboen daturik une honetan."
     : "No hay datos de alumnos activos en este momento.";
+  const profileLabel = isEu ? "Fitxa" : "Ficha";
   const editLabel = copy.form.editLabel;
   const deactivateLabel = isEu ? "Inaktibatu" : "Inactivar";
   const deleteLabel = isEu ? "Ezabatu" : "Eliminar";
@@ -267,6 +269,13 @@ export function AdminStudentsActionsTable({
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href={`/${locale}/admin/students/${student.id}`}
+                      aria-label={isEu ? `${student.fullName} fitxa` : `Ficha de ${student.fullName}`}
+                      className="k-focus-ring rounded-lg border border-white/20 bg-surface-strong/40 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-foreground hover:bg-surface-strong/70"
+                    >
+                      {profileLabel}
+                    </Link>
                     <button
                       type="button"
                       onClick={() => handleEdit(student)}
@@ -347,6 +356,13 @@ export function AdminStudentsActionsTable({
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
+                            <Link
+                              href={`/${locale}/admin/students/${student.id}`}
+                              aria-label={isEu ? `${student.fullName} fitxa` : `Ficha de ${student.fullName}`}
+                              className="k-focus-ring rounded-md border border-white/20 bg-surface-strong/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-foreground hover:bg-surface-strong/70"
+                            >
+                              {profileLabel}
+                            </Link>
                             <button
                               type="button"
                               onClick={() => handleEdit(student)}

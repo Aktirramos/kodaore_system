@@ -157,6 +157,78 @@ type AdminBillingData = {
   }>;
 };
 
+export type AdminStudentProfileData = {
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    birthDate: Date;
+    phone: string | null;
+    address: string | null;
+    schoolName: string | null;
+    schoolCourse: string | null;
+    sportsCenterMemberCode: string | null;
+    internalCode: string;
+    isActive: boolean;
+    siteName: string;
+  };
+  receipts: Array<{
+    id: string;
+    amountCents: number;
+    status: ReceiptStatus;
+    dueDate: Date | null;
+    periodStart: Date;
+    periodEnd: Date;
+    siteName: string;
+  }>;
+  receiptTotals: {
+    paidCount: number;
+    paidAmountCents: number;
+    pendingCount: number;
+    pendingAmountCents: number;
+  };
+  currentGroup:
+    | {
+        id: string;
+        name: string;
+        level: string | null;
+        siteName: string;
+        leadTeacherName: string | null;
+        nextSessionAt: Date | null;
+        lastSessionAt: Date | null;
+      }
+    | null;
+  familyPortalPreview: {
+    id: string;
+    ownerName: string;
+    ownerEmail: string | null;
+    email: string;
+    phone: string | null;
+    address: string | null;
+    preferredLocale: "eu" | "es";
+    ibanMasked: string | null;
+    students: Array<{
+      id: string;
+      fullName: string;
+      schoolName: string | null;
+      schoolCourse: string | null;
+      internalCode: string;
+      siteName: string;
+      activeEnrollment:
+        | {
+            startsAt: Date;
+            tuitionPlan: {
+              name: string;
+              amountCents: number;
+              period: "MONTHLY" | "QUARTERLY" | "YEARLY";
+            };
+          }
+        | null;
+    }>;
+  };
+};
+
 export type UpdateAdminStudentInput = {
   firstName?: string;
   lastName?: string;
@@ -411,6 +483,299 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
       tuitionPlanName: student.enrollments[0]?.tuitionPlan.name ?? null,
       tuitionAmountCents: student.enrollments[0]?.tuitionPlan.amountCents ?? null,
     })),
+  };
+}
+
+export async function getAdminStudentProfileData(studentId: string): Promise<AdminStudentProfileData> {
+  const session = await getAuthSession();
+
+  if (!session?.user?.id) {
+    failAdminAction(adminActionMessages.unauthorized);
+  }
+
+  const adminSedeSiteIds = getAdminSedeScopeSiteIds(session.user.roles);
+
+  const student = await prisma.student.findUnique({
+    where: { id: studentId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      birthDate: true,
+      phone: true,
+      address: true,
+      schoolName: true,
+      schoolCourse: true,
+      sportsCenterMemberCode: true,
+      internalCode: true,
+      isActive: true,
+      deletedAt: true,
+      mainSiteId: true,
+      mainSite: {
+        select: {
+          name: true,
+        },
+      },
+      familyAccount: {
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          address: true,
+          preferredLocale: true,
+          ibanMasked: true,
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+          students: {
+            where: {
+              isActive: true,
+              deletedAt: null,
+            },
+            orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              schoolName: true,
+              schoolCourse: true,
+              internalCode: true,
+              mainSite: {
+                select: {
+                  name: true,
+                },
+              },
+              enrollments: {
+                where: {
+                  status: EnrollmentStatus.ACTIVE,
+                  deletedAt: null,
+                },
+                orderBy: {
+                  startsAt: "desc",
+                },
+                take: 1,
+                select: {
+                  startsAt: true,
+                  tuitionPlan: {
+                    select: {
+                      name: true,
+                      amountCents: true,
+                      period: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!student || student.deletedAt) {
+    failAdminAction(adminActionMessages.studentNotFound);
+  }
+
+  assertSiteInScope(student.mainSiteId, adminSedeSiteIds);
+
+  const now = new Date();
+
+  const [receipts, upcomingGroupAttendance, latestGroupAttendance] = await Promise.all([
+    prisma.receipt.findMany({
+      where: {
+        studentId: student.id,
+        deletedAt: null,
+      },
+      orderBy: [{ dueDate: "desc" }, { createdAt: "desc" }],
+      take: 40,
+      select: {
+        id: true,
+        amountCents: true,
+        status: true,
+        dueDate: true,
+        periodStart: true,
+        periodEnd: true,
+        site: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    }),
+    prisma.attendance.findFirst({
+      where: {
+        studentId: student.id,
+        classSession: {
+          startsAt: {
+            gte: now,
+          },
+          group: {
+            isActive: true,
+          },
+        },
+      },
+      orderBy: {
+        classSession: {
+          startsAt: "asc",
+        },
+      },
+      select: {
+        classSession: {
+          select: {
+            startsAt: true,
+            group: {
+              select: {
+                id: true,
+                name: true,
+                level: true,
+                site: {
+                  select: {
+                    name: true,
+                  },
+                },
+                leadTeacher: {
+                  select: {
+                    user: {
+                      select: {
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.attendance.findFirst({
+      where: {
+        studentId: student.id,
+        classSession: {
+          group: {
+            isActive: true,
+          },
+        },
+      },
+      orderBy: {
+        classSession: {
+          startsAt: "desc",
+        },
+      },
+      select: {
+        classSession: {
+          select: {
+            startsAt: true,
+            group: {
+              select: {
+                id: true,
+                name: true,
+                level: true,
+                site: {
+                  select: {
+                    name: true,
+                  },
+                },
+                leadTeacher: {
+                  select: {
+                    user: {
+                      select: {
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const paidReceipts = receipts.filter((receipt) => receipt.status === ReceiptStatus.PAID);
+  const pendingReceipts = receipts.filter((receipt) => pendingReceiptStatuses.has(receipt.status));
+
+  const currentGroupSource = upcomingGroupAttendance ?? latestGroupAttendance;
+
+  return {
+    student: {
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      fullName: `${student.firstName} ${student.lastName}`,
+      birthDate: student.birthDate,
+      phone: student.phone,
+      address: student.address,
+      schoolName: student.schoolName,
+      schoolCourse: student.schoolCourse,
+      sportsCenterMemberCode: student.sportsCenterMemberCode,
+      internalCode: student.internalCode,
+      isActive: student.isActive,
+      siteName: student.mainSite.name,
+    },
+    receipts: receipts.map((receipt) => ({
+      id: receipt.id,
+      amountCents: receipt.amountCents,
+      status: receipt.status,
+      dueDate: receipt.dueDate,
+      periodStart: receipt.periodStart,
+      periodEnd: receipt.periodEnd,
+      siteName: receipt.site.name,
+    })),
+    receiptTotals: {
+      paidCount: paidReceipts.length,
+      paidAmountCents: paidReceipts.reduce((sum, receipt) => sum + receipt.amountCents, 0),
+      pendingCount: pendingReceipts.length,
+      pendingAmountCents: pendingReceipts.reduce((sum, receipt) => sum + receipt.amountCents, 0),
+    },
+    currentGroup: currentGroupSource
+      ? {
+          id: currentGroupSource.classSession.group.id,
+          name: currentGroupSource.classSession.group.name,
+          level: currentGroupSource.classSession.group.level,
+          siteName: currentGroupSource.classSession.group.site.name,
+          leadTeacherName: currentGroupSource.classSession.group.leadTeacher
+            ? `${currentGroupSource.classSession.group.leadTeacher.user.firstName} ${currentGroupSource.classSession.group.leadTeacher.user.lastName}`
+            : null,
+          nextSessionAt: upcomingGroupAttendance?.classSession.startsAt ?? null,
+          lastSessionAt: latestGroupAttendance?.classSession.startsAt ?? null,
+        }
+      : null,
+    familyPortalPreview: {
+      id: student.familyAccount.id,
+      ownerName: `${student.familyAccount.owner.firstName} ${student.familyAccount.owner.lastName}`.trim(),
+      ownerEmail: student.familyAccount.owner.email,
+      email: student.familyAccount.email,
+      phone: student.familyAccount.phone,
+      address: student.familyAccount.address,
+      preferredLocale: student.familyAccount.preferredLocale,
+      ibanMasked: student.familyAccount.ibanMasked,
+      students: student.familyAccount.students.map((linkedStudent) => ({
+        id: linkedStudent.id,
+        fullName: `${linkedStudent.firstName} ${linkedStudent.lastName}`,
+        schoolName: linkedStudent.schoolName,
+        schoolCourse: linkedStudent.schoolCourse,
+        internalCode: linkedStudent.internalCode,
+        siteName: linkedStudent.mainSite.name,
+        activeEnrollment: linkedStudent.enrollments[0]
+          ? {
+              startsAt: linkedStudent.enrollments[0].startsAt,
+              tuitionPlan: {
+                name: linkedStudent.enrollments[0].tuitionPlan.name,
+                amountCents: linkedStudent.enrollments[0].tuitionPlan.amountCents,
+                period: linkedStudent.enrollments[0].tuitionPlan.period,
+              },
+            }
+          : null,
+      })),
+    },
   };
 }
 
