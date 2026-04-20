@@ -5,7 +5,7 @@ import { AnimatedSiteHeader } from "@/components/animated-site-header";
 import { PathnamePageTransitionShell } from "@/components/page-transition-shell";
 import { SiteFooter } from "@/components/site-footer";
 import { getAuthSession } from "@/lib/auth";
-import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
+import { getCopy, isLocale, supportedLocales, type LocaleCode } from "@/lib/i18n";
 
 type LocaleLayoutProps = {
   children: ReactNode;
@@ -30,6 +30,14 @@ const localeMetadata: Record<LocaleCode, LocaleMetadata> = {
   },
 };
 
+const localeAlternates = supportedLocales.reduce(
+  (alternates, locale) => {
+    alternates[locale] = `/${locale}`;
+    return alternates;
+  },
+  {} as Record<LocaleCode, string>,
+);
+
 function getMetadataBase() {
   const fallbackBase = "http://localhost:3000";
   const configuredBase = process.env.NEXTAUTH_URL?.trim() || fallbackBase;
@@ -50,18 +58,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: current.title,
     description: current.description,
     alternates: {
-      canonical: `/${locale}`,
-      languages: {
-        eu: "/eu",
-        es: "/es",
-      },
+      canonical: "./",
+      languages: localeAlternates,
     },
     openGraph: {
       title: current.title,
       description: current.description,
       locale: locale === "eu" ? "eu_ES" : "es_ES",
       type: "website",
-      url: `/${locale}`,
+      url: "./",
     },
   };
 }
