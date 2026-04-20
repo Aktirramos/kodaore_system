@@ -1,6 +1,7 @@
 "use client";
 
 import { type FocusEvent, type MouseEvent, type TouchEvent, useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { SmartImage } from "@/components/smart-image";
 import type { LocaleCode } from "@/lib/i18n";
 
@@ -31,6 +32,7 @@ function wrapIndex(index: number, total: number) {
 
 export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [portalReady, setPortalReady] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [hoverPreviewExpanded, setHoverPreviewExpanded] = useState(false);
   const [hoverPreviewOrigin, setHoverPreviewOrigin] = useState<{ top: number; left: number; size: number } | null>(null);
@@ -61,6 +63,10 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const allCategoryLabel = isEu ? "Guztiak" : "Todo";
   const activeItem = activeIndex === null ? null : (visibleItems[activeIndex] ?? null);
   const hoveredItem = hoveredIndex === null ? null : (visibleItems[hoveredIndex] ?? null);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     const syncViewport = () => {
@@ -157,8 +163,11 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
+    const html = document.documentElement;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
     document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -179,7 +188,8 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      html.style.overflow = previousHtmlOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [activeIndex, closeLightbox, showNext, showPrevious]);
@@ -240,6 +250,72 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
   const handleTouchCancel = useCallback(() => {
     touchStartRef.current = null;
   }, []);
+
+  const lightbox = activeItem ? (
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-3 md:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={isEu ? "Irudi ikuslea" : "Visor de imagen"}
+    >
+      <button
+        type="button"
+        onClick={closeLightbox}
+        aria-label={isEu ? "Itxi" : "Cerrar"}
+        className="absolute inset-0"
+      />
+
+      <button
+        type="button"
+        onClick={closeLightbox}
+        className="absolute right-3 top-3 z-10 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-black/60 md:right-6 md:top-6"
+      >
+        {isEu ? "Itxi" : "Cerrar"}
+      </button>
+
+      <button
+        type="button"
+        onClick={showPrevious}
+        className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:left-6"
+        aria-label={isEu ? "Aurrekoa" : "Anterior"}
+      >
+        ‹
+      </button>
+
+      <div
+        className="relative h-[72vh] w-full max-w-5xl overflow-hidden rounded-2xl border border-white/20 bg-black/60"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
+      >
+        <SmartImage
+          src={activeItem.imageSrc}
+          fallbackSrc={activeItem.fallbackSrc}
+          alt={isEu ? activeItem.nameEu : activeItem.nameEs}
+          fill
+          priority
+          className="object-contain"
+          sizes="100vw"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={showNext}
+        className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:right-6"
+        aria-label={isEu ? "Hurrengoa" : "Siguiente"}
+      >
+        ›
+      </button>
+
+      <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-2xl border border-white/20 bg-black/40 px-4 py-2 text-center text-white md:bottom-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-emphasis">
+          {isEu ? activeItem.categoryEu : activeItem.categoryEs}
+        </p>
+        <p className="mt-1 text-sm font-medium">{isEu ? activeItem.nameEu : activeItem.nameEs}</p>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -342,64 +418,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
         </div>
       </section>
 
-      {activeItem ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 md:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={isEu ? "Irudi ikuslea" : "Visor de imagen"}
-        >
-          <button
-            type="button"
-            onClick={closeLightbox}
-            className="absolute right-3 top-3 z-10 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-black/60 md:right-6 md:top-6"
-          >
-            {isEu ? "Itxi" : "Cerrar"}
-          </button>
-
-          <button
-            type="button"
-            onClick={showPrevious}
-            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:left-6"
-            aria-label={isEu ? "Aurrekoa" : "Anterior"}
-          >
-            ‹
-          </button>
-
-          <div
-            className="relative h-[72vh] w-full max-w-5xl overflow-hidden rounded-2xl border border-white/20 bg-black/60"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchCancel}
-          >
-            <SmartImage
-              src={activeItem.imageSrc}
-              fallbackSrc={activeItem.fallbackSrc}
-              alt={isEu ? activeItem.nameEu : activeItem.nameEs}
-              fill
-              priority
-              className="object-contain"
-              sizes="100vw"
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={showNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:right-6"
-            aria-label={isEu ? "Hurrengoa" : "Siguiente"}
-          >
-            ›
-          </button>
-
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-2xl border border-white/20 bg-black/40 px-4 py-2 text-center text-white md:bottom-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-emphasis">
-              {isEu ? activeItem.categoryEu : activeItem.categoryEs}
-            </p>
-            <p className="mt-1 text-sm font-medium">{isEu ? activeItem.nameEu : activeItem.nameEs}</p>
-          </div>
-        </div>
-      ) : null}
+      {portalReady && lightbox ? createPortal(lightbox, document.body) : null}
     </>
   );
 }

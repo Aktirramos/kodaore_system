@@ -1,6 +1,7 @@
 "use client";
 
 import { type TouchEvent, useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { SmartImage } from "@/components/smart-image";
 import type { LocaleCode } from "@/lib/i18n";
 
@@ -27,7 +28,12 @@ function wrapIndex(index: number, total: number) {
 
 export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [portalReady, setPortalReady] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   const closeLightbox = useCallback(() => {
     setActiveIndex(null);
@@ -58,8 +64,11 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
+    const html = document.documentElement;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
     document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -80,7 +89,8 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      html.style.overflow = previousHtmlOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [activeIndex, closeLightbox, showNext, showPrevious]);
@@ -126,6 +136,72 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
     touchStartRef.current = null;
   }, []);
 
+  const lightbox = activeIndex !== null ? (
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-3 md:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={locale === "eu" ? "Argazki ikuslea" : "Visor de fotos"}
+    >
+      <button
+        type="button"
+        onClick={closeLightbox}
+        aria-label={locale === "eu" ? "Itxi" : "Cerrar"}
+        className="absolute inset-0"
+      />
+
+      <button
+        type="button"
+        onClick={closeLightbox}
+        className="absolute right-3 top-3 z-10 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-black/60 md:right-6 md:top-6"
+      >
+        {locale === "eu" ? "Itxi" : "Cerrar"}
+      </button>
+
+      <button
+        type="button"
+        onClick={showPrevious}
+        className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:left-6"
+        aria-label={locale === "eu" ? "Aurrekoa" : "Anterior"}
+      >
+        ‹
+      </button>
+
+      <div
+        className="relative h-[72vh] w-full max-w-5xl overflow-hidden rounded-2xl border border-white/20 bg-black/60"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
+      >
+        <SmartImage
+          src={items[activeIndex].image}
+          fallbackSrc={items[activeIndex].fallback}
+          alt={locale === "eu" ? `${brand} galeria ${activeIndex + 1}` : `Galeria de ${brand} ${activeIndex + 1}`}
+          fill
+          priority
+          className="object-contain"
+          sizes="100vw"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={showNext}
+        className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:right-6"
+        aria-label={locale === "eu" ? "Hurrengoa" : "Siguiente"}
+      >
+        ›
+      </button>
+
+      <p className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-white md:bottom-6">
+        {activeIndex + 1} / {items.length}
+      </p>
+      <p className="absolute bottom-12 left-1/2 z-10 -translate-x-1/2 text-[11px] font-medium tracking-[0.08em] text-white/80 md:hidden">
+        {locale === "eu" ? "Ezkerrera/eskuinera pasa" : "Desliza izquierda/derecha"}
+      </p>
+    </div>
+  ) : null;
+
   return (
     <>
       <section className="fade-rise grid auto-rows-[170px] grid-cols-2 gap-3 md:auto-rows-[220px] md:grid-cols-4 md:gap-4">
@@ -161,64 +237,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
         })}
       </section>
 
-      {activeIndex !== null ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 md:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={locale === "eu" ? "Argazki ikuslea" : "Visor de fotos"}
-        >
-          <button
-            type="button"
-            onClick={closeLightbox}
-            className="absolute right-3 top-3 z-10 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-black/60 md:right-6 md:top-6"
-          >
-            {locale === "eu" ? "Itxi" : "Cerrar"}
-          </button>
-
-          <button
-            type="button"
-            onClick={showPrevious}
-            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:left-6"
-            aria-label={locale === "eu" ? "Aurrekoa" : "Anterior"}
-          >
-            ‹
-          </button>
-
-          <div
-            className="relative h-[72vh] w-full max-w-5xl overflow-hidden rounded-2xl border border-white/20 bg-black/60"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchCancel}
-          >
-            <SmartImage
-              src={items[activeIndex].image}
-              fallbackSrc={items[activeIndex].fallback}
-              alt={locale === "eu" ? `${brand} galeria ${activeIndex + 1}` : `Galeria de ${brand} ${activeIndex + 1}`}
-              fill
-              priority
-              className="object-contain"
-              sizes="100vw"
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={showNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/30 bg-black/40 px-3 py-2 text-lg font-semibold text-white hover:bg-black/60 md:right-6"
-            aria-label={locale === "eu" ? "Hurrengoa" : "Siguiente"}
-          >
-            ›
-          </button>
-
-          <p className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-white md:bottom-6">
-            {activeIndex + 1} / {items.length}
-          </p>
-          <p className="absolute bottom-12 left-1/2 -translate-x-1/2 text-[11px] font-medium tracking-[0.08em] text-white/80 md:hidden">
-            {locale === "eu" ? "Ezkerrera/eskuinera pasa" : "Desliza izquierda/derecha"}
-          </p>
-        </div>
-      ) : null}
+      {portalReady && lightbox ? createPortal(lightbox, document.body) : null}
     </>
   );
 }
