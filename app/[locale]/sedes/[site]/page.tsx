@@ -107,6 +107,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
                 fallbackSrc={visuals.fallbackSrc}
                 alt={coverImageAlt}
                 fill
+                priority
                 className="object-cover transition duration-700 group-hover:scale-[1.03]"
                 sizes="(max-width: 768px) 100vw, 80vw"
               />

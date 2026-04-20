@@ -1,6 +1,6 @@
 import {
+  Prisma,
   type PaymentMovementType,
-  type Prisma,
   EnrollmentStatus,
   RoleCode,
   ReceiptStatus,
@@ -21,6 +21,49 @@ const adminMutationRoleSet = new Set<RoleCode>([
   RoleCode.ADMIN_GLOBAL,
   RoleCode.ADMIN_SEDE,
 ]);
+
+const adminActionMessages = {
+  unauthorized: "Necesitas iniciar sesion para realizar esta accion.",
+  forbidden: "No tienes permisos para realizar esta accion.",
+  studentNotFound: "El alumno no existe o ya no esta disponible.",
+  receiptNotFound: "El recibo no existe o ya no esta disponible.",
+  invalidDueDate: "La fecha de vencimiento no es valida.",
+  invalidAmount: "El importe debe ser un numero entero igual o superior a 0.",
+  invalidMainSite: "Debes indicar una sede valida.",
+  invalidRequiredField: "Revisa los campos obligatorios antes de guardar.",
+  studentUpdateFailed: "No se ha podido actualizar el alumno. Intentalo de nuevo.",
+  studentDeleteFailed: "No se ha podido eliminar el alumno. Intentalo de nuevo.",
+  paymentUpdateFailed: "No se ha podido actualizar el recibo. Intentalo de nuevo.",
+} as const;
+
+class AdminActionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AdminActionError";
+  }
+}
+
+function failAdminAction(message: string): never {
+  throw new AdminActionError(message);
+}
+
+function toAdminActionError(
+  error: unknown,
+  fallbackMessage: string,
+  options?: { notFoundMessage?: string },
+) {
+  if (error instanceof AdminActionError) {
+    return error;
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2025") {
+      return new AdminActionError(options?.notFoundMessage ?? fallbackMessage);
+    }
+  }
+
+  return new AdminActionError(fallbackMessage);
+}
 
 const studentAuditSelect = {
   id: true,
@@ -167,11 +210,11 @@ async function requireAdminActionContext() {
   const session = await getAuthSession();
 
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    failAdminAction(adminActionMessages.unauthorized);
   }
 
   if (!hasAdminMutationRole(session.user.roles)) {
-    throw new Error("Forbidden");
+    failAdminAction(adminActionMessages.forbidden);
   }
 
   return {
@@ -182,7 +225,7 @@ async function requireAdminActionContext() {
 
 function assertSiteInScope(siteId: string, adminSedeSiteIds: string[] | null) {
   if (adminSedeSiteIds !== null && !adminSedeSiteIds.includes(siteId)) {
-    throw new Error("Forbidden");
+    failAdminAction(adminActionMessages.forbidden);
   }
 }
 
@@ -202,7 +245,7 @@ function normalizeOptionalDate(value: Date | string | null | undefined) {
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.getTime())) {
-    throw new Error("Invalid dueDate value");
+    failAdminAction(adminActionMessages.invalidDueDate);
   }
 
   return parsed;
@@ -229,7 +272,8 @@ function normalizeRequiredText(value: string | undefined, fieldName: string) {
   const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    throw new Error(`${fieldName} cannot be empty`);
+    void fieldName;
+    failAdminAction(adminActionMessages.invalidRequiredField);
   }
 
   return trimmed;
@@ -241,7 +285,7 @@ function normalizeOptionalPositiveAmount(value: number | undefined) {
   }
 
   if (!Number.isInteger(value) || value < 0) {
-    throw new Error("amountCents must be a non-negative integer");
+    failAdminAction(adminActionMessages.invalidAmount);
   }
 
   return value;
@@ -275,7 +319,7 @@ function normalizeMainSiteId(value: string | undefined) {
   const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    throw new Error("mainSiteId cannot be empty");
+    failAdminAction(adminActionMessages.invalidMainSite);
   }
 
   return trimmed;
@@ -517,215 +561,233 @@ export async function getAdminBillingData(): Promise<AdminBillingData> {
 export async function updateAdminStudentAction(studentId: string, input: UpdateAdminStudentInput) {
   "use server";
 
-  const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
 
-  return prisma.$transaction(async (tx) => {
-    const before = await tx.student.findUnique({
-      where: { id: studentId },
-      select: studentAuditSelect,
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.student.findUnique({
+        where: { id: studentId },
+        select: studentAuditSelect,
+      });
+
+      if (!before || before.deletedAt) {
+        failAdminAction(adminActionMessages.studentNotFound);
+      }
+
+      assertSiteInScope(before.mainSiteId, adminSedeSiteIds);
+
+      const nextMainSiteId = normalizeMainSiteId(input.mainSiteId);
+
+      if (nextMainSiteId) {
+        assertSiteInScope(nextMainSiteId, adminSedeSiteIds);
+      }
+
+      const updateData: Prisma.StudentUncheckedUpdateInput = {
+        firstName: normalizeRequiredText(input.firstName, "firstName"),
+        lastName: normalizeRequiredText(input.lastName, "lastName"),
+        phone: normalizeOptionalText(input.phone),
+        address: normalizeOptionalText(input.address),
+        schoolName: normalizeOptionalText(input.schoolName),
+        schoolCourse: normalizeOptionalText(input.schoolCourse),
+        sportsCenterMemberCode: normalizeOptionalText(input.sportsCenterMemberCode),
+        mainSiteId: nextMainSiteId,
+        isActive: input.isActive,
+      };
+
+      const after = await tx.student.update({
+        where: { id: studentId },
+        data: updateData,
+        select: studentAuditSelect,
+      });
+
+      await createAuditLogForChanges({
+        db: tx,
+        actorUserId,
+        siteId: after.mainSiteId,
+        entity: "STUDENT",
+        entityId: after.id,
+        action: "UPDATE_STUDENT",
+        before,
+        after,
+      });
+
+      return after;
     });
-
-    if (!before || before.deletedAt) {
-      throw new Error("Student not found");
-    }
-
-    assertSiteInScope(before.mainSiteId, adminSedeSiteIds);
-
-    const nextMainSiteId = normalizeMainSiteId(input.mainSiteId);
-
-    if (nextMainSiteId) {
-      assertSiteInScope(nextMainSiteId, adminSedeSiteIds);
-    }
-
-    const updateData: Prisma.StudentUncheckedUpdateInput = {
-      firstName: normalizeRequiredText(input.firstName, "firstName"),
-      lastName: normalizeRequiredText(input.lastName, "lastName"),
-      phone: normalizeOptionalText(input.phone),
-      address: normalizeOptionalText(input.address),
-      schoolName: normalizeOptionalText(input.schoolName),
-      schoolCourse: normalizeOptionalText(input.schoolCourse),
-      sportsCenterMemberCode: normalizeOptionalText(input.sportsCenterMemberCode),
-      mainSiteId: nextMainSiteId,
-      isActive: input.isActive,
-    };
-
-    const after = await tx.student.update({
-      where: { id: studentId },
-      data: updateData,
-      select: studentAuditSelect,
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.studentUpdateFailed, {
+      notFoundMessage: adminActionMessages.studentNotFound,
     });
-
-    await createAuditLogForChanges({
-      db: tx,
-      actorUserId,
-      siteId: after.mainSiteId,
-      entity: "STUDENT",
-      entityId: after.id,
-      action: "UPDATE_STUDENT",
-      before,
-      after,
-    });
-
-    return after;
-  });
+  }
 }
 
 export async function deleteAdminStudentAction(studentId: string) {
   "use server";
 
-  const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
 
-  return prisma.$transaction(async (tx) => {
-    const before = await tx.student.findUnique({
-      where: { id: studentId },
-      select: studentAuditSelect,
-    });
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.student.findUnique({
+        where: { id: studentId },
+        select: studentAuditSelect,
+      });
 
-    if (!before || before.deletedAt) {
-      throw new Error("Student not found");
-    }
+      if (!before || before.deletedAt) {
+        failAdminAction(adminActionMessages.studentNotFound);
+      }
 
-    assertSiteInScope(before.mainSiteId, adminSedeSiteIds);
+      assertSiteInScope(before.mainSiteId, adminSedeSiteIds);
 
-    const deletedAt = new Date();
+      const deletedAt = new Date();
 
-    const after = await tx.student.update({
-      where: { id: studentId },
-      data: {
-        isActive: false,
-        deletedAt,
-      },
-      select: studentAuditSelect,
-    });
-
-    await tx.enrollment.updateMany({
-      where: {
-        studentId,
-        deletedAt: null,
-      },
-      data: {
-        status: EnrollmentStatus.CLOSED,
-        endsAt: deletedAt,
-        deletedAt,
-      },
-    });
-
-    await tx.receipt.updateMany({
-      where: {
-        studentId,
-        deletedAt: null,
-        status: {
-          not: ReceiptStatus.PAID,
+      const after = await tx.student.update({
+        where: { id: studentId },
+        data: {
+          isActive: false,
+          deletedAt,
         },
-      },
-      data: {
-        status: ReceiptStatus.CANCELED,
-        deletedAt,
-      },
-    });
+        select: studentAuditSelect,
+      });
 
-    await tx.receipt.updateMany({
-      where: {
-        studentId,
-        deletedAt: null,
-        status: ReceiptStatus.PAID,
-      },
-      data: {
-        deletedAt,
-      },
-    });
+      await tx.enrollment.updateMany({
+        where: {
+          studentId,
+          deletedAt: null,
+        },
+        data: {
+          status: EnrollmentStatus.CLOSED,
+          endsAt: deletedAt,
+          deletedAt,
+        },
+      });
 
-    await createAuditLogForChanges({
-      db: tx,
-      actorUserId,
-      siteId: after.mainSiteId,
-      entity: "STUDENT",
-      entityId: after.id,
-      action: "SOFT_DELETE_STUDENT",
-      before,
-      after,
-    });
+      await tx.receipt.updateMany({
+        where: {
+          studentId,
+          deletedAt: null,
+          status: {
+            not: ReceiptStatus.PAID,
+          },
+        },
+        data: {
+          status: ReceiptStatus.CANCELED,
+          deletedAt,
+        },
+      });
 
-    return after;
-  });
+      await tx.receipt.updateMany({
+        where: {
+          studentId,
+          deletedAt: null,
+          status: ReceiptStatus.PAID,
+        },
+        data: {
+          deletedAt,
+        },
+      });
+
+      await createAuditLogForChanges({
+        db: tx,
+        actorUserId,
+        siteId: after.mainSiteId,
+        entity: "STUDENT",
+        entityId: after.id,
+        action: "SOFT_DELETE_STUDENT",
+        before,
+        after,
+      });
+
+      return after;
+    });
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.studentDeleteFailed, {
+      notFoundMessage: adminActionMessages.studentNotFound,
+    });
+  }
 }
 
 export async function updateAdminPaymentAction(receiptId: string, input: UpdateAdminPaymentInput) {
   "use server";
 
-  const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
 
-  return prisma.$transaction(async (tx) => {
-    const before = await tx.receipt.findUnique({
-      where: { id: receiptId },
-      select: paymentAuditSelect,
-    });
-
-    if (!before || before.deletedAt) {
-      throw new Error("Payment receipt not found");
-    }
-
-    assertSiteInScope(before.siteId, adminSedeSiteIds);
-
-    const updateData: Prisma.ReceiptUpdateInput = {
-      amountCents: normalizeOptionalPositiveAmount(input.amountCents),
-      status: input.status,
-      dueDate: normalizeOptionalDate(input.dueDate),
-      ibanMasked: normalizeOptionalText(input.ibanMasked),
-    };
-
-    const after = await tx.receipt.update({
-      where: { id: receiptId },
-      data: updateData,
-      select: paymentAuditSelect,
-    });
-
-    await createAuditLogForChanges({
-      db: tx,
-      actorUserId,
-      siteId: after.siteId,
-      entity: "RECEIPT",
-      entityId: after.id,
-      action: "UPDATE_PAYMENT",
-      before,
-      after,
-    });
-
-    const receiptChanged =
-      before.amountCents !== after.amountCents ||
-      before.status !== after.status ||
-      before.ibanMasked !== after.ibanMasked ||
-      before.dueDate?.getTime() !== after.dueDate?.getTime();
-
-    if (receiptChanged) {
-      const changedFields: string[] = [];
-
-      if (before.amountCents !== after.amountCents) {
-        changedFields.push("amountCents");
-      }
-
-      if (before.status !== after.status) {
-        changedFields.push("status");
-      }
-
-      if (before.dueDate?.getTime() !== after.dueDate?.getTime()) {
-        changedFields.push("dueDate");
-      }
-
-      if (before.ibanMasked !== after.ibanMasked) {
-        changedFields.push("ibanMasked");
-      }
-
-      await tx.paymentMovement.create({
-        data: {
-          receiptId: after.id,
-          type: getPaymentMovementTypeFromReceiptStatus(after.status),
-          amountCents: after.amountCents,
-          note: `Admin update (${changedFields.join(", ")})`,
-        },
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.receipt.findUnique({
+        where: { id: receiptId },
+        select: paymentAuditSelect,
       });
-    }
 
-    return after;
-  });
+      if (!before || before.deletedAt) {
+        failAdminAction(adminActionMessages.receiptNotFound);
+      }
+
+      assertSiteInScope(before.siteId, adminSedeSiteIds);
+
+      const updateData: Prisma.ReceiptUpdateInput = {
+        amountCents: normalizeOptionalPositiveAmount(input.amountCents),
+        status: input.status,
+        dueDate: normalizeOptionalDate(input.dueDate),
+        ibanMasked: normalizeOptionalText(input.ibanMasked),
+      };
+
+      const after = await tx.receipt.update({
+        where: { id: receiptId },
+        data: updateData,
+        select: paymentAuditSelect,
+      });
+
+      await createAuditLogForChanges({
+        db: tx,
+        actorUserId,
+        siteId: after.siteId,
+        entity: "RECEIPT",
+        entityId: after.id,
+        action: "UPDATE_PAYMENT",
+        before,
+        after,
+      });
+
+      const receiptChanged =
+        before.amountCents !== after.amountCents ||
+        before.status !== after.status ||
+        before.ibanMasked !== after.ibanMasked ||
+        before.dueDate?.getTime() !== after.dueDate?.getTime();
+
+      if (receiptChanged) {
+        const changedFields: string[] = [];
+
+        if (before.amountCents !== after.amountCents) {
+          changedFields.push("amountCents");
+        }
+
+        if (before.status !== after.status) {
+          changedFields.push("status");
+        }
+
+        if (before.dueDate?.getTime() !== after.dueDate?.getTime()) {
+          changedFields.push("dueDate");
+        }
+
+        if (before.ibanMasked !== after.ibanMasked) {
+          changedFields.push("ibanMasked");
+        }
+
+        await tx.paymentMovement.create({
+          data: {
+            receiptId: after.id,
+            type: getPaymentMovementTypeFromReceiptStatus(after.status),
+            amountCents: after.amountCents,
+            note: `Admin update (${changedFields.join(", ")})`,
+          },
+        });
+      }
+
+      return after;
+    });
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.paymentUpdateFailed, {
+      notFoundMessage: adminActionMessages.receiptNotFound,
+    });
+  }
 }
