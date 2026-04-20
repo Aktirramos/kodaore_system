@@ -317,6 +317,32 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
     </div>
   ) : null;
 
+  const hoverPreview = hoveredItem && hoverPreviewOrigin ? (
+    <div className="pointer-events-none fixed z-[70] hidden md:block" style={animatedPreviewStyle}>
+      <article className="h-full w-full overflow-hidden rounded-2xl border border-white/25 bg-black/75 shadow-[0_24px_48px_rgba(0,0,0,0.5)]">
+        <div className="relative h-full w-full overflow-hidden">
+          <SmartImage
+            src={hoveredItem.imageSrc}
+            fallbackSrc={hoveredItem.fallbackSrc}
+            alt={isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
+            fill
+            className="object-cover"
+            sizes="460px"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+        </div>
+        <div className="px-3 py-2">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-emphasis">
+            {isEu ? hoveredItem.categoryEu : hoveredItem.categoryEs}
+          </p>
+          <p className="mt-1 text-xs font-medium text-white/90">
+            {isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
+          </p>
+        </div>
+      </article>
+    </div>
+  ) : null;
+
   return (
     <>
       <section className="fade-rise space-y-4">
@@ -350,32 +376,6 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
         </div>
 
         <div className="relative">
-        {hoveredItem && hoverPreviewOrigin ? (
-          <div className="pointer-events-none fixed z-40 hidden md:block" style={animatedPreviewStyle}>
-            <article className="h-full w-full overflow-hidden rounded-2xl border border-white/25 bg-black/75 shadow-[0_24px_48px_rgba(0,0,0,0.5)]">
-              <div className="relative h-full w-full overflow-hidden">
-                <SmartImage
-                  src={hoveredItem.imageSrc}
-                  fallbackSrc={hoveredItem.fallbackSrc}
-                  alt={isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
-                  fill
-                  className="object-cover"
-                  sizes="460px"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-              </div>
-              <div className="px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-emphasis">
-                  {isEu ? hoveredItem.categoryEu : hoveredItem.categoryEs}
-                </p>
-                <p className="mt-1 text-xs font-medium text-white/90">
-                  {isEu ? hoveredItem.nameEu : hoveredItem.nameEs}
-                </p>
-              </div>
-            </article>
-          </div>
-        ) : null}
-
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleItems.map((item, index) => (
           <button
@@ -418,6 +418,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
         </div>
       </section>
 
+      {portalReady && hoverPreview ? createPortal(hoverPreview, document.body) : null}
       {portalReady && lightbox ? createPortal(lightbox, document.body) : null}
     </>
   );
