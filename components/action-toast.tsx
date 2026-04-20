@@ -7,9 +7,16 @@ type ActionToastProps = {
   variant?: "success" | "error";
   onClose?: () => void;
   autoHideMs?: number;
+  closeLabel?: string;
 };
 
-export function ActionToast({ message, variant = "success", onClose, autoHideMs = 3200 }: ActionToastProps) {
+export function ActionToast({
+  message,
+  variant = "success",
+  onClose,
+  autoHideMs = 3200,
+  closeLabel = "Cerrar",
+}: ActionToastProps) {
   useEffect(() => {
     if (!onClose || autoHideMs <= 0) {
       return;
@@ -40,10 +47,10 @@ export function ActionToast({ message, variant = "success", onClose, autoHideMs 
         <button
           type="button"
           onClick={onClose}
-          aria-label="Cerrar notificacion"
+          aria-label={closeLabel}
           className="k-focus-ring absolute right-2 top-2 rounded px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-current/85 hover:text-current"
         >
-          Cerrar
+          {closeLabel}
         </button>
       ) : null}
     </div>
