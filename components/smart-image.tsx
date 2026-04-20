@@ -13,6 +13,17 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
+function isSvgSource(value: string) {
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized.startsWith("data:image/svg+xml")) {
+    return true;
+  }
+
+  const withoutQuery = normalized.split("?")[0]?.split("#")[0] ?? normalized;
+  return withoutQuery.endsWith(".svg");
+}
+
 export function SmartImage({ src, fallbackSrc, alt, onError, parallax = false, className, style, fill, ...props }: SmartImageProps) {
   const [currentSrc, setCurrentSrc] = useState(src);
   const [parallaxY, setParallaxY] = useState(0);
@@ -68,6 +79,7 @@ export function SmartImage({ src, fallbackSrc, alt, onError, parallax = false, c
   }, [parallax]);
 
   const effectiveParallaxY = parallax ? parallaxY : 0;
+  const useUnoptimizedImage = isSvgSource(currentSrc);
 
   const imageStyle = parallax
     ? {
@@ -82,14 +94,16 @@ export function SmartImage({ src, fallbackSrc, alt, onError, parallax = false, c
 
   const imageNode = (
     <Image
+      key={currentSrc}
       {...props}
       fill={fill}
       src={currentSrc}
       alt={alt}
+      unoptimized={useUnoptimizedImage}
       className={className}
       style={imageStyle}
       onError={(event) => {
-        if (currentSrc !== fallbackSrc) {
+        if (fallbackSrc && currentSrc !== fallbackSrc) {
           setCurrentSrc(fallbackSrc);
         }
 
