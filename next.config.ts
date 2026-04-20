@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
+const configuredBaseUrl = process.env.NEXTAUTH_URL?.trim() ?? "";
+const shouldUpgradeInsecureRequests = isProduction && configuredBaseUrl.startsWith("https://");
 const scriptSrcDirective = isProduction
   ? "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com"
   : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com";
@@ -18,7 +20,7 @@ const cspDirectives = [
   "frame-src https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
   "object-src 'none'",
-  ...(isProduction ? ["upgrade-insecure-requests"] : []),
+  ...(shouldUpgradeInsecureRequests ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [
