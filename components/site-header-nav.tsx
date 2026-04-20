@@ -111,6 +111,28 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
   const isStore = pathname.startsWith(storeHref);
   const isAccess = pathname.startsWith(accessHref);
   const storeLabel = locale === "eu" ? "Erropak" : "Ropa";
+  const mainNavAriaLabel = locale === "eu" ? "Nabigazio nagusia" : "Navegacion principal";
+  const mobileNavAriaLabel = locale === "eu" ? "Mugikorreko nabigazioa" : "Navegacion movil";
+  const mobileMenuId = "site-header-mobile-menu";
+
+  const pageAriaLabel = (label: string) =>
+    locale === "eu" ? `${label} orrira joan` : `Ir a ${label}`;
+
+  const localeSwitchAriaLabel = (targetLocale: LocaleCode) => {
+    if (targetLocale === "eu") {
+      return locale === "eu" ? "Euskara aktibatuta" : "Aldatu hizkuntza euskarara";
+    }
+
+    return locale === "es" ? "Castellano activado" : "Cambiar idioma a castellano";
+  };
+
+  const brandAriaLabel = isPrivateArea
+    ? locale === "eu"
+      ? `${brand}: ${panelLabel} orrira joan`
+      : `${brand}: ir a ${panelLabel}`
+    : locale === "eu"
+      ? `${brand}: hasierara joan`
+      : `${brand}: ir al inicio`;
 
   const navClass = (active: boolean) => clsx(
     "k-focus-ring border-b-2 rounded-sm px-1 py-2 text-sm font-medium transition-colors",
@@ -180,7 +202,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         href={isPrivateArea ? panelHref : homeHref}
         className={clsx("k-focus-ring group inline-flex items-center gap-3 rounded-md transition-all duration-700", revealClass)}
         style={{ transitionDelay: show ? "0ms" : "0ms" }}
-        aria-label={brand}
+        aria-label={brandAriaLabel}
       >
         <span className={clsx("relative overflow-hidden rounded-full transition-all duration-500", compact ? "h-9 w-9" : "h-11 w-11")}>
           <Image src="/logo-kodaore.png" alt={locale === "eu" ? "Kodaore logoa" : "Logo de Kodaore"} fill priority sizes="44px" className="object-contain" />
@@ -198,13 +220,14 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
       </Link>
 
         <div className="hidden items-center gap-x-4 gap-y-2 md:flex">
-          <nav className="flex flex-wrap items-center gap-3 md:gap-4">
+          <nav className="flex flex-wrap items-center gap-3 md:gap-4" aria-label={mainNavAriaLabel}>
           {isPrivateArea ? (
             <>
               <Link
                 href={panelHref}
                 className={clsx(navClass(isPortalArea ? isPortalSummary : pathname.startsWith(panelHref)), "transform-gpu transition-all duration-700", revealClass)}
                 style={{ transitionDelay: show ? "180ms" : "0ms" }}
+                aria-label={pageAriaLabel(panelLabel)}
               >
                 {panelLabel}
               </Link>
@@ -214,6 +237,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                       href={item.href}
                       className={clsx(navClass(item.active), "transform-gpu transition-all duration-700", revealClass)}
                       style={{ transitionDelay: show ? `${260 + index * 80}ms` : "0ms" }}
+                      aria-label={pageAriaLabel(item.label)}
                     >
                       {item.label}
                     </Link>
@@ -222,6 +246,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                 href={homeHref}
                 className={clsx(navClass(false), "transform-gpu transition-all duration-700", revealClass)}
                 style={{ transitionDelay: show ? "520ms" : "0ms" }}
+                aria-label={pageAriaLabel(publicSiteLabel)}
               >
                 {publicSiteLabel}
               </Link>
@@ -233,6 +258,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                 href={item.href}
                 className={clsx(navClass(item.active), "transform-gpu transition-all duration-700", revealClass)}
                 style={{ transitionDelay: show ? `${item.delay}ms` : "0ms" }}
+                aria-label={pageAriaLabel(item.label)}
               >
                 {item.label}
               </Link>
@@ -253,6 +279,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
           <Link
             href={localizePath(pathname, "eu")}
             className={clsx("k-focus-ring rounded px-1 py-0.5 transition-colors", locale === "eu" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground")}
+            aria-label={localeSwitchAriaLabel("eu")}
           >
             EU
           </Link>
@@ -260,6 +287,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
           <Link
             href={localizePath(pathname, "es")}
             className={clsx("k-focus-ring rounded px-1 py-0.5 transition-colors", locale === "es" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground")}
+            aria-label={localeSwitchAriaLabel("es")}
           >
             ES
           </Link>
@@ -281,7 +309,14 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
             type="button"
             className="k-focus-ring inline-flex min-h-10 items-center justify-center rounded-full border border-white/20 bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
             aria-expanded={mobileMenuOpen}
-            aria-label={locale === "eu" ? "Menua" : "Menu"}
+            aria-controls={mobileMenuId}
+            aria-label={mobileMenuOpen
+              ? locale === "eu"
+                ? "Itxi nabigazio menua"
+                : "Cerrar menu de navegacion"
+              : locale === "eu"
+                ? "Ireki nabigazio menua"
+                : "Abrir menu de navegacion"}
             onClick={() => setMobileMenuOpen((value) => !value)}
           >
             {mobileMenuOpen ? (locale === "eu" ? "Itxi" : "Cerrar") : "Menu"}
@@ -289,14 +324,15 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         </div>
 
         {mobileMenuOpen ? (
-          <div className="w-full md:hidden">
+          <div className="w-full md:hidden" id={mobileMenuId}>
             <div className="mt-2 rounded-2xl border border-white/10 bg-surface-strong/70 p-3">
-              <nav className="grid gap-2">
+              <nav className="grid gap-2" aria-label={mobileNavAriaLabel}>
                 {mobileNavItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
+                    aria-label={pageAriaLabel(item.label)}
                     className={clsx(
                       "k-focus-ring rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                       item.active
@@ -314,6 +350,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                   <Link
                     href={localizePath(pathname, "eu")}
                     onClick={() => setMobileMenuOpen(false)}
+                    aria-label={localeSwitchAriaLabel("eu")}
                     className={clsx(
                       "k-focus-ring rounded px-1 py-0.5 transition-colors",
                       locale === "eu" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground",
@@ -325,6 +362,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                   <Link
                     href={localizePath(pathname, "es")}
                     onClick={() => setMobileMenuOpen(false)}
+                    aria-label={localeSwitchAriaLabel("es")}
                     className={clsx(
                       "k-focus-ring rounded px-1 py-0.5 transition-colors",
                       locale === "es" ? "text-brand-emphasis" : "text-ink-muted hover:text-foreground",

@@ -54,6 +54,10 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
       <section className="fade-rise grid gap-4 md:grid-cols-3">
         {copy.home.sites.map((site) => {
           const visual = getSiteMedia(site.slug);
+          const siteImageAlt =
+            locale === "eu"
+              ? `${site.name} egoitzako entrenamendu irudia`
+              : `Imagen de entrenamiento en la sede de ${site.name}`;
 
           return (
             <Link
@@ -65,7 +69,7 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
                 <SmartImage
                   src={visual.coverSrc}
                   fallbackSrc={visual.fallbackSrc}
-                  alt={site.name}
+                  alt={siteImageAlt}
                   fill
                   className="object-cover transition duration-700 group-hover:scale-[1.03]"
                   sizes="(max-width: 768px) 100vw, 33vw"

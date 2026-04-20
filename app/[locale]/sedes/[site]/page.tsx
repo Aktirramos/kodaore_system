@@ -60,6 +60,10 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
 
   const visuals = getSiteMedia(site);
   const structuredData = buildSiteStructuredData({ locale, site });
+  const coverImageAlt =
+    locale === "eu"
+      ? `${selectedSite.name} egoitzako entrenamendu irudi nagusia`
+      : `Imagen principal de entrenamiento en la sede de ${selectedSite.name}`;
 
   return (
     <>
@@ -101,7 +105,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
               <SmartImage
                 src={visuals.coverSrc}
                 fallbackSrc={visuals.fallbackSrc}
-                alt={selectedSite.name}
+                alt={coverImageAlt}
                 fill
                 className="object-cover transition duration-700 group-hover:scale-[1.03]"
                 sizes="(max-width: 768px) 100vw, 80vw"

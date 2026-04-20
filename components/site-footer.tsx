@@ -115,7 +115,15 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   const termsLabel = locale === "eu" ? "Baldintzak" : "Terminos";
   const privacyLabel = locale === "eu" ? "Pribatutasuna" : "Privacidad";
   const backTopLabel = locale === "eu" ? "Gora" : "Arriba";
+  const backTopAriaLabel = locale === "eu" ? "Orrialdearen hasierara igo" : "Subir al inicio de la pagina";
   const socialLabel = locale === "eu" ? "Sare sozialak" : "Redes sociales";
+  const termsAriaLabel = locale === "eu" ? "Erabilera baldintzak irakurri" : "Leer terminos de uso";
+  const privacyAriaLabel = locale === "eu" ? "Pribatutasun politika irakurri" : "Leer politica de privacidad";
+
+  const socialAriaLabel = (name: string) =>
+    locale === "eu"
+      ? `${name} sare sozialean Kodaore profilera joan (kanpo esteka)`
+      : `Ir al perfil de Kodaore en ${name} (enlace externo)`;
 
   return (
     <>
@@ -131,13 +139,13 @@ export function SiteFooter({ locale }: SiteFooterProps) {
         <div className="relative mx-auto w-full max-w-6xl px-5 py-12 md:px-8 md:py-16">
           <div ref={contentRef} className="space-y-8">
             <div className={revealed ? "fade-rise fade-rise-delay-100" : "opacity-0 translate-y-6"}>
-              <p className="text-xs uppercase tracking-[0.2em] text-white/60">{footerTitle}</p>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base">{footerDescription}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/72">{footerTitle}</p>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/90 md:text-base">{footerDescription}</p>
             </div>
 
             <div className="flex flex-wrap items-end justify-between gap-8">
               <div className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">{appsLabel}</p>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/72">{appsLabel}</p>
                 <nav className="flex items-center gap-3 md:gap-4" aria-label={socialLabel}>
                   {socialLinks.map((social, index) => (
                     <Link
@@ -145,9 +153,9 @@ export function SiteFooter({ locale }: SiteFooterProps) {
                       href={social.href}
                       target="_blank"
                       rel="noreferrer"
-                      className={`k-focus-ring inline-flex h-9 w-9 items-center justify-center text-white/85 transition-transform duration-300 hover:scale-110 hover:text-white ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
+                      className={`k-focus-ring inline-flex h-9 w-9 items-center justify-center text-white transition-transform duration-300 hover:scale-110 hover:text-white ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
                       style={{ animationDelay: revealed ? `${200 + index * 90}ms` : undefined }}
-                      aria-label={social.label}
+                      aria-label={socialAriaLabel(social.label)}
                     >
                       {social.icon}
                       <span className="sr-only">{social.label}</span>
@@ -157,16 +165,18 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               </div>
 
               <div className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">{legalLabel}</p>
-                <nav className="flex items-center gap-4 text-sm text-white/80" aria-label={legalLabel}>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/72">{legalLabel}</p>
+                <nav className="flex items-center gap-4 text-sm text-white/90" aria-label={legalLabel}>
                   <Link
                     href={`/${locale}/legal/terms`}
+                    aria-label={termsAriaLabel}
                     className="k-focus-ring underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-[color:var(--brand-emphasis)]"
                   >
                     {termsLabel}
                   </Link>
                   <Link
                     href={`/${locale}/legal/privacy`}
+                    aria-label={privacyAriaLabel}
                     className="k-focus-ring underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-[color:var(--brand-emphasis)]"
                   >
                     {privacyLabel}
@@ -175,7 +185,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               </div>
 
               <p
-                className={`text-xs tracking-[0.05em] text-white/60 md:text-sm ${
+                className={`text-xs tracking-[0.05em] text-white/74 md:text-sm ${
                   revealed ? "fade-rise fade-rise-delay-500" : "opacity-0 translate-y-6"
                 }`}
               >
@@ -189,7 +199,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label={backTopLabel}
+        aria-label={backTopAriaLabel}
         aria-hidden={!showBackToTop}
         tabIndex={showBackToTop ? 0 : -1}
         className={`k-focus-ring k-hover-action k-back-top fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-[#101417]/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)] ${showBackToTop ? "is-visible" : "is-hidden"}`}

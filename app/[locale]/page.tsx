@@ -28,6 +28,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
     ? "Klubeko sudaderak, kamisetak eta osagarriak galeria bisual batean. Ikusi estiloak eta hurrengo bildumen inspirazioa hartu."
     : "Sudaderas, camisetas y accesorios del club en una galeria visual. Mira estilos e inspírate para las proximas colecciones.";
   const storeCta = locale === "eu" ? "Erropak ikusi" : "Ver ropa";
+  const storeImageAlt = locale === "eu" ? "Kodaore arropa bildumaren argazkia" : "Fotografia de la coleccion de ropa de Kodaore";
   const finalImageAlt = locale === "eu" ? "Kodaore argazki nabarmendua" : "Destacado fotografico de Kodaore";
 
   return (
@@ -94,7 +95,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             <SmartImage
               src="/media/hero-2.jpg"
               fallbackSrc="/media/photo-fallback-2.svg"
-              alt={storeTitle}
+              alt={storeImageAlt}
               fill
               className="object-cover transition duration-700 group-hover:scale-[1.03]"
               sizes="(max-width: 768px) 100vw, 54vw"
