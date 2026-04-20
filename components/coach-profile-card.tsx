@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { SmartImage } from "@/components/smart-image";
 
 type CoachProfileCardProps = {
@@ -65,6 +66,7 @@ function splitDetails(value: string) {
 export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSrc }: CoachProfileCardProps) {
   const [modalMounted, setModalMounted] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
   const isEu = locale === "eu";
   const focusParts = splitDetails(coach.focus);
   const beltGrade = focusParts[0] ?? coach.focus;
@@ -89,6 +91,10 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
   const closeModal = () => {
     setModalVisible(false);
   };
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     if (!modalMounted) {
@@ -125,65 +131,30 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
     };
   }, [modalMounted, modalVisible]);
 
-  return (
-    <>
-      <article className="k-hover-lift group overflow-hidden rounded-[1.6rem] border border-white/8 bg-gradient-to-b from-surface-strong to-surface/80">
-        <div className="relative min-h-[220px] overflow-hidden">
-          <SmartImage
-            src={photoSrc}
-            fallbackSrc={fallbackSrc}
-            alt={coach.name}
-            fill
-            className="object-cover transition duration-700 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <p className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/95">
-            {siteName}
-          </p>
-        </div>
+  const modal = modalMounted ? (
+    <div
+      className={`fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto p-3 md:p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
+        modalVisible ? "bg-black/75 backdrop-blur-md" : "bg-black/0 backdrop-blur-none"
+      }`}
+    >
+      <button
+        type="button"
+        aria-label={isEu ? "Itxi" : "Cerrar"}
+        className={`absolute inset-0 cursor-default transition-opacity duration-500 ${modalVisible ? "opacity-100" : "opacity-0"}`}
+        onClick={closeModal}
+      />
 
-        <div className="relative space-y-2 px-5 pb-5 pt-4">
-          <h3 className="font-heading text-xl font-semibold text-foreground">{coach.name}</h3>
-          <p className="text-sm text-brand-emphasis">{coach.profile}</p>
-          <p className="inline-flex rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-brand-emphasis">
-            {beltGrade}
-          </p>
-          <p className="text-sm leading-relaxed text-ink-muted">{focusExtras[0] ?? coach.experience}</p>
-          <button
-            type="button"
-            onClick={openModal}
-            className="k-focus-ring k-hover-action mt-3 inline-flex rounded-full border border-brand/35 bg-surface px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-emphasis hover:border-brand/60"
-          >
-            {isEu ? "Fitxa ireki" : "Abrir ficha"}
-          </button>
-        </div>
-      </article>
-
-      {modalMounted ? (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-3 md:p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
-            modalVisible ? "bg-black/75 backdrop-blur-md" : "bg-black/0 backdrop-blur-none"
-          }`}
-        >
-          <button
-            type="button"
-            aria-label={isEu ? "Itxi" : "Cerrar"}
-            className={`absolute inset-0 cursor-default transition-opacity duration-500 ${modalVisible ? "opacity-100" : "opacity-0"}`}
-            onClick={closeModal}
-          />
-
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
-            className={`relative z-10 grid w-full max-w-xl grid-rows-[minmax(0,240px)_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:max-h-[88svh] md:grid-rows-[minmax(0,250px)_minmax(0,1fr)] ${
-              modalVisible
-                ? "translate-y-0 scale-100 opacity-100 rotate-0"
-                : "translate-y-10 scale-90 opacity-0 -rotate-1"
-            }`}
-          >
-            <div className="relative overflow-hidden border-b border-white/10">
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
+        className={`relative z-10 grid w-full max-w-xl grid-rows-[240px_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:max-h-[88svh] md:grid-rows-[250px_minmax(0,1fr)] ${
+          modalVisible
+            ? "translate-y-0 scale-100 opacity-100 rotate-0"
+            : "translate-y-10 scale-90 opacity-0 -rotate-1"
+        }`}
+      >
+        <div className="relative h-full overflow-hidden border-b border-white/10">
               <div
                 className={`pointer-events-none absolute -left-24 -right-24 -top-28 h-44 rotate-6 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ${
                   modalVisible ? "translate-y-0" : "-translate-y-20"
@@ -218,7 +189,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
               </div>
             </div>
 
-            <div className="min-h-0 space-y-4 overflow-y-auto p-5 md:p-6">
+        <div className="min-h-0 space-y-4 overflow-y-auto p-5 md:p-6">
               <article
                 className={`rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ${
                   modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
@@ -293,10 +264,47 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                   {isEu ? "Itxi" : "Cerrar"}
                 </button>
               </div>
-            </div>
-          </section>
         </div>
-      ) : null}
+      </section>
+    </div>
+  ) : null;
+
+  return (
+    <>
+      <article className="k-hover-lift group overflow-hidden rounded-[1.6rem] border border-white/8 bg-gradient-to-b from-surface-strong to-surface/80">
+        <div className="relative min-h-[220px] overflow-hidden">
+          <SmartImage
+            src={photoSrc}
+            fallbackSrc={fallbackSrc}
+            alt={coach.name}
+            fill
+            className="object-cover transition duration-700 group-hover:scale-[1.03]"
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <p className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/95">
+            {siteName}
+          </p>
+        </div>
+
+        <div className="relative space-y-2 px-5 pb-5 pt-4">
+          <h3 className="font-heading text-xl font-semibold text-foreground">{coach.name}</h3>
+          <p className="text-sm text-brand-emphasis">{coach.profile}</p>
+          <p className="inline-flex rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-brand-emphasis">
+            {beltGrade}
+          </p>
+          <p className="text-sm leading-relaxed text-ink-muted">{focusExtras[0] ?? coach.experience}</p>
+          <button
+            type="button"
+            onClick={openModal}
+            className="k-focus-ring k-hover-action mt-3 inline-flex rounded-full border border-brand/35 bg-surface px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-emphasis hover:border-brand/60"
+          >
+            {isEu ? "Fitxa ireki" : "Abrir ficha"}
+          </button>
+        </div>
+      </article>
+
+      {portalReady && modal ? createPortal(modal, document.body) : null}
     </>
   );
 }
