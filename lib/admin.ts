@@ -1,5 +1,12 @@
-import { RoleCode, ReceiptStatus } from "@prisma/client";
+import {
+  type PaymentMovementType,
+  type Prisma,
+  EnrollmentStatus,
+  RoleCode,
+  ReceiptStatus,
+} from "@prisma/client";
 import { getAuthSession } from "@/lib/auth";
+import { createAuditLogForChanges } from "./audit";
 import { prisma } from "@/lib/prisma";
 
 const pendingReceiptStatuses = new Set<ReceiptStatus>([
@@ -8,6 +15,36 @@ const pendingReceiptStatuses = new Set<ReceiptStatus>([
   ReceiptStatus.SENT,
   ReceiptStatus.RETURNED,
 ]);
+
+const adminMutationRoleSet = new Set<RoleCode>([
+  RoleCode.DEVELOPER,
+  RoleCode.ADMIN_GLOBAL,
+  RoleCode.ADMIN_SEDE,
+]);
+
+const studentAuditSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  address: true,
+  schoolName: true,
+  schoolCourse: true,
+  sportsCenterMemberCode: true,
+  mainSiteId: true,
+  isActive: true,
+  deletedAt: true,
+} as const;
+
+const paymentAuditSelect = {
+  id: true,
+  siteId: true,
+  amountCents: true,
+  status: true,
+  dueDate: true,
+  ibanMasked: true,
+  deletedAt: true,
+} as const;
 
 type AdminStudentsData = {
   totals: {
@@ -69,6 +106,33 @@ type AdminBillingData = {
   }>;
 };
 
+export type UpdateAdminStudentInput = {
+  firstName?: string;
+  lastName?: string;
+  phone?: string | null;
+  address?: string | null;
+  schoolName?: string | null;
+  schoolCourse?: string | null;
+  sportsCenterMemberCode?: string | null;
+  mainSiteId?: string;
+  isActive?: boolean;
+};
+
+export type UpdateAdminPaymentInput = {
+  amountCents?: number;
+  status?: ReceiptStatus;
+  dueDate?: Date | string | null;
+  ibanMasked?: string | null;
+};
+
+function hasAdminMutationRole(roles: Array<{ code: RoleCode }> | undefined) {
+  if (!roles || roles.length === 0) {
+    return false;
+  }
+
+  return roles.some((role) => adminMutationRoleSet.has(role.code));
+}
+
 function getAdminSedeScopeSiteIds(
   roles: Array<{ code: RoleCode; siteId?: string | null }> | undefined,
 ) {
@@ -97,6 +161,124 @@ function getAdminSedeScopeSiteIds(
         .filter((siteId): siteId is string => Boolean(siteId)),
     ),
   );
+}
+
+async function requireAdminActionContext() {
+  const session = await getAuthSession();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasAdminMutationRole(session.user.roles)) {
+    throw new Error("Forbidden");
+  }
+
+  return {
+    actorUserId: session.user.id,
+    adminSedeSiteIds: getAdminSedeScopeSiteIds(session.user.roles),
+  };
+}
+
+function assertSiteInScope(siteId: string, adminSedeSiteIds: string[] | null) {
+  if (adminSedeSiteIds !== null && !adminSedeSiteIds.includes(siteId)) {
+    throw new Error("Forbidden");
+  }
+}
+
+function normalizeOptionalDate(value: Date | string | null | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error("Invalid dueDate value");
+  }
+
+  return parsed;
+}
+
+function normalizeOptionalText(value: string | null | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeRequiredText(value: string | undefined, fieldName: string) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error(`${fieldName} cannot be empty`);
+  }
+
+  return trimmed;
+}
+
+function normalizeOptionalPositiveAmount(value: number | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error("amountCents must be a non-negative integer");
+  }
+
+  return value;
+}
+
+function getPaymentMovementTypeFromReceiptStatus(status: ReceiptStatus): PaymentMovementType {
+  if (status === ReceiptStatus.SENT) {
+    return "SEND";
+  }
+
+  if (status === ReceiptStatus.PAID) {
+    return "COLLECTION";
+  }
+
+  if (status === ReceiptStatus.RETURNED) {
+    return "RETURN";
+  }
+
+  if (status === ReceiptStatus.PENDING || status === ReceiptStatus.PREPARED) {
+    return "RETRY";
+  }
+
+  return "ADJUSTMENT";
+}
+
+function normalizeMainSiteId(value: string | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("mainSiteId cannot be empty");
+  }
+
+  return trimmed;
 }
 
 export async function getAdminStudentsData(): Promise<AdminStudentsData> {
@@ -330,4 +512,220 @@ export async function getAdminBillingData(): Promise<AdminBillingData> {
         : null,
     })),
   };
+}
+
+export async function updateAdminStudentAction(studentId: string, input: UpdateAdminStudentInput) {
+  "use server";
+
+  const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+  return prisma.$transaction(async (tx) => {
+    const before = await tx.student.findUnique({
+      where: { id: studentId },
+      select: studentAuditSelect,
+    });
+
+    if (!before || before.deletedAt) {
+      throw new Error("Student not found");
+    }
+
+    assertSiteInScope(before.mainSiteId, adminSedeSiteIds);
+
+    const nextMainSiteId = normalizeMainSiteId(input.mainSiteId);
+
+    if (nextMainSiteId) {
+      assertSiteInScope(nextMainSiteId, adminSedeSiteIds);
+    }
+
+    const updateData: Prisma.StudentUncheckedUpdateInput = {
+      firstName: normalizeRequiredText(input.firstName, "firstName"),
+      lastName: normalizeRequiredText(input.lastName, "lastName"),
+      phone: normalizeOptionalText(input.phone),
+      address: normalizeOptionalText(input.address),
+      schoolName: normalizeOptionalText(input.schoolName),
+      schoolCourse: normalizeOptionalText(input.schoolCourse),
+      sportsCenterMemberCode: normalizeOptionalText(input.sportsCenterMemberCode),
+      mainSiteId: nextMainSiteId,
+      isActive: input.isActive,
+    };
+
+    const after = await tx.student.update({
+      where: { id: studentId },
+      data: updateData,
+      select: studentAuditSelect,
+    });
+
+    await createAuditLogForChanges({
+      db: tx,
+      actorUserId,
+      siteId: after.mainSiteId,
+      entity: "STUDENT",
+      entityId: after.id,
+      action: "UPDATE_STUDENT",
+      before,
+      after,
+    });
+
+    return after;
+  });
+}
+
+export async function deleteAdminStudentAction(studentId: string) {
+  "use server";
+
+  const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+  return prisma.$transaction(async (tx) => {
+    const before = await tx.student.findUnique({
+      where: { id: studentId },
+      select: studentAuditSelect,
+    });
+
+    if (!before || before.deletedAt) {
+      throw new Error("Student not found");
+    }
+
+    assertSiteInScope(before.mainSiteId, adminSedeSiteIds);
+
+    const deletedAt = new Date();
+
+    const after = await tx.student.update({
+      where: { id: studentId },
+      data: {
+        isActive: false,
+        deletedAt,
+      },
+      select: studentAuditSelect,
+    });
+
+    await tx.enrollment.updateMany({
+      where: {
+        studentId,
+        deletedAt: null,
+      },
+      data: {
+        status: EnrollmentStatus.CLOSED,
+        endsAt: deletedAt,
+        deletedAt,
+      },
+    });
+
+    await tx.receipt.updateMany({
+      where: {
+        studentId,
+        deletedAt: null,
+        status: {
+          not: ReceiptStatus.PAID,
+        },
+      },
+      data: {
+        status: ReceiptStatus.CANCELED,
+        deletedAt,
+      },
+    });
+
+    await tx.receipt.updateMany({
+      where: {
+        studentId,
+        deletedAt: null,
+        status: ReceiptStatus.PAID,
+      },
+      data: {
+        deletedAt,
+      },
+    });
+
+    await createAuditLogForChanges({
+      db: tx,
+      actorUserId,
+      siteId: after.mainSiteId,
+      entity: "STUDENT",
+      entityId: after.id,
+      action: "SOFT_DELETE_STUDENT",
+      before,
+      after,
+    });
+
+    return after;
+  });
+}
+
+export async function updateAdminPaymentAction(receiptId: string, input: UpdateAdminPaymentInput) {
+  "use server";
+
+  const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+  return prisma.$transaction(async (tx) => {
+    const before = await tx.receipt.findUnique({
+      where: { id: receiptId },
+      select: paymentAuditSelect,
+    });
+
+    if (!before || before.deletedAt) {
+      throw new Error("Payment receipt not found");
+    }
+
+    assertSiteInScope(before.siteId, adminSedeSiteIds);
+
+    const updateData: Prisma.ReceiptUpdateInput = {
+      amountCents: normalizeOptionalPositiveAmount(input.amountCents),
+      status: input.status,
+      dueDate: normalizeOptionalDate(input.dueDate),
+      ibanMasked: normalizeOptionalText(input.ibanMasked),
+    };
+
+    const after = await tx.receipt.update({
+      where: { id: receiptId },
+      data: updateData,
+      select: paymentAuditSelect,
+    });
+
+    await createAuditLogForChanges({
+      db: tx,
+      actorUserId,
+      siteId: after.siteId,
+      entity: "RECEIPT",
+      entityId: after.id,
+      action: "UPDATE_PAYMENT",
+      before,
+      after,
+    });
+
+    const receiptChanged =
+      before.amountCents !== after.amountCents ||
+      before.status !== after.status ||
+      before.ibanMasked !== after.ibanMasked ||
+      before.dueDate?.getTime() !== after.dueDate?.getTime();
+
+    if (receiptChanged) {
+      const changedFields: string[] = [];
+
+      if (before.amountCents !== after.amountCents) {
+        changedFields.push("amountCents");
+      }
+
+      if (before.status !== after.status) {
+        changedFields.push("status");
+      }
+
+      if (before.dueDate?.getTime() !== after.dueDate?.getTime()) {
+        changedFields.push("dueDate");
+      }
+
+      if (before.ibanMasked !== after.ibanMasked) {
+        changedFields.push("ibanMasked");
+      }
+
+      await tx.paymentMovement.create({
+        data: {
+          receiptId: after.id,
+          type: getPaymentMovementTypeFromReceiptStatus(after.status),
+          amountCents: after.amountCents,
+          note: `Admin update (${changedFields.join(", ")})`,
+        },
+      });
+    }
+
+    return after;
+  });
 }
