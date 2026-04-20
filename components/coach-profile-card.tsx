@@ -162,7 +162,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
       {modalMounted ? (
         <div
-          className={`fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 md:items-center md:p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
+          className={`fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-3 md:p-4 transition-[background-color,backdrop-filter] duration-500 ease-out ${
             modalVisible ? "bg-black/75 backdrop-blur-md" : "bg-black/0 backdrop-blur-none"
           }`}
         >
@@ -177,7 +177,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
             role="dialog"
             aria-modal="true"
             aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
-            className={`relative z-10 mt-3 grid w-full max-w-xl grid-rows-[minmax(0,240px)_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:mt-0 md:max-h-[88svh] md:grid-rows-[minmax(0,250px)_minmax(0,1fr)] ${
+            className={`relative z-10 grid w-full max-w-xl grid-rows-[minmax(0,240px)_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:max-h-[88svh] md:grid-rows-[minmax(0,250px)_minmax(0,1fr)] ${
               modalVisible
                 ? "translate-y-0 scale-100 opacity-100 rotate-0"
                 : "translate-y-10 scale-90 opacity-0 -rotate-1"
