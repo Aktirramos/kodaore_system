@@ -7,8 +7,13 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ActionToast } from "@/components/action-toast";
-import type { UpdateAdminStudentInput } from "@/lib/admin";
+import type { CreateAdminStudentInput, UpdateAdminStudentInput } from "@/lib/admin";
 import type { LocaleCode } from "@/lib/i18n";
+
+type AdminSiteOption = {
+  id: string;
+  name: string;
+};
 
 type AdminStudentRow = {
   id: string;
@@ -30,6 +35,20 @@ type AdminStudentRow = {
 
 export type AdminStudentsActionsCopy = {
   form: {
+    addStudentLabel: string;
+    createModalTitle: string;
+    createModalDescription: string;
+    familyEmailLabel: string;
+    birthDateLabel: string;
+    mainSiteLabel: string;
+    createLabel: string;
+    creatingLabel: string;
+    createdSuffix: string;
+    createErrorFallback: string;
+    requiredFamilyEmail: string;
+    requiredBirthDate: string;
+    requiredMainSite: string;
+    noAvailableSites: string;
     editLabel: string;
     modalTitle: string;
     modalDescription: string;
@@ -53,8 +72,10 @@ export type AdminStudentsActionsCopy = {
 
 type AdminStudentsActionsTableProps = {
   locale: LocaleCode;
+  availableSites: AdminSiteOption[];
   students: AdminStudentRow[];
   copy: AdminStudentsActionsCopy;
+  createStudentAction: (input: CreateAdminStudentInput) => Promise<unknown>;
   updateStudentAction: (studentId: string, input: UpdateAdminStudentInput) => Promise<unknown>;
   deleteStudentAction: (studentId: string) => Promise<unknown>;
 };
@@ -72,6 +93,20 @@ type StudentEditFormValues = {
   schoolName: string;
   schoolCourse: string;
   sportsCenterMemberCode: string;
+  isActive: boolean;
+};
+
+type StudentCreateFormValues = {
+  firstName: string;
+  lastName: string;
+  familyEmail: string;
+  birthDate: string;
+  phone: string;
+  address: string;
+  schoolName: string;
+  schoolCourse: string;
+  sportsCenterMemberCode: string;
+  mainSiteId: string;
   isActive: boolean;
 };
 
@@ -96,6 +131,22 @@ function buildStudentEditSchema(copy: AdminStudentsActionsCopy["form"]) {
   });
 }
 
+function buildStudentCreateSchema(copy: AdminStudentsActionsCopy["form"]) {
+  return z.object({
+    firstName: z.string().trim().min(1, copy.requiredFirstName),
+    lastName: z.string().trim().min(1, copy.requiredLastName),
+    familyEmail: z.string().trim().email(copy.requiredFamilyEmail),
+    birthDate: z.string().trim().min(1, copy.requiredBirthDate),
+    phone: z.string(),
+    address: z.string(),
+    schoolName: z.string(),
+    schoolCourse: z.string(),
+    sportsCenterMemberCode: z.string(),
+    mainSiteId: z.string().trim().min(1, copy.requiredMainSite),
+    isActive: z.boolean(),
+  });
+}
+
 function normalizeOptionalInput(value: string): string | null {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
@@ -114,16 +165,35 @@ function getDefaultFormValues(student: AdminStudentRow | null): StudentEditFormV
   };
 }
 
+function getDefaultCreateFormValues(defaultSiteId: string): StudentCreateFormValues {
+  return {
+    firstName: "",
+    lastName: "",
+    familyEmail: "",
+    birthDate: "",
+    phone: "",
+    address: "",
+    schoolName: "",
+    schoolCourse: "",
+    sportsCenterMemberCode: "",
+    mainSiteId: defaultSiteId,
+    isActive: true,
+  };
+}
+
 export function AdminStudentsActionsTable({
   locale,
+  availableSites,
   students,
   copy,
+  createStudentAction,
   updateStudentAction,
   deleteStudentAction,
 }: AdminStudentsActionsTableProps) {
   const router = useRouter();
   const [toast, setToast] = useState<ToastState | null>(null);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<AdminStudentRow | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -131,12 +201,14 @@ export function AdminStudentsActionsTable({
   const noDataMessage = isEu
     ? "Ez dago ikasle aktiboen daturik une honetan."
     : "No hay datos de alumnos activos en este momento.";
+  const addStudentLabel = copy.form.addStudentLabel;
   const profileLabel = isEu ? "Fitxa" : "Ficha";
   const editLabel = copy.form.editLabel;
   const deactivateLabel = isEu ? "Inaktibatu" : "Inactivar";
   const deleteLabel = isEu ? "Ezabatu" : "Eliminar";
   const actionsLabel = isEu ? "Ekintzak" : "Acciones";
   const closeToastLabel = isEu ? "Itxi" : "Cerrar";
+  const firstAvailableSiteId = availableSites[0]?.id ?? "";
 
   const runAction = (
     actionId: string,
@@ -197,6 +269,23 @@ export function AdminStudentsActionsTable({
     setEditingStudent(student);
   };
 
+  const handleOpenCreateModal = () => {
+    if (!firstAvailableSiteId) {
+      setToast({ message: copy.form.noAvailableSites, variant: "error" });
+      return;
+    }
+
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    if (isPending && pendingActionId === "create") {
+      return;
+    }
+
+    setIsCreateModalOpen(false);
+  };
+
   const handleCloseEditModal = () => {
     if (isPending && editingStudent && pendingActionId === `edit:${editingStudent.id}`) {
       return;
@@ -228,11 +317,48 @@ export function AdminStudentsActionsTable({
     );
   };
 
+  const handleCreateStudent = (values: StudentCreateFormValues) => {
+    const payload: CreateAdminStudentInput = {
+      firstName: values.firstName.trim(),
+      lastName: values.lastName.trim(),
+      familyEmail: values.familyEmail.trim().toLowerCase(),
+      birthDate: values.birthDate,
+      phone: normalizeOptionalInput(values.phone),
+      address: normalizeOptionalInput(values.address),
+      schoolName: normalizeOptionalInput(values.schoolName),
+      schoolCourse: normalizeOptionalInput(values.schoolCourse),
+      sportsCenterMemberCode: normalizeOptionalInput(values.sportsCenterMemberCode),
+      mainSiteId: values.mainSiteId,
+      isActive: values.isActive,
+    };
+
+    runAction(
+      "create",
+      () => createStudentAction(payload),
+      `"${payload.firstName} ${payload.lastName}" ${copy.form.createdSuffix}`,
+      copy.form.createErrorFallback,
+      {
+        onSuccess: () => setIsCreateModalOpen(false),
+      },
+    );
+  };
+
   const editingActionId = editingStudent ? `edit:${editingStudent.id}` : null;
   const editModalPending = Boolean(editingActionId && isPending && pendingActionId === editingActionId);
+  const createModalPending = isPending && pendingActionId === "create";
 
   return (
     <>
+      <div className="fade-rise flex justify-end">
+        <button
+          type="button"
+          onClick={handleOpenCreateModal}
+          className="k-focus-ring rounded-lg border border-brand-emphasis/40 bg-brand-emphasis/15 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-brand-emphasis hover:bg-brand-emphasis/25"
+        >
+          {addStudentLabel}
+        </button>
+      </div>
+
       <section className="fade-rise overflow-hidden rounded-2xl border border-white/10 bg-surface">
         <div className="space-y-3 p-4 md:hidden">
           {students.length === 0 ? (
@@ -402,6 +528,16 @@ export function AdminStudentsActionsTable({
         </div>
       </section>
 
+      <StudentCreateModal
+        isOpen={isCreateModalOpen}
+        isSaving={createModalPending}
+        defaultSiteId={firstAvailableSiteId}
+        availableSites={availableSites}
+        copy={copy.form}
+        onClose={handleCloseCreateModal}
+        onSubmit={handleCreateStudent}
+      />
+
       <StudentEditModal
         student={editingStudent}
         copy={copy.form}
@@ -434,6 +570,229 @@ function formatCurrency(amountCents: number, locale: LocaleCode) {
     style: "currency",
     currency: "EUR",
   }).format(amountCents / 100);
+}
+
+type StudentCreateModalProps = {
+  isOpen: boolean;
+  isSaving: boolean;
+  defaultSiteId: string;
+  availableSites: AdminSiteOption[];
+  copy: AdminStudentsActionsCopy["form"];
+  onClose: () => void;
+  onSubmit: (values: StudentCreateFormValues) => void;
+};
+
+function StudentCreateModal({
+  isOpen,
+  isSaving,
+  defaultSiteId,
+  availableSites,
+  copy,
+  onClose,
+  onSubmit,
+}: StudentCreateModalProps) {
+  const schema = useMemo(() => buildStudentCreateSchema(copy), [copy]);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<StudentCreateFormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: getDefaultCreateFormValues(defaultSiteId),
+  });
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    reset(getDefaultCreateFormValues(defaultSiteId));
+  }, [defaultSiteId, isOpen, reset]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isSaving) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, isSaving, onClose]);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[65] flex items-center justify-center px-4 py-6" role="dialog" aria-modal="true">
+      <button
+        type="button"
+        aria-label={copy.cancelLabel}
+        onClick={onClose}
+        disabled={isSaving}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      />
+
+      <div className="relative z-[66] max-h-[90vh] w-full max-w-3xl overflow-auto rounded-2xl border border-white/15 bg-surface p-5 shadow-2xl md:p-6">
+        <h2 className="font-heading text-2xl font-semibold text-foreground">{copy.createModalTitle}</h2>
+        <p className="mt-2 text-sm text-ink-muted">{copy.createModalDescription}</p>
+
+        <form
+          className="mt-5 space-y-4"
+          onSubmit={handleSubmit((values) => {
+            onSubmit(values);
+          })}
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.firstNameLabel}</span>
+              <input
+                type="text"
+                autoComplete="given-name"
+                {...register("firstName")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+              {errors.firstName ? <span className="text-xs text-rose-200">{errors.firstName.message}</span> : null}
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.lastNameLabel}</span>
+              <input
+                type="text"
+                autoComplete="family-name"
+                {...register("lastName")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+              {errors.lastName ? <span className="text-xs text-rose-200">{errors.lastName.message}</span> : null}
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.familyEmailLabel}</span>
+              <input
+                type="email"
+                autoComplete="email"
+                {...register("familyEmail")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+              {errors.familyEmail ? (
+                <span className="text-xs text-rose-200">{errors.familyEmail.message}</span>
+              ) : null}
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.birthDateLabel}</span>
+              <input
+                type="date"
+                {...register("birthDate")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+              {errors.birthDate ? <span className="text-xs text-rose-200">{errors.birthDate.message}</span> : null}
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.mainSiteLabel}</span>
+              <select
+                {...register("mainSiteId")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              >
+                {availableSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+              {errors.mainSiteId ? (
+                <span className="text-xs text-rose-200">{errors.mainSiteId.message}</span>
+              ) : null}
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.phoneLabel}</span>
+              <input
+                type="text"
+                autoComplete="tel"
+                {...register("phone")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted md:col-span-2">
+              <span>{copy.addressLabel}</span>
+              <textarea
+                rows={2}
+                autoComplete="street-address"
+                {...register("address")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.schoolNameLabel}</span>
+              <input
+                type="text"
+                {...register("schoolName")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{copy.schoolCourseLabel}</span>
+              <input
+                type="text"
+                {...register("schoolCourse")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+
+            <label className="space-y-1 text-sm text-ink-muted md:col-span-2">
+              <span>{copy.sportsCenterMemberCodeLabel}</span>
+              <input
+                type="text"
+                {...register("sportsCenterMemberCode")}
+                className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              {...register("isActive")}
+              className="k-focus-ring h-4 w-4 rounded border border-white/20 bg-surface-strong/50"
+            />
+            <span>{copy.isActiveLabel}</span>
+          </label>
+
+          <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="k-focus-ring rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {copy.cancelLabel}
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving || availableSites.length === 0}
+              className="k-focus-ring rounded-lg border border-brand-emphasis/40 bg-brand-emphasis/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-brand-emphasis disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSaving ? copy.creatingLabel : copy.createLabel}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 type StudentEditModalProps = {

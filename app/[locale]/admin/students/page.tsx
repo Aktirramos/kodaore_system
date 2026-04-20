@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import { AdminStudentsActionsTable } from "@/components/admin-students-actions-table";
 import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
-import { deleteAdminStudentAction, getAdminStudentsData, updateAdminStudentAction } from "@/lib/admin";
+import {
+  createAdminStudentAction,
+  deleteAdminStudentAction,
+  getAdminStudentsData,
+  updateAdminStudentAction,
+} from "@/lib/admin";
 import { isLocale } from "@/lib/i18n";
 
 type AdminStudentsPageProps = {
@@ -26,6 +31,20 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
   const copy = isEu
     ? {
         form: {
+          addStudentLabel: "Ikaslea gehitu",
+          createModalTitle: "Ikasle berria sortu",
+          createModalDescription: "Sartu ikaslearen oinarrizko datuak eta esleitu egoitza.",
+          familyEmailLabel: "Familiaren emaila",
+          birthDateLabel: "Jaiotze data",
+          mainSiteLabel: "Egoitza nagusia",
+          createLabel: "Ikaslea sortu",
+          creatingLabel: "Sortzen...",
+          createdSuffix: "sortu da.",
+          createErrorFallback: "Ezin izan da ikaslea sortu.",
+          requiredFamilyEmail: "Familiaren email zuzena idatzi.",
+          requiredBirthDate: "Jaiotze data derrigorrezkoa da.",
+          requiredMainSite: "Egoitza bat aukeratu behar duzu.",
+          noAvailableSites: "Ez dago egoitza erabilgarririk alta egiteko.",
           editLabel: "Editatu",
           modalTitle: "Ikaslearen datuak editatu",
           modalDescription: "Eguneratu ikaslearen oinarrizko informazioa.",
@@ -48,6 +67,20 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
       }
     : {
         form: {
+          addStudentLabel: "Anadir alumno",
+          createModalTitle: "Crear nuevo alumno",
+          createModalDescription: "Introduce los datos basicos del alumno y asigna su sede.",
+          familyEmailLabel: "Email de familia",
+          birthDateLabel: "Fecha de nacimiento",
+          mainSiteLabel: "Sede principal",
+          createLabel: "Crear alumno",
+          creatingLabel: "Creando...",
+          createdSuffix: "se ha creado.",
+          createErrorFallback: "No se ha podido crear el alumno.",
+          requiredFamilyEmail: "Introduce un email de familia valido.",
+          requiredBirthDate: "La fecha de nacimiento es obligatoria.",
+          requiredMainSite: "Debes seleccionar una sede.",
+          noAvailableSites: "No hay sedes disponibles para dar de alta.",
           editLabel: "Editar",
           modalTitle: "Editar datos del alumno",
           modalDescription: "Actualiza la informacion basica del alumno.",
@@ -93,8 +126,10 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
 
       <AdminStudentsActionsTable
         locale={locale}
+        availableSites={data.availableSites}
         students={data.students}
         copy={copy}
+        createStudentAction={createAdminStudentAction}
         updateStudentAction={updateAdminStudentAction}
         deleteStudentAction={deleteAdminStudentAction}
       />

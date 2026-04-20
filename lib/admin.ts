@@ -5,6 +5,7 @@ import {
   RoleCode,
   ReceiptStatus,
 } from "@prisma/client";
+import { randomUUID } from "node:crypto";
 import { getAuthSession } from "@/lib/auth";
 import { createAuditLogForChanges } from "./audit";
 import { prisma } from "@/lib/prisma";
@@ -28,9 +29,12 @@ const adminActionMessages = {
   studentNotFound: "El alumno no existe o ya no esta disponible.",
   receiptNotFound: "El recibo no existe o ya no esta disponible.",
   invalidDueDate: "La fecha de vencimiento no es valida.",
+  invalidBirthDate: "La fecha de nacimiento no es valida.",
   invalidAmount: "El importe debe ser un numero entero igual o superior a 0.",
   invalidMainSite: "Debes indicar una sede valida.",
   invalidRequiredField: "Revisa los campos obligatorios antes de guardar.",
+  familyAccountNotFound: "No existe una cuenta familiar con ese email.",
+  studentCreateFailed: "No se ha podido crear el alumno. Intentalo de nuevo.",
   studentUpdateFailed: "No se ha podido actualizar el alumno. Intentalo de nuevo.",
   studentDeleteFailed: "No se ha podido eliminar el alumno. Intentalo de nuevo.",
   paymentUpdateFailed: "No se ha podido actualizar el recibo. Intentalo de nuevo.",
@@ -95,6 +99,10 @@ type AdminStudentsData = {
     activeEnrollments: number;
     representedSites: number;
   };
+  availableSites: Array<{
+    id: string;
+    name: string;
+  }>;
   students: Array<{
     id: string;
     firstName: string;
@@ -229,6 +237,20 @@ export type AdminStudentProfileData = {
   };
 };
 
+export type CreateAdminStudentInput = {
+  firstName: string;
+  lastName: string;
+  familyEmail: string;
+  birthDate: Date | string;
+  phone?: string | null;
+  address?: string | null;
+  schoolName?: string | null;
+  schoolCourse?: string | null;
+  sportsCenterMemberCode?: string | null;
+  mainSiteId: string;
+  isActive?: boolean;
+};
+
 export type UpdateAdminStudentInput = {
   firstName?: string;
   lastName?: string;
@@ -331,6 +353,19 @@ function normalizeOptionalDate(value: Date | string | null | undefined) {
   return parsed;
 }
 
+function normalizeRequiredDate(
+  value: Date | string | null | undefined,
+  invalidMessage: string,
+): Date {
+  const normalized = normalizeOptionalDate(value);
+
+  if (!normalized) {
+    failAdminAction(invalidMessage);
+  }
+
+  return normalized;
+}
+
 function normalizeOptionalText(value: string | null | undefined) {
   if (value === undefined) {
     return undefined;
@@ -405,57 +440,84 @@ function normalizeMainSiteId(value: string | undefined) {
   return trimmed;
 }
 
+function buildStudentInternalCode(siteCode: string) {
+  const normalizedSiteCode = siteCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const safeSiteCode = normalizedSiteCode.length > 0 ? normalizedSiteCode : "SITE";
+  const year = new Date().getFullYear();
+  const token = randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
+
+  return `ALU-${safeSiteCode}-${year}-${token}`;
+}
+
 export async function getAdminStudentsData(): Promise<AdminStudentsData> {
   const session = await getAuthSession();
   const adminSedeSiteIds = getAdminSedeScopeSiteIds(session?.user?.roles);
 
-  const students = await prisma.student.findMany({
-    where:
-      adminSedeSiteIds === null
-        ? { isActive: true }
-        : {
-            isActive: true,
-            mainSiteId: {
-              in: adminSedeSiteIds,
+  const [students, availableSites] = await Promise.all([
+    prisma.student.findMany({
+      where:
+        adminSedeSiteIds === null
+          ? { isActive: true }
+          : {
+              isActive: true,
+              mainSiteId: {
+                in: adminSedeSiteIds,
+              },
             },
-          },
-    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      phone: true,
-      address: true,
-      schoolName: true,
-      schoolCourse: true,
-      sportsCenterMemberCode: true,
-      mainSiteId: true,
-      isActive: true,
-      mainSite: {
-        select: {
-          name: true,
-        },
-      },
-      familyAccount: {
-        select: {
-          email: true,
-        },
-      },
-      enrollments: {
-        where: { status: "ACTIVE" },
-        orderBy: { startsAt: "desc" },
-        take: 1,
-        select: {
-          tuitionPlan: {
-            select: {
-              name: true,
-              amountCents: true,
-            },
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        address: true,
+        schoolName: true,
+        schoolCourse: true,
+        sportsCenterMemberCode: true,
+        mainSiteId: true,
+        isActive: true,
+        mainSite: {
+          select: {
+            name: true,
           },
         },
+        familyAccount: {
+          select: {
+            email: true,
+          },
+        },
+        enrollments: {
+          where: { status: "ACTIVE" },
+          orderBy: { startsAt: "desc" },
+          take: 1,
+          select: {
+            tuitionPlan: {
+              select: {
+                name: true,
+                amountCents: true,
+              },
+            },
+          },
+        },
       },
-    },
-  });
+    }),
+    prisma.site.findMany({
+      where:
+        adminSedeSiteIds === null
+          ? { isActive: true }
+          : {
+              isActive: true,
+              id: {
+                in: adminSedeSiteIds,
+              },
+            },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+  ]);
 
   const representedSites = new Set(students.map((student) => student.mainSite.name)).size;
   const activeEnrollments = students.filter((student) => student.enrollments.length > 0).length;
@@ -466,6 +528,7 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
       activeEnrollments,
       representedSites,
     },
+    availableSites,
     students: students.map((student) => ({
       id: student.id,
       firstName: student.firstName,
@@ -777,6 +840,108 @@ export async function getAdminStudentProfileData(studentId: string): Promise<Adm
       })),
     },
   };
+}
+
+export async function createAdminStudentAction(input: CreateAdminStudentInput) {
+  "use server";
+
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+    const firstName = normalizeRequiredText(input.firstName, "firstName");
+    const lastName = normalizeRequiredText(input.lastName, "lastName");
+    const familyEmail = normalizeRequiredText(input.familyEmail, "familyEmail")?.toLowerCase();
+    const mainSiteId = normalizeMainSiteId(input.mainSiteId);
+    const birthDate = normalizeRequiredDate(input.birthDate, adminActionMessages.invalidBirthDate);
+
+    if (!firstName || !lastName || !familyEmail || !mainSiteId) {
+      failAdminAction(adminActionMessages.invalidRequiredField);
+    }
+
+    assertSiteInScope(mainSiteId, adminSedeSiteIds);
+
+    return await prisma.$transaction(async (tx) => {
+      const site = await tx.site.findUnique({
+        where: { id: mainSiteId },
+        select: {
+          id: true,
+          code: true,
+        },
+      });
+
+      if (!site) {
+        failAdminAction(adminActionMessages.invalidMainSite);
+      }
+
+      const familyAccount = await tx.familyAccount.findFirst({
+        where: {
+          email: {
+            equals: familyEmail,
+            mode: "insensitive",
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!familyAccount) {
+        failAdminAction(adminActionMessages.familyAccountNotFound);
+      }
+
+      let internalCode = "";
+
+      for (let attempt = 0; attempt < 6; attempt += 1) {
+        const candidate = buildStudentInternalCode(site.code);
+        const existing = await tx.student.findUnique({
+          where: { internalCode: candidate },
+          select: { id: true },
+        });
+
+        if (!existing) {
+          internalCode = candidate;
+          break;
+        }
+      }
+
+      if (!internalCode) {
+        failAdminAction(adminActionMessages.studentCreateFailed);
+      }
+
+      const after = await tx.student.create({
+        data: {
+          familyAccountId: familyAccount.id,
+          firstName,
+          lastName,
+          birthDate,
+          phone: normalizeOptionalText(input.phone) ?? null,
+          address: normalizeOptionalText(input.address) ?? null,
+          schoolName: normalizeOptionalText(input.schoolName) ?? null,
+          schoolCourse: normalizeOptionalText(input.schoolCourse) ?? null,
+          sportsCenterMemberCode: normalizeOptionalText(input.sportsCenterMemberCode) ?? null,
+          internalCode,
+          mainSiteId,
+          isActive: input.isActive ?? true,
+        },
+        select: studentAuditSelect,
+      });
+
+      await createAuditLogForChanges({
+        db: tx,
+        actorUserId,
+        siteId: after.mainSiteId,
+        entity: "STUDENT",
+        entityId: after.id,
+        action: "CREATE_STUDENT",
+        before: null,
+        after,
+      });
+
+      return after;
+    });
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.studentCreateFailed);
+  }
 }
 
 export async function getAdminGroupsData(): Promise<AdminGroupsData> {
