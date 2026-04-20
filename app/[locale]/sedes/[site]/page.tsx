@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CoachProfileCard } from "@/components/coach-profile-card";
@@ -11,6 +12,36 @@ type LocaleSitePageProps = {
 
 const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
 const textHoverBoxClass = "k-hover-soft group/text relative overflow-hidden rounded-xl border border-transparent p-3";
+
+export async function generateMetadata({ params }: LocaleSitePageProps): Promise<Metadata> {
+  const { locale, site } = await params;
+
+  if (!isLocale(locale)) {
+    notFound();
+  }
+
+  const copy = getCopy(locale as LocaleCode);
+  const selectedSite = copy.home.sites.find((item) => item.slug === site);
+
+  if (!selectedSite) {
+    notFound();
+  }
+
+  const title =
+    locale === "eu"
+      ? `Kodaore | ${selectedSite.name} egoitza - Judo kluba eta entrenamenduak`
+      : `Kodaore | Sede de ${selectedSite.name} - Club y entrenamiento de judo`;
+
+  const description =
+    locale === "eu"
+      ? `${selectedSite.name} egoitzan, Kodaorek judo entrenamendu egituratua eta giro hezitzailea eskaintzen ditu: ${selectedSite.description}`
+      : `En la sede de ${selectedSite.name}, Kodaore ofrece entrenamiento de judo estructurado y un entorno formativo: ${selectedSite.description}`;
+
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
   const { locale, site } = await params;
