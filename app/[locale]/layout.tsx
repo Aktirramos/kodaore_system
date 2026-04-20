@@ -47,8 +47,22 @@ const defaultSocialImage = {
 
 function getMetadataBase() {
   const fallbackBase = "http://localhost:3000";
-  const configuredBase = process.env.NEXTAUTH_URL?.trim() || fallbackBase;
-  return new URL(configuredBase);
+  const configuredNextAuthBase = process.env.NEXTAUTH_URL?.trim();
+  const configuredVercelBase = process.env.VERCEL_URL?.trim();
+
+  if (configuredNextAuthBase) {
+    return new URL(configuredNextAuthBase);
+  }
+
+  if (configuredVercelBase) {
+    const normalizedVercelBase = configuredVercelBase.startsWith("http")
+      ? configuredVercelBase
+      : `https://${configuredVercelBase}`;
+
+    return new URL(normalizedVercelBase);
+  }
+
+  return new URL(fallbackBase);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -61,11 +75,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const current = localeMetadata[locale as LocaleCode];
   const ogLocale = locale === "eu" ? "eu_ES" : "es_ES";
   const alternateOgLocale = locale === "eu" ? "es_ES" : "eu_ES";
+  const metadataBase = getMetadataBase();
+  const defaultSocialImageAbsoluteUrl = new URL(defaultSocialImage.url, metadataBase).toString();
 
   return {
-    metadataBase: getMetadataBase(),
+    metadataBase,
     title: current.title,
     description: current.description,
+    robots: {
+      index: true,
+      follow: true,
+    },
     alternates: {
       canonical: "./",
       languages: localeAlternates,
@@ -78,13 +98,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       alternateLocale: [alternateOgLocale],
       type: "website",
       url: "./",
-      images: [defaultSocialImage],
+      images: [
+        {
+          ...defaultSocialImage,
+          url: defaultSocialImageAbsoluteUrl,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: current.title,
       description: current.description,
-      images: [defaultSocialImage.url],
+      images: [defaultSocialImageAbsoluteUrl],
     },
   };
 }
