@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import { AdminGroupsActionsTable } from "@/components/admin-groups-actions-table";
 import { ADMIN_ROLE_CODES, requireAuth } from "@/lib/auth";
-import { getAdminGroupsData } from "@/lib/admin";
+import { createAdminGroupAction, getAdminGroupsData, updateAdminGroupAction } from "@/lib/admin";
 import { isLocale } from "@/lib/i18n";
 
 type AdminGroupsPageProps = {
@@ -22,6 +23,61 @@ export default async function AdminGroupsPage({ params }: AdminGroupsPageProps) 
 
   const isEu = locale === "eu";
   const data = await getAdminGroupsData();
+  const copy = isEu
+    ? {
+        form: {
+          addGroupLabel: "Taldea gehitu",
+          createModalTitle: "Talde berria sortu",
+          createModalDescription: "Bete taldearen oinarrizko datuak eta esleitu arduraduna.",
+          editModalTitle: "Taldea editatu",
+          editModalDescription: "Eguneratu taldearen izena, maila, edukiera eta arduraduna.",
+          nameLabel: "Izena",
+          levelLabel: "Maila",
+          capacityLabel: "Edukiera",
+          siteLabel: "Egoitza",
+          leadTeacherLabel: "Arduraduna",
+          noneTeacherLabel: "Arduradunik gabe",
+          isActiveLabel: "Aktibo gisa mantendu",
+          createLabel: "Taldea sortu",
+          creatingLabel: "Sortzen...",
+          saveLabel: "Gorde aldaketak",
+          savingLabel: "Gordetzen...",
+          cancelLabel: "Utzi",
+          createdSuffix: "sortu da.",
+          updatedSuffix: "eguneratu da.",
+          createErrorFallback: "Ezin izan da taldea sortu.",
+          updateErrorFallback: "Ezin izan da taldea eguneratu.",
+          requiredName: "Taldearen izena derrigorrezkoa da.",
+          requiredCapacity: "Edukierak 1 baino handiagoa izan behar du.",
+        },
+      }
+    : {
+        form: {
+          addGroupLabel: "Anadir grupo",
+          createModalTitle: "Crear nuevo grupo",
+          createModalDescription: "Completa los datos basicos del grupo y asigna responsable.",
+          editModalTitle: "Editar grupo",
+          editModalDescription: "Actualiza nombre, nivel, capacidad y profesor asignado.",
+          nameLabel: "Nombre",
+          levelLabel: "Nivel",
+          capacityLabel: "Capacidad",
+          siteLabel: "Sede",
+          leadTeacherLabel: "Responsable",
+          noneTeacherLabel: "Sin responsable",
+          isActiveLabel: "Mantener como activo",
+          createLabel: "Crear grupo",
+          creatingLabel: "Creando...",
+          saveLabel: "Guardar cambios",
+          savingLabel: "Guardando...",
+          cancelLabel: "Cancelar",
+          createdSuffix: "se ha creado.",
+          updatedSuffix: "se ha actualizado.",
+          createErrorFallback: "No se ha podido crear el grupo.",
+          updateErrorFallback: "No se ha podido actualizar el grupo.",
+          requiredName: "El nombre del grupo es obligatorio.",
+          requiredCapacity: "La capacidad debe ser mayor que 0.",
+        },
+      };
 
   return (
     <div className="space-y-6">
@@ -45,33 +101,15 @@ export default async function AdminGroupsPage({ params }: AdminGroupsPageProps) 
         <StatCard label={isEu ? "7 eguneko saioak" : "Sesiones 7 dias"} value={String(data.totals.next7DaysSessions)} />
       </section>
 
-      <section className="fade-rise grid gap-4 md:grid-cols-2">
-        {data.groups.length === 0 ? (
-          <article className="rounded-2xl border border-white/10 bg-surface p-5">
-            <p className="text-sm text-ink-muted">
-              {isEu ? "Ez dago talde aktiborik une honetan." : "No hay grupos activos en este momento."}
-            </p>
-          </article>
-        ) : (
-          data.groups.map((group) => (
-            <article key={group.id} className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="font-heading text-xl font-semibold text-foreground">{group.name}</h2>
-                <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-ink-muted">{group.siteName}</span>
-              </div>
-              <div className="mt-3 grid gap-2 text-sm text-ink-muted md:grid-cols-2">
-                <Info label={isEu ? "Maila" : "Nivel"} value={group.level ?? "-"} />
-                <Info label={isEu ? "Edukiera" : "Capacidad"} value={String(group.capacity)} />
-                <Info label={isEu ? "Arduraduna" : "Responsable"} value={group.leadTeacherName ?? "-"} />
-                <Info
-                  label={isEu ? "Hurrengo saioa" : "Proxima sesion"}
-                  value={group.nextSessionAt ? formatDate(group.nextSessionAt, locale) : "-"}
-                />
-              </div>
-            </article>
-          ))
-        )}
-      </section>
+      <AdminGroupsActionsTable
+        locale={locale}
+        groups={data.groups}
+        availableSites={data.availableSites}
+        availableTeachers={data.availableTeachers}
+        copy={copy}
+        createGroupAction={createAdminGroupAction}
+        updateGroupAction={updateAdminGroupAction}
+      />
     </div>
   );
 }
@@ -85,21 +123,3 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">{label}</p>
-      <p className="mt-1 text-sm text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function formatDate(value: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale === "eu" ? "eu-ES" : "es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(value);
-}

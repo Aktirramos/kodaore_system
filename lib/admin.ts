@@ -27,14 +27,19 @@ const adminActionMessages = {
   unauthorized: "Necesitas iniciar sesion para realizar esta accion.",
   forbidden: "No tienes permisos para realizar esta accion.",
   studentNotFound: "El alumno no existe o ya no esta disponible.",
+  groupNotFound: "El grupo no existe o ya no esta disponible.",
   receiptNotFound: "El recibo no existe o ya no esta disponible.",
   invalidDueDate: "La fecha de vencimiento no es valida.",
   invalidBirthDate: "La fecha de nacimiento no es valida.",
   invalidAmount: "El importe debe ser un numero entero igual o superior a 0.",
+  invalidGroupCapacity: "La capacidad debe ser un numero entero mayor que 0.",
+  invalidLeadTeacher: "El profesor asignado no es valido para la sede seleccionada.",
   invalidMainSite: "Debes indicar una sede valida.",
   invalidRequiredField: "Revisa los campos obligatorios antes de guardar.",
   familyAccountNotFound: "No existe una cuenta familiar con ese email.",
   studentCreateFailed: "No se ha podido crear el alumno. Intentalo de nuevo.",
+  groupCreateFailed: "No se ha podido crear el grupo. Intentalo de nuevo.",
+  groupUpdateFailed: "No se ha podido actualizar el grupo. Intentalo de nuevo.",
   studentUpdateFailed: "No se ha podido actualizar el alumno. Intentalo de nuevo.",
   studentDeleteFailed: "No se ha podido eliminar el alumno. Intentalo de nuevo.",
   paymentUpdateFailed: "No se ha podido actualizar el recibo. Intentalo de nuevo.",
@@ -93,6 +98,16 @@ const paymentAuditSelect = {
   deletedAt: true,
 } as const;
 
+const groupAuditSelect = {
+  id: true,
+  siteId: true,
+  name: true,
+  level: true,
+  capacity: true,
+  leadTeacherId: true,
+  isActive: true,
+} as const;
+
 type AdminStudentsData = {
   totals: {
     activeStudents: number;
@@ -128,13 +143,26 @@ type AdminGroupsData = {
     totalCapacity: number;
     next7DaysSessions: number;
   };
+  availableSites: Array<{
+    id: string;
+    name: string;
+  }>;
+  availableTeachers: Array<{
+    id: string;
+    fullName: string;
+    siteId: string;
+    siteName: string;
+  }>;
   groups: Array<{
     id: string;
     name: string;
     level: string | null;
+    siteId: string;
     siteName: string;
     capacity: number;
+    leadTeacherId: string | null;
     leadTeacherName: string | null;
+    isActive: boolean;
     nextSessionAt: Date | null;
   }>;
 };
@@ -270,6 +298,24 @@ export type UpdateAdminPaymentInput = {
   ibanMasked?: string | null;
 };
 
+export type CreateAdminGroupInput = {
+  name: string;
+  level?: string | null;
+  capacity: number;
+  siteId: string;
+  leadTeacherId?: string | null;
+  isActive?: boolean;
+};
+
+export type UpdateAdminGroupInput = {
+  name?: string;
+  level?: string | null;
+  capacity?: number;
+  siteId?: string;
+  leadTeacherId?: string | null;
+  isActive?: boolean;
+};
+
 function hasAdminMutationRole(roles: Array<{ code: RoleCode }> | undefined) {
   if (!roles || roles.length === 0) {
     return false;
@@ -401,6 +447,18 @@ function normalizeOptionalPositiveAmount(value: number | undefined) {
 
   if (!Number.isInteger(value) || value < 0) {
     failAdminAction(adminActionMessages.invalidAmount);
+  }
+
+  return value;
+}
+
+function normalizeOptionalPositiveCapacity(value: number | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!Number.isInteger(value) || value <= 0) {
+    failAdminAction(adminActionMessages.invalidGroupCapacity);
   }
 
   return value;
@@ -953,7 +1011,7 @@ export async function getAdminGroupsData(): Promise<AdminGroupsData> {
   const session = await getAuthSession();
   const adminSedeSiteIds = getAdminSedeScopeSiteIds(session?.user?.roles);
 
-  const [groups, next7DaysSessions] = await Promise.all([
+  const [groups, next7DaysSessions, availableSites, availableTeachers] = await Promise.all([
     prisma.group.findMany({
       where:
         adminSedeSiteIds === null
@@ -969,7 +1027,10 @@ export async function getAdminGroupsData(): Promise<AdminGroupsData> {
         id: true,
         name: true,
         level: true,
+        siteId: true,
         capacity: true,
+        isActive: true,
+        leadTeacherId: true,
         site: {
           select: {
             name: true,
@@ -1016,6 +1077,55 @@ export async function getAdminGroupsData(): Promise<AdminGroupsData> {
             }),
       },
     }),
+    prisma.site.findMany({
+      where:
+        adminSedeSiteIds === null
+          ? { isActive: true }
+          : {
+              isActive: true,
+              id: {
+                in: adminSedeSiteIds,
+              },
+            },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+    prisma.teacherProfile.findMany({
+      where:
+        adminSedeSiteIds === null
+          ? {
+              site: {
+                isActive: true,
+              },
+            }
+          : {
+              site: {
+                isActive: true,
+              },
+              siteId: {
+                in: adminSedeSiteIds,
+              },
+            },
+      orderBy: [{ site: { name: "asc" } }, { user: { lastName: "asc" } }, { user: { firstName: "asc" } }],
+      select: {
+        id: true,
+        siteId: true,
+        site: {
+          select: {
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    }),
   ]);
 
   return {
@@ -1024,18 +1134,199 @@ export async function getAdminGroupsData(): Promise<AdminGroupsData> {
       totalCapacity: groups.reduce((sum, group) => sum + group.capacity, 0),
       next7DaysSessions,
     },
+    availableSites,
+    availableTeachers: availableTeachers.map((teacher) => ({
+      id: teacher.id,
+      fullName: `${teacher.user.firstName} ${teacher.user.lastName}`,
+      siteId: teacher.siteId,
+      siteName: teacher.site.name,
+    })),
     groups: groups.map((group) => ({
       id: group.id,
       name: group.name,
       level: group.level,
+      siteId: group.siteId,
       siteName: group.site.name,
       capacity: group.capacity,
+      leadTeacherId: group.leadTeacherId,
       leadTeacherName: group.leadTeacher
         ? `${group.leadTeacher.user.firstName} ${group.leadTeacher.user.lastName}`
         : null,
+      isActive: group.isActive,
       nextSessionAt: group.sessions[0]?.startsAt ?? null,
     })),
   };
+}
+
+export async function createAdminGroupAction(input: CreateAdminGroupInput) {
+  "use server";
+
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+    const name = normalizeRequiredText(input.name, "name");
+    const siteId = normalizeMainSiteId(input.siteId);
+    const capacity = normalizeOptionalPositiveCapacity(input.capacity);
+    const level = normalizeOptionalText(input.level);
+    const leadTeacherId = normalizeOptionalText(input.leadTeacherId) ?? null;
+
+    if (!name || !siteId || capacity === undefined) {
+      failAdminAction(adminActionMessages.invalidRequiredField);
+    }
+
+    assertSiteInScope(siteId, adminSedeSiteIds);
+
+    return await prisma.$transaction(async (tx) => {
+      const site = await tx.site.findUnique({
+        where: { id: siteId },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!site) {
+        failAdminAction(adminActionMessages.invalidMainSite);
+      }
+
+      if (leadTeacherId) {
+        const teacher = await tx.teacherProfile.findFirst({
+          where: {
+            id: leadTeacherId,
+            siteId,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!teacher) {
+          failAdminAction(adminActionMessages.invalidLeadTeacher);
+        }
+      }
+
+      const after = await tx.group.create({
+        data: {
+          name,
+          level,
+          capacity,
+          siteId,
+          leadTeacherId,
+          isActive: input.isActive ?? true,
+        },
+        select: groupAuditSelect,
+      });
+
+      await createAuditLogForChanges({
+        db: tx,
+        actorUserId,
+        siteId: after.siteId,
+        entity: "GROUP",
+        entityId: after.id,
+        action: "CREATE_GROUP",
+        before: null,
+        after,
+      });
+
+      return after;
+    });
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.groupCreateFailed);
+  }
+}
+
+export async function updateAdminGroupAction(groupId: string, input: UpdateAdminGroupInput) {
+  "use server";
+
+  try {
+    const { actorUserId, adminSedeSiteIds } = await requireAdminActionContext();
+
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.group.findUnique({
+        where: { id: groupId },
+        select: groupAuditSelect,
+      });
+
+      if (!before) {
+        failAdminAction(adminActionMessages.groupNotFound);
+      }
+
+      assertSiteInScope(before.siteId, adminSedeSiteIds);
+
+      const nextSiteId = normalizeMainSiteId(input.siteId);
+
+      if (nextSiteId) {
+        assertSiteInScope(nextSiteId, adminSedeSiteIds);
+
+        const site = await tx.site.findUnique({
+          where: { id: nextSiteId },
+          select: { id: true },
+        });
+
+        if (!site) {
+          failAdminAction(adminActionMessages.invalidMainSite);
+        }
+      }
+
+      const targetSiteId = nextSiteId ?? before.siteId;
+
+      let nextLeadTeacherId =
+        input.leadTeacherId === undefined
+          ? undefined
+          : (normalizeOptionalText(input.leadTeacherId) ?? null);
+
+      if (nextSiteId && input.leadTeacherId === undefined) {
+        nextLeadTeacherId = null;
+      }
+
+      if (nextLeadTeacherId) {
+        const teacher = await tx.teacherProfile.findFirst({
+          where: {
+            id: nextLeadTeacherId,
+            siteId: targetSiteId,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!teacher) {
+          failAdminAction(adminActionMessages.invalidLeadTeacher);
+        }
+      }
+
+      const updateData: Prisma.GroupUncheckedUpdateInput = {
+        name: normalizeRequiredText(input.name, "name"),
+        level: normalizeOptionalText(input.level),
+        capacity: normalizeOptionalPositiveCapacity(input.capacity),
+        siteId: nextSiteId,
+        leadTeacherId: nextLeadTeacherId,
+        isActive: input.isActive,
+      };
+
+      const after = await tx.group.update({
+        where: { id: groupId },
+        data: updateData,
+        select: groupAuditSelect,
+      });
+
+      await createAuditLogForChanges({
+        db: tx,
+        actorUserId,
+        siteId: after.siteId,
+        entity: "GROUP",
+        entityId: after.id,
+        action: "UPDATE_GROUP",
+        before,
+        after,
+      });
+
+      return after;
+    });
+  } catch (error) {
+    throw toAdminActionError(error, adminActionMessages.groupUpdateFailed, {
+      notFoundMessage: adminActionMessages.groupNotFound,
+    });
+  }
 }
 
 export async function getAdminBillingData(): Promise<AdminBillingData> {
