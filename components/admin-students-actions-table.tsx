@@ -195,12 +195,18 @@ export function AdminStudentsActionsTable({
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<AdminStudentRow | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSiteId, setSelectedSiteId] = useState<string>("all");
+  const [showInactive, setShowInactive] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const isEu = locale === "eu";
   const noDataMessage = isEu
     ? "Ez dago ikasle aktiboen daturik une honetan."
     : "No hay datos de alumnos activos en este momento.";
+  const noFilteredResultsMessage = isEu
+    ? "Ez dago bilaketarekin bat datorren ikaslerik."
+    : "No hay alumnos que coincidan con los filtros.";
   const addStudentLabel = copy.form.addStudentLabel;
   const profileLabel = isEu ? "Fitxa" : "Ficha";
   const editLabel = copy.form.editLabel;
@@ -209,6 +215,34 @@ export function AdminStudentsActionsTable({
   const actionsLabel = isEu ? "Ekintzak" : "Acciones";
   const closeToastLabel = isEu ? "Itxi" : "Cerrar";
   const firstAvailableSiteId = availableSites[0]?.id ?? "";
+  const searchLabel = isEu ? "Bilatu" : "Buscar";
+  const searchPlaceholder = isEu ? "Izena, abizena edo emaila" : "Nombre, apellido o email";
+  const siteFilterLabel = isEu ? "Egoitza" : "Sede";
+  const allSitesLabel = isEu ? "Egoitza guztiak" : "Todas las sedes";
+  const showInactiveLabel = isEu ? "Inaktiboak erakutsi" : "Mostrar inactivos";
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredStudents = useMemo(() => {
+    return students.filter((student) => {
+      if (!showInactive && !student.isActive) {
+        return false;
+      }
+
+      if (selectedSiteId !== "all" && student.mainSiteId !== selectedSiteId) {
+        return false;
+      }
+
+      if (normalizedSearchTerm.length === 0) {
+        return true;
+      }
+
+      const searchableText = `${student.firstName} ${student.lastName} ${student.fullName} ${student.familyEmail}`.toLowerCase();
+
+      return searchableText.includes(normalizedSearchTerm);
+    });
+  }, [students, showInactive, selectedSiteId, normalizedSearchTerm]);
+
+  const emptyListMessage = students.length === 0 ? noDataMessage : noFilteredResultsMessage;
 
   const runAction = (
     actionId: string,
@@ -359,14 +393,57 @@ export function AdminStudentsActionsTable({
         </button>
       </div>
 
+      <section className="fade-rise rounded-2xl border border-white/10 bg-surface p-4">
+        <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-end">
+          <label className="space-y-1 text-sm text-ink-muted">
+            <span>{searchLabel}</span>
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={searchPlaceholder}
+              className="k-focus-ring w-full rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+            />
+          </label>
+
+          {availableSites.length > 1 ? (
+            <label className="space-y-1 text-sm text-ink-muted">
+              <span>{siteFilterLabel}</span>
+              <select
+                value={selectedSiteId}
+                onChange={(event) => setSelectedSiteId(event.target.value)}
+                className="k-focus-ring w-full min-w-44 rounded-lg border border-white/15 bg-surface-strong/50 px-3 py-2 text-sm text-foreground"
+              >
+                <option value="all">{allSitesLabel}</option>
+                {availableSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-surface-strong/40 px-3 py-2 text-sm text-ink-muted md:self-end">
+            <input
+              type="checkbox"
+              checked={showInactive}
+              onChange={(event) => setShowInactive(event.target.checked)}
+              className="k-focus-ring h-4 w-4 rounded border border-white/20 bg-surface-strong/50"
+            />
+            <span>{showInactiveLabel}</span>
+          </label>
+        </div>
+      </section>
+
       <section className="fade-rise overflow-hidden rounded-2xl border border-white/10 bg-surface">
         <div className="space-y-3 p-4 md:hidden">
-          {students.length === 0 ? (
+          {filteredStudents.length === 0 ? (
             <article className="rounded-xl border border-white/10 bg-surface-strong/40 p-4 text-sm text-ink-muted">
-              {noDataMessage}
+              {emptyListMessage}
             </article>
           ) : (
-            students.map((student) => {
+            filteredStudents.map((student) => {
               const editActionId = `edit:${student.id}`;
               const deactivateActionId = `deactivate:${student.id}`;
               const deleteActionId = `delete:${student.id}`;
@@ -454,14 +531,14 @@ export function AdminStudentsActionsTable({
                 </tr>
               </thead>
               <tbody>
-                {students.length === 0 ? (
+                {filteredStudents.length === 0 ? (
                   <tr>
                     <td className="px-4 py-6 text-ink-muted" colSpan={7}>
-                      {noDataMessage}
+                      {emptyListMessage}
                     </td>
                   </tr>
                 ) : (
-                  students.map((student) => {
+                  filteredStudents.map((student) => {
                     const editActionId = `edit:${student.id}`;
                     const deactivateActionId = `deactivate:${student.id}`;
                     const deleteActionId = `delete:${student.id}`;

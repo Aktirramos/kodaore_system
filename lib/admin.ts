@@ -457,9 +457,11 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
     prisma.student.findMany({
       where:
         adminSedeSiteIds === null
-          ? { isActive: true }
+          ? {
+              deletedAt: null,
+            }
           : {
-              isActive: true,
+              deletedAt: null,
               mainSiteId: {
                 in: adminSedeSiteIds,
               },
@@ -519,12 +521,13 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
     }),
   ]);
 
-  const representedSites = new Set(students.map((student) => student.mainSite.name)).size;
-  const activeEnrollments = students.filter((student) => student.enrollments.length > 0).length;
+  const activeStudents = students.filter((student) => student.isActive);
+  const representedSites = new Set(activeStudents.map((student) => student.mainSite.name)).size;
+  const activeEnrollments = activeStudents.filter((student) => student.enrollments.length > 0).length;
 
   return {
     totals: {
-      activeStudents: students.length,
+      activeStudents: activeStudents.length,
       activeEnrollments,
       representedSites,
     },
