@@ -97,9 +97,17 @@ type AdminStudentsData = {
   };
   students: Array<{
     id: string;
+    firstName: string;
+    lastName: string;
     fullName: string;
+    phone: string | null;
+    address: string | null;
+    schoolName: string | null;
     siteName: string;
+    mainSiteId: string;
     schoolCourse: string | null;
+    sportsCenterMemberCode: string | null;
+    isActive: boolean;
     familyEmail: string;
     tuitionPlanName: string | null;
     tuitionAmountCents: number | null;
@@ -344,7 +352,13 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
       id: true,
       firstName: true,
       lastName: true,
+      phone: true,
+      address: true,
+      schoolName: true,
       schoolCourse: true,
+      sportsCenterMemberCode: true,
+      mainSiteId: true,
+      isActive: true,
       mainSite: {
         select: {
           name: true,
@@ -382,9 +396,17 @@ export async function getAdminStudentsData(): Promise<AdminStudentsData> {
     },
     students: students.map((student) => ({
       id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
       fullName: `${student.firstName} ${student.lastName}`,
+      phone: student.phone,
+      address: student.address,
+      schoolName: student.schoolName,
       siteName: student.mainSite.name,
+      mainSiteId: student.mainSiteId,
       schoolCourse: student.schoolCourse,
+      sportsCenterMemberCode: student.sportsCenterMemberCode,
+      isActive: student.isActive,
       familyEmail: student.familyAccount.email,
       tuitionPlanName: student.enrollments[0]?.tuitionPlan.name ?? null,
       tuitionAmountCents: student.enrollments[0]?.tuitionPlan.amountCents ?? null,

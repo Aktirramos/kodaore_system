@@ -23,6 +23,51 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
 
   const isEu = locale === "eu";
   const data = await getAdminStudentsData();
+  const copy = isEu
+    ? {
+        form: {
+          editLabel: "Editatu",
+          modalTitle: "Ikaslearen datuak editatu",
+          modalDescription: "Eguneratu ikaslearen oinarrizko informazioa.",
+          firstNameLabel: "Izena",
+          lastNameLabel: "Abizena",
+          phoneLabel: "Telefonoa",
+          addressLabel: "Helbidea",
+          schoolNameLabel: "Ikastetxea",
+          schoolCourseLabel: "Ikasturtea",
+          sportsCenterMemberCodeLabel: "Kirol zentroko bazkide kodea",
+          isActiveLabel: "Aktibo gisa mantendu",
+          saveLabel: "Gorde aldaketak",
+          savingLabel: "Gordetzen...",
+          cancelLabel: "Utzi",
+          updatedSuffix: "eguneratu da.",
+          updateErrorFallback: "Ezin izan da ikaslea eguneratu.",
+          requiredFirstName: "Izena derrigorrezkoa da.",
+          requiredLastName: "Abizena derrigorrezkoa da.",
+        },
+      }
+    : {
+        form: {
+          editLabel: "Editar",
+          modalTitle: "Editar datos del alumno",
+          modalDescription: "Actualiza la informacion basica del alumno.",
+          firstNameLabel: "Nombre",
+          lastNameLabel: "Apellidos",
+          phoneLabel: "Telefono",
+          addressLabel: "Direccion",
+          schoolNameLabel: "Centro escolar",
+          schoolCourseLabel: "Curso escolar",
+          sportsCenterMemberCodeLabel: "Codigo de socio del polideportivo",
+          isActiveLabel: "Mantener como activo",
+          saveLabel: "Guardar cambios",
+          savingLabel: "Guardando...",
+          cancelLabel: "Cancelar",
+          updatedSuffix: "se ha actualizado.",
+          updateErrorFallback: "No se ha podido actualizar el alumno.",
+          requiredFirstName: "El nombre es obligatorio.",
+          requiredLastName: "Los apellidos son obligatorios.",
+        },
+      };
 
   return (
     <div className="space-y-6">
@@ -49,6 +94,7 @@ export default async function AdminStudentsPage({ params }: AdminStudentsPagePro
       <AdminStudentsActionsTable
         locale={locale}
         students={data.students}
+        copy={copy}
         updateStudentAction={updateAdminStudentAction}
         deleteStudentAction={deleteAdminStudentAction}
       />
