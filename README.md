@@ -193,4 +193,5 @@ Password seed: valor de `SEED_DEFAULT_PASSWORD`.
 ## Documentacion adicional
 
 - Arquitectura: `docs/arquitectura-v1.md`
+- Reorganizacion propuesta (App Router V2): `docs/arquitectura-v2-reorganizacion-app-router.md`
 - Operacion: `docs/produccion-runbook.md`
