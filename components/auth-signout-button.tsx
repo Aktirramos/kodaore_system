@@ -1,7 +1,7 @@
 "use client";
 
-import clsx from "clsx";
 import { signOut } from "next-auth/react";
+import { Button } from "@/components/ui";
 import type { LocaleCode } from "@/lib/i18n";
 
 type AuthSignOutButtonProps = {
@@ -11,15 +11,13 @@ type AuthSignOutButtonProps = {
 
 export function AuthSignOutButton({ locale, className }: AuthSignOutButtonProps) {
   return (
-    <button
+    <Button
       type="button"
+      variant="secondary"
       onClick={() => signOut({ callbackUrl: `/${locale}` })}
-      className={clsx(
-        "k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-border-default bg-surface-subtle px-5 py-2 text-sm font-semibold text-ink-secondary hover:border-border-strong hover:bg-surface-elevated",
-        className,
-      )}
+      className={className}
     >
       {locale === "eu" ? "Saioa itxi" : "Cerrar sesion"}
-    </button>
+    </Button>
   );
 }

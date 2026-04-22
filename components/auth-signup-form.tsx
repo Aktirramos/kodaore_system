@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui";
 import type { LocaleCode } from "@/lib/i18n";
 
 type TurnstileRenderOptions = {
@@ -227,7 +228,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             required
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
           />
         </label>
 
@@ -239,7 +240,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             required
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
           />
         </label>
       </div>
@@ -252,7 +253,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value.toLowerCase())}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
         />
       </label>
 
@@ -264,7 +265,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
           required
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
         />
       </label>
 
@@ -278,7 +279,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             minLength={10}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
           />
         </label>
 
@@ -291,7 +292,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             minLength={10}
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
           />
         </label>
       </div>
@@ -345,11 +346,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
       ) : null}
 
         <div className="flex items-center justify-between gap-3">
-          <button
-            type="submit"
-            disabled={isPending}
-            className="k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-[color:var(--brand-emphasis)] bg-[color:var(--brand)]/85 px-5 py-2 text-sm font-semibold text-white hover:bg-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <Button type="submit" variant="primary" disabled={isPending}>
             {isPending
               ? locale === "eu"
                 ? "Kontua sortzen..."
@@ -357,11 +354,11 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
               : locale === "eu"
                 ? "Sortu kontua"
                 : "Crear cuenta"}
-          </button>
+          </Button>
 
           <Link
             href={`/${locale}/acceso`}
-            className="k-focus-ring k-hover-action inline-flex min-h-10 items-center justify-center rounded-full border border-border-default bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted hover:border-border-strong hover:text-foreground"
+            className="inline-flex min-h-10 items-center justify-center rounded-full border border-border-default bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-strong hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {locale === "eu" ? "Saioa hasi" : "Ir a acceso"}
           </Link>

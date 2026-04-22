@@ -35,19 +35,19 @@ export default function LocaleNotFound() {
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href={`/${locale}`}
-            className="k-focus-ring k-hover-action rounded-full border border-brand/45 bg-brand px-4 py-2 text-sm font-semibold text-brand-contrast"
+            className="rounded-full border border-brand/45 bg-brand px-4 py-2 text-sm font-semibold text-brand-contrast transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {isEu ? "Hasiera itzuli" : "Volver al inicio"}
           </Link>
           <Link
             href={`/${locale}/sedes`}
-            className="k-focus-ring k-hover-action rounded-full border border-border-default bg-surface-subtle px-4 py-2 text-sm font-semibold text-ink-primary"
+            className="rounded-full border border-border-default bg-surface-subtle px-4 py-2 text-sm font-semibold text-ink-primary transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {isEu ? "Egoitzak ikusi" : "Ver sedes"}
           </Link>
           <Link
             href={`/${locale}/acceso`}
-            className="k-focus-ring k-hover-action rounded-full border border-border-subtle bg-surface-subtle px-4 py-2 text-sm font-semibold text-ink-secondary"
+            className="rounded-full border border-border-subtle bg-surface-subtle px-4 py-2 text-sm font-semibold text-ink-secondary transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {isEu ? "Familien sarbidea" : "Acceso familias"}
           </Link>

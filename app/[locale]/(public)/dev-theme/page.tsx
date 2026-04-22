@@ -13,6 +13,7 @@ import {
   MOTION_DURATION,
   useReducedMotion,
 } from "@/components/motion";
+import { Button, Card, Badge, Skeleton } from "@/components/ui";
 
 const COLOR_TOKENS = [
   { group: "Surface", tokens: ["surface-base", "surface-subtle", "surface-elevated", "surface-inverse"] },
@@ -195,6 +196,66 @@ export default function DevThemePage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-ink-muted-2)", margin: "0 0 12px" }}>Primitiva — Button</h2>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <Button>Primary</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button size="sm">sm</Button>
+            <Button size="md">md</Button>
+            <Button size="lg">lg</Button>
+            <Button disabled>Disabled</Button>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-ink-muted-2)", margin: "0 0 12px" }}>Primitiva — Card</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+            <Card>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Default</div>
+              <div style={{ fontSize: 13, color: "var(--color-ink-secondary)" }}>surface-elevated + border subtle.</div>
+            </Card>
+            <Card variant="subtle">
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Subtle</div>
+              <div style={{ fontSize: 13, color: "var(--color-ink-secondary)" }}>surface-subtle. Bloque interior sin peso.</div>
+            </Card>
+            <Card interactive>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Interactive</div>
+              <div style={{ fontSize: 13, color: "var(--color-ink-secondary)" }}>Hover me: lift + shadow.</div>
+            </Card>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-ink-muted-2)", margin: "0 0 12px" }}>Primitiva — Badge</h2>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Badge tone="brand">brand</Badge>
+            <Badge tone="accent">accent</Badge>
+            <Badge tone="neutral">neutral</Badge>
+            <Badge tone="success">success</Badge>
+            <Badge tone="warning">warning</Badge>
+            <Badge tone="info">info</Badge>
+            <Badge tone="danger">danger</Badge>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-ink-muted-2)", margin: "0 0 12px" }}>Primitiva — Skeleton</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16 }}>
+            <Skeleton style={{ height: 120, width: "100%" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <Skeleton style={{ height: 20, width: "70%" }} />
+              <Skeleton style={{ height: 16, width: "100%" }} />
+              <Skeleton style={{ height: 16, width: "90%" }} />
+              <Skeleton style={{ height: 16, width: "60%" }} />
+            </div>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--color-ink-muted-2)", marginTop: 8 }}>
+            Con `prefers-reduced-motion: reduce` activado, el pulse se detiene.
+          </p>
+        </section>
 
       </div>
     </main>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui";
 import type { LocaleCode } from "@/lib/i18n";
 
 type AuthCredentialsFormProps = {
@@ -65,7 +66,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
           placeholder={locale === "eu" ? "Idatzi zure datua" : "Escribe tu dato de acceso"}
           value={identifier}
           onChange={(event) => setIdentifier(event.target.value.toLowerCase())}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
         />
         <span className="text-xs text-ink-muted">
           {locale === "eu"
@@ -82,7 +83,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:border-border-strong focus:border-[color:var(--brand-emphasis)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base"
         />
       </label>
 
@@ -92,11 +93,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-[color:var(--brand-emphasis)] bg-[color:var(--brand)]/80 px-5 py-2 text-sm font-semibold text-white hover:bg-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" variant="primary" disabled={isPending}>
         {isPending
           ? locale === "eu"
             ? "Sartzen..."
@@ -104,7 +101,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
           : locale === "eu"
             ? "Sartu"
             : "Entrar"}
-      </button>
+      </Button>
     </form>
   );
 }

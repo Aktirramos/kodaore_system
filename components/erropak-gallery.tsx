@@ -386,7 +386,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             onMouseLeave={closeHoverPreview}
             onFocus={(event: FocusEvent<HTMLButtonElement>) => openHoverPreview(index, event.currentTarget)}
             onBlur={closeHoverPreview}
-            className={`k-focus-ring k-hover-lift group overflow-hidden rounded-2xl border bg-surface-strong text-left transition-colors ${
+            className={`group relative overflow-hidden rounded-2xl border bg-surface-strong text-left transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color] ${
               hoveredIndex === index ? "border-brand/45" : "border-border-subtle"
             }`}
             aria-label={isEu ? `Ireki irudia ${index + 1}` : `Abrir imagen ${index + 1}`}
@@ -403,7 +403,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
             </div>
 
-            <div className="k-hover-soft group/item relative overflow-hidden p-4">
+            <div className="group/item relative overflow-hidden p-4 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-500 group-hover/item:opacity-100" />
               <p className="relative text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
                 {isEu ? item.categoryEu : item.categoryEs}

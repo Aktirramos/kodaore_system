@@ -56,7 +56,7 @@ export default async function AccessPage({ params }: AccessPageProps) {
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href={`/${locale}/acceso/crear-cuenta`}
-            className="k-focus-ring k-hover-action inline-flex min-h-10 items-center justify-center rounded-full border border-[color:var(--brand-emphasis)] bg-[color:var(--brand)]/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-[color:var(--brand)]"
+            className="inline-flex min-h-10 items-center justify-center rounded-full border border-[color:var(--brand-emphasis)] bg-[color:var(--brand)]/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:bg-[color:var(--brand)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {locale === "eu" ? "Familia kontua sortu" : "Crear cuenta de familia"}
           </Link>

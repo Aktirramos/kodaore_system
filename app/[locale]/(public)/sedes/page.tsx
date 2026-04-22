@@ -9,10 +9,10 @@ type LocaleSedesProps = {
 };
 
 const headerSectionClass = "fade-rise rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
-const siteCardClass = "k-hover-lift group overflow-hidden rounded-[2rem] border border-border-subtle bg-gradient-to-b from-surface-strong via-surface-strong to-surface shadow-[0_16px_34px_rgba(15,23,42,0.08)]";
-const siteTextBoxClass = "k-hover-soft group/text relative space-y-4 px-5 pb-5 pt-4";
+const siteCardClass = "group overflow-hidden rounded-[2rem] border border-border-subtle bg-gradient-to-b from-surface-strong via-surface-strong to-surface shadow-[0_16px_34px_rgba(15,23,42,0.08)] transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-default hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]";
+const siteTextBoxClass = "group/text relative space-y-4 px-5 pb-5 pt-4 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60";
 const finalSectionClass = "fade-rise relative overflow-hidden rounded-3xl border border-border-subtle bg-surface-elevated p-5 md:p-7 shadow-sm";
-const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-4";
+const finalTextBoxClass = "group/final-box relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-4 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60";
 
 export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
   const { locale } = await params;
@@ -43,7 +43,7 @@ export default async function LocaleSedesPage({ params }: LocaleSedesProps) {
             <Link
               key={site.slug}
               href={`/${locale}/sedes/${site.slug}`}
-              className="k-focus-ring k-hover-action rounded-full border border-border-default bg-surface-strong px-4 py-2 text-sm font-medium text-foreground hover:border-brand/35 hover:text-brand-emphasis"
+              className="rounded-full border border-border-default bg-surface-strong px-4 py-2 text-sm font-medium text-foreground transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-brand/35 hover:text-brand-emphasis focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
             >
               {site.name}
             </Link>

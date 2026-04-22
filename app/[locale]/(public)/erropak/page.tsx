@@ -124,7 +124,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
             </div>
           </article>
 
-          <article className="k-hover-soft group/how relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-5">
+          <article className="group/how relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-5 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/how:opacity-100" />
 
             <h2 className="relative font-heading text-xl font-semibold text-foreground md:text-2xl">
@@ -138,7 +138,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
             <Link
               href={interestCtaHref}
-              className="k-focus-ring k-hover-action relative mt-5 inline-flex rounded-full border border-brand/45 bg-brand-subtle px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis"
+              className="relative mt-5 inline-flex rounded-full border border-brand/45 bg-brand-subtle px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
             >
               {interestCtaLabel}
             </Link>
@@ -148,7 +148,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
       <section className="fade-rise grid gap-3 md:grid-cols-3">
         {highlights.map((item) => (
-          <article key={item.title} className="k-hover-soft group/highlight relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-4">
+          <article key={item.title} className="group/highlight relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-4 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/highlight:opacity-100" />
             <h2 className="relative font-heading text-xl font-semibold text-foreground">{item.title}</h2>
             <p className="relative mt-2 text-sm leading-relaxed text-ink-muted">{item.text}</p>

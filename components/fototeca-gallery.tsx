@@ -214,7 +214,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
               key={`${item.image}-${index}`}
               type="button"
               onClick={() => setActiveIndex(index)}
-              className={`k-focus-ring k-hover-lift group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-subtle text-left ${
+              className={`group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-subtle text-left transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-default hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color] ${
                 large ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
               } ${wide ? "md:col-span-2" : "md:col-span-1"}`}
               aria-label={

@@ -10,7 +10,7 @@ type LocaleFototecaProps = {
 
 const panelSectionClass = "fade-rise rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
 const finalSectionClass = "fade-rise rounded-3xl border border-border-subtle bg-surface-elevated p-5 md:p-7 shadow-sm";
-const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-4";
+const finalTextBoxClass = "group/final-box relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-4 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60";
 
 export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
   const { locale } = await params;
@@ -27,7 +27,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
       <section className={panelSectionClass}>
         <div className="flex flex-col gap-3">
           <div>
-            <div className="k-hover-soft inline-flex items-center gap-2 rounded-full border border-border-default bg-surface-strong px-3 py-1.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border-default bg-surface-strong px-3 py-1.5 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
               <span className="relative h-7 w-7 overflow-hidden rounded-full">
                 <Image src="/logo-kodaore.png" alt={locale === "eu" ? "Kodaore logoa" : "Logo de Kodaore"} fill sizes="28px" className="object-contain p-1" />
               </span>

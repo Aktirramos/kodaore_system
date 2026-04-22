@@ -10,10 +10,10 @@ type LocaleHomeProps = {
 };
 
 const sitesSectionClass = "fade-rise fade-rise-delay-200 rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
-const siteCardClass = "k-hover-lift group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.08)]";
+const siteCardClass = "group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.08)] transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-default hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]";
 const storeSectionClass = "fade-rise fade-rise-delay-250 rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
 const finalSectionClass = "fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-border-subtle bg-surface-elevated p-4 md:p-6 shadow-sm";
-const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-border-default bg-surface-subtle p-5";
+const finalTextBoxClass = "group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-border-default bg-surface-subtle p-5 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60";
 
 export default async function LocaleHome({ params }: LocaleHomeProps) {
   const { locale } = await params;
@@ -45,7 +45,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
           </div>
           <Link
             href={`/${locale}/sedes`}
-            className="k-focus-ring k-hover-action inline-flex w-fit rounded-full border border-brand/35 bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis hover:border-brand/60"
+            className="inline-flex w-fit rounded-full border border-brand/35 bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-brand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {copy.ctas.discover}
           </Link>
@@ -91,7 +91,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
 
       <section className={storeSectionClass}>
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.9fr]">
-          <article className="k-hover-lift group relative min-h-[220px] overflow-hidden rounded-2xl border border-border-subtle">
+          <article className="group relative min-h-[220px] overflow-hidden rounded-2xl border border-border-subtle transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-default hover:shadow-md motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
             <SmartImage
               src="/media/hero-2.jpg"
               fallbackSrc="/media/photo-fallback-2.svg"
@@ -106,7 +106,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             </div>
           </article>
 
-          <div className="k-hover-soft group/store relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-5">
+          <div className="group/store relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-5 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/store:opacity-100" />
             <p className="relative text-xs font-semibold uppercase tracking-[0.16em] text-brand-emphasis">
               {locale === "eu" ? "Kolekzio berria" : "Nueva coleccion"}
@@ -132,7 +132,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
 
             <Link
               href={`/${locale}/erropak`}
-              className="k-focus-ring k-hover-action relative mt-6 inline-flex w-fit rounded-full border border-brand/35 bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis hover:border-brand/60"
+              className="relative mt-6 inline-flex w-fit rounded-full border border-brand/35 bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-brand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
             >
               {storeCta}
             </Link>

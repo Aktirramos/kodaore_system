@@ -202,7 +202,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
         aria-label={backTopAriaLabel}
         aria-hidden={!showBackToTop}
         tabIndex={showBackToTop ? 0 : -1}
-        className={`k-focus-ring k-hover-action k-back-top fixed bottom-6 right-6 z-50 rounded-full border border-ink-inverse/20 bg-surface-inverse/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ink-inverse shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)] ${showBackToTop ? "is-visible" : "is-hidden"}`}
+        className={`k-back-top fixed bottom-6 right-6 z-50 rounded-full border border-ink-inverse/20 bg-surface-inverse/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ink-inverse shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)] transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0 ${showBackToTop ? "is-visible" : "is-hidden"}`}
       >
         <span className={`block ${showBackToTop ? "k-back-top-label" : ""}`}>{backTopLabel}</span>
       </button>

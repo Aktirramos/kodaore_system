@@ -362,7 +362,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="k-focus-ring k-hover-action rounded-full border border-border-default bg-surface-subtle px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-ink-primary hover:border-brand/45"
+                  className="inline-flex items-center justify-center rounded-full border border-border-default bg-surface-subtle px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-ink-primary transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-brand/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
                 >
                   {isEu ? "Itxi" : "Cerrar"}
                 </button>
@@ -374,7 +374,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
   return (
     <>
-      <article className="k-hover-lift group overflow-hidden rounded-[1.6rem] border border-border-subtle bg-gradient-to-b from-surface-strong to-surface/80">
+      <article className="group relative overflow-hidden rounded-[1.6rem] border border-border-subtle bg-gradient-to-b from-surface-strong to-surface/80 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-default hover:shadow-md motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
         <div className="relative min-h-[220px] overflow-hidden">
           <SmartImage
             src={photoSrc}
@@ -400,7 +400,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
           <button
             type="button"
             onClick={openModal}
-            className="k-focus-ring k-hover-action mt-3 inline-flex rounded-full border border-brand/35 bg-surface px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-emphasis hover:border-brand/60"
+            className="mt-3 inline-flex rounded-full border border-brand/35 bg-surface px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-emphasis transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-brand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:hover:translate-y-0"
           >
             {isEu ? "Fitxa ireki" : "Abrir ficha"}
           </button>
