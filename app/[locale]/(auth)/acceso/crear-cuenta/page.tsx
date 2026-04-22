@@ -14,7 +14,7 @@ export default async function CreateAccountPage({ params }: CreateAccountPagePro
   }
 
   return (
-    <div className="fade-rise mx-auto max-w-xl rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
+    <div className="fade-rise mx-auto max-w-xl rounded-3xl border border-border-subtle bg-surface p-6 md:p-8">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">
         {locale === "eu" ? "Alta berria" : "Nueva alta"}
       </p>

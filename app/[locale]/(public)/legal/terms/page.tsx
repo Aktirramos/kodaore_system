@@ -16,7 +16,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
 
   return (
     <div className="space-y-6">
-      <section className="fade-rise rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
+      <section className="fade-rise rounded-3xl border border-border-subtle bg-surface p-6 md:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-emphasis">
           {isEu ? "Lege informazioa" : "Informacion legal"}
         </p>
@@ -30,7 +30,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
         </p>
       </section>
 
-      <section className="fade-rise rounded-2xl border border-white/10 bg-surface p-6">
+      <section className="fade-rise rounded-2xl border border-border-subtle bg-surface p-6">
         <h2 className="font-heading text-xl font-semibold text-foreground">
           {isEu ? "1. Erabilera onargarria" : "1. Uso aceptable"}
         </h2>

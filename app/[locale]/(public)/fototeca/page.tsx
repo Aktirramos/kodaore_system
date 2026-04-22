@@ -8,9 +8,9 @@ type LocaleFototecaProps = {
   params: Promise<{ locale: string }>;
 };
 
-const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
-const finalSectionClass = "fade-rise rounded-3xl border border-white/10 bg-[#151719] p-5 md:p-7";
-const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-4";
+const panelSectionClass = "fade-rise rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
+const finalSectionClass = "fade-rise rounded-3xl border border-border-subtle bg-surface-elevated p-5 md:p-7 shadow-sm";
+const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-4";
 
 export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
   const { locale } = await params;
@@ -27,7 +27,7 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
       <section className={panelSectionClass}>
         <div className="flex flex-col gap-3">
           <div>
-            <div className="k-hover-soft inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface-strong px-3 py-1.5">
+            <div className="k-hover-soft inline-flex items-center gap-2 rounded-full border border-border-default bg-surface-strong px-3 py-1.5">
               <span className="relative h-7 w-7 overflow-hidden rounded-full">
                 <Image src="/logo-kodaore.png" alt={locale === "eu" ? "Kodaore logoa" : "Logo de Kodaore"} fill sizes="28px" className="object-contain p-1" />
               </span>
@@ -52,9 +52,9 @@ export default async function LocaleFototeca({ params }: LocaleFototecaProps) {
       <section className={finalSectionClass}>
         <div className="flex flex-col gap-3">
           <div className={finalTextBoxClass}>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/final-box:opacity-100" />
-            <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">{copy.home.photoTitle}</h2>
-            <p className="relative mt-2 max-w-2xl text-sm leading-relaxed text-white/80 transition-colors duration-500 group-hover/final-box:text-white">{copy.home.photoHint}</p>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/final-box:opacity-100" />
+            <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-ink-primary md:text-3xl">{copy.home.photoTitle}</h2>
+            <p className="relative mt-2 max-w-2xl text-sm leading-relaxed text-ink-secondary transition-colors duration-300 group-hover/final-box:text-ink-primary">{copy.home.photoHint}</p>
           </div>
         </div>
       </section>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Manrope, Space_Grotesk } from "next/font/google";
-import { InitialLoader } from "@/components/initial-loader";
 import "./globals.css";
 
 function getMetadataBase() {
@@ -70,7 +69,6 @@ export default function RootLayout({
       className={`${manrope.variable} ${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <InitialLoader />
         {children}
       </body>
     </html>

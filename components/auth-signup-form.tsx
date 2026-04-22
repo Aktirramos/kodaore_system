@@ -219,7 +219,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="grid gap-2 text-sm text-neutral-300">
+        <label className="grid gap-2 text-sm text-ink-secondary">
           <span>{locale === "eu" ? "Izena" : "Nombre"}</span>
           <input
             type="text"
@@ -227,11 +227,11 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             required
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
           />
         </label>
 
-        <label className="grid gap-2 text-sm text-neutral-300">
+        <label className="grid gap-2 text-sm text-ink-secondary">
           <span>{locale === "eu" ? "Abizena" : "Apellidos"}</span>
           <input
             type="text"
@@ -239,12 +239,12 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             required
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
           />
         </label>
       </div>
 
-      <label className="grid gap-2 text-sm text-neutral-300">
+      <label className="grid gap-2 text-sm text-ink-secondary">
         <span>Email</span>
         <input
           type="email"
@@ -252,11 +252,11 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value.toLowerCase())}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
         />
       </label>
 
-      <label className="grid gap-2 text-sm text-neutral-300">
+      <label className="grid gap-2 text-sm text-ink-secondary">
         <span>{locale === "eu" ? "Telefonoa" : "Telefono"}</span>
         <input
           type="tel"
@@ -264,12 +264,12 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
           required
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
         />
       </label>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="grid gap-2 text-sm text-neutral-300">
+        <label className="grid gap-2 text-sm text-ink-secondary">
           <span>{locale === "eu" ? "Pasahitza" : "Contrasena"}</span>
           <input
             type="password"
@@ -278,11 +278,11 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             minLength={10}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
           />
         </label>
 
-        <label className="grid gap-2 text-sm text-neutral-300">
+        <label className="grid gap-2 text-sm text-ink-secondary">
           <span>{locale === "eu" ? "Pasahitza berriro" : "Repite contrasena"}</span>
           <input
             type="password"
@@ -291,23 +291,23 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             minLength={10}
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
-            className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+            className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
           />
         </label>
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-neutral-300">
+      <div className="space-y-3 rounded-2xl border border-border-subtle bg-surface-subtle p-4 text-sm text-ink-secondary">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
             required
             checked={acceptedTerms}
             onChange={(event) => setAcceptedTerms(event.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-white/30 bg-black/30"
+            className="mt-1 h-4 w-4 rounded border-border-default bg-surface-elevated"
           />
           <span>
             {locale === "eu" ? "Onartzen ditut " : "Acepto los "}
-            <Link href={`/${locale}/legal/terms`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-white">
+            <Link href={`/${locale}/legal/terms`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-ink-primary">
               {locale === "eu" ? "zerbitzuen baldintzak" : "terminos del servicio"}
             </Link>
             .
@@ -320,11 +320,11 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
             required
             checked={acceptedPrivacy}
             onChange={(event) => setAcceptedPrivacy(event.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-white/30 bg-black/30"
+            className="mt-1 h-4 w-4 rounded border-border-default bg-surface-elevated"
           />
           <span>
             {locale === "eu" ? "Onartzen dut " : "Acepto la "}
-            <Link href={`/${locale}/legal/privacy`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-white">
+            <Link href={`/${locale}/legal/privacy`} className="underline decoration-brand-emphasis/70 underline-offset-2 hover:text-ink-primary">
               {locale === "eu" ? "pribatutasun politika" : "politica de privacidad"}
             </Link>
             .
@@ -333,7 +333,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
       </div>
 
       {captchaEnabled ? (
-        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+        <div className="rounded-2xl border border-border-subtle bg-surface-subtle p-3">
           <div ref={captchaContainerRef} />
         </div>
       ) : null}
@@ -361,7 +361,7 @@ export function AuthSignupForm({ locale }: AuthSignupFormProps) {
 
           <Link
             href={`/${locale}/acceso`}
-            className="k-focus-ring k-hover-action inline-flex min-h-10 items-center justify-center rounded-full border border-white/20 bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted hover:border-white/35 hover:text-foreground"
+            className="k-focus-ring k-hover-action inline-flex min-h-10 items-center justify-center rounded-full border border-border-default bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted hover:border-border-strong hover:text-foreground"
           >
             {locale === "eu" ? "Saioa hasi" : "Ir a acceso"}
           </Link>

@@ -11,7 +11,7 @@ type LocaleSitePageProps = {
   params: Promise<{ locale: string; site: string }>;
 };
 
-const panelSectionClass = "fade-rise rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
+const panelSectionClass = "fade-rise rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
 const textHoverBoxClass = "k-hover-soft group/text relative overflow-hidden rounded-xl border border-transparent p-3";
 
 export async function generateMetadata({ params }: LocaleSitePageProps): Promise<Metadata> {
@@ -84,7 +84,7 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
                   className={`k-focus-ring k-hover-action rounded-full px-4 py-2 text-sm font-medium ${
                     active
                       ? "border border-brand bg-brand text-brand-contrast"
-                      : "border border-white/20 bg-surface-strong text-foreground hover:border-white/40"
+                      : "border border-border-default bg-surface-strong text-foreground hover:border-brand/35"
                   }`}
                 >
                   {item.name}
@@ -93,22 +93,22 @@ export default async function LocaleSitePage({ params }: LocaleSitePageProps) {
             })}
           </div>
 
-          <div className="mt-5 rounded-2xl border border-white/10 bg-surface-strong p-4 md:p-5">
+          <div className="mt-5 rounded-2xl border border-border-subtle bg-surface-strong p-4 md:p-5">
             <div className={textHoverBoxClass}>
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/text:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/text:opacity-100" />
               <p className="relative text-xs font-semibold uppercase tracking-[0.15em] text-brand-emphasis">Kodaore</p>
-              <h1 className="relative mt-1 font-heading text-3xl font-semibold tracking-tight text-foreground transition-colors duration-500 group-hover/text:text-white">{selectedSite.name}</h1>
-              <p className="relative mt-3 text-sm leading-relaxed text-ink-muted transition-colors duration-500 group-hover/text:text-foreground">{selectedSite.description}</p>
+              <h1 className="relative mt-1 font-heading text-3xl font-semibold tracking-tight text-foreground transition-colors duration-300 group-hover/text:text-brand-emphasis">{selectedSite.name}</h1>
+              <p className="relative mt-3 text-sm leading-relaxed text-ink-muted transition-colors duration-300 group-hover/text:text-ink-secondary">{selectedSite.description}</p>
             </div>
 
-            <article className="k-hover-lift group relative mt-4 min-h-[280px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[420px]">
+            <article className="k-hover-lift group relative mt-4 min-h-[280px] overflow-hidden rounded-2xl border border-border-subtle md:min-h-[420px]">
               <SmartImage
                 src={visuals.coverSrc}
                 fallbackSrc={visuals.fallbackSrc}
                 alt={coverImageAlt}
                 fill
                 priority
-                className="object-cover transition duration-700 group-hover:scale-[1.03]"
+                className="object-cover transition duration-300 group-hover:scale-[1.02]"
                 sizes="(max-width: 768px) 100vw, 80vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />

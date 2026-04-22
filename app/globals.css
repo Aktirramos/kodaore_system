@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08090a;
-  --foreground: #f8fafc;
-  --ink-muted: #94a3b8;
-  --surface: #111827;
-  --surface-strong: #1f2937;
-  --brand: #be123c;
-  --brand-emphasis: #f43f5e;
+  --background: #fafaf7;
+  --foreground: #13141a;
+  --ink-muted: #737680;
+  --surface: #f3f1ea;
+  --surface-strong: #ffffff;
+  --brand: #c2272d;
+  --brand-emphasis: #9a1e25;
   --brand-contrast: #ffffff;
-  --brand-warm: #059669;
-  --danger: #8a2020;
+  --brand-warm: #1fa35c;
+  --danger: #8a1f22;
 
   /* --- Design direction Fase 1 (additive, Dojo Moderno) --- */
   --surface-base: #fafaf7;
@@ -118,15 +118,8 @@
 body {
   position: relative;
   background-color: var(--background);
-  background-image: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--brand) 18%, transparent) 0%,
-    color-mix(in srgb, var(--background) 86%, #0f172a 14%) 36%,
-    color-mix(in srgb, var(--background) 86%, #0f172a 14%) 64%,
-    color-mix(in srgb, var(--brand-warm) 18%, transparent) 100%
-  );
   color: var(--foreground);
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-inter), var(--font-manrope), sans-serif;
   overflow-x: hidden;
   min-height: 100dvh;
 }
@@ -155,9 +148,9 @@ body::after {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(120% 90% at 8% 0%, color-mix(in srgb, var(--brand) 18%, transparent) 0, transparent 52%),
-    radial-gradient(120% 90% at 92% 0%, color-mix(in srgb, var(--brand-warm) 18%, transparent) 0, transparent 52%);
-  opacity: 0.9;
+    radial-gradient(120% 90% at 8% 0%, color-mix(in srgb, var(--brand) 8%, transparent) 0, transparent 52%),
+    radial-gradient(120% 90% at 92% 0%, color-mix(in srgb, var(--brand-warm) 7%, transparent) 0, transparent 52%);
+  opacity: 0.7;
   pointer-events: none;
 }
 
@@ -333,221 +326,22 @@ body::after {
   }
 }
 
-.kodaore-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  perspective: 1200px;
-  --loader-progress: 0;
-  transition: opacity 0.56s ease;
-}
-
-.kodaore-loader.is-exit {
-  opacity: 0;
-}
-
-.kodaore-loader-backdrop {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(110% 90% at 16% 10%, color-mix(in srgb, var(--brand) 22%, transparent) 0%, transparent 62%),
-    radial-gradient(110% 90% at 84% 90%, color-mix(in srgb, var(--brand-warm) 22%, transparent) 0%, transparent 64%),
-    radial-gradient(140% 140% at 50% 50%, #171a1d 0%, #0e1012 58%, #08090a 100%);
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
-}
-
-.kodaore-loader.is-exit .kodaore-loader-backdrop {
-  opacity: 0;
-  transform: scale(1.06);
-}
-
-.kodaore-loader-content {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  justify-items: center;
-  gap: 1.1rem;
-  pointer-events: none;
-}
-
-.kodaore-loader-logo-wrap {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 152px;
-  height: 152px;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  transition:
-    transform 0.18s cubic-bezier(0.22, 0.61, 0.36, 1),
-    opacity 0.36s ease;
-}
-
-.kodaore-loader.is-exit .kodaore-loader-logo-wrap {
-  opacity: 0;
-}
-
-.kodaore-loader-logo-wrap.is-exit {
-  opacity: 0;
-  transform: translate3d(0, -12px, -460px) scale(0.2) !important;
-  transition:
-    transform 0.56s cubic-bezier(0.22, 0.84, 0.2, 1),
-    opacity 0.46s ease;
-}
-
-.kodaore-loader-logo-glow {
-  position: absolute;
-  inset: 16px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.45) 55%, rgba(255, 255, 255, 0) 100%);
-}
-
-.kodaore-loader-word {
-  font-size: clamp(1.6rem, 3.7vw, 2.2rem);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  animation: loader-word-rise 0.65s ease both;
-  color: #f2f2f2;
-  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.kodaore-loader-ko {
-  color: var(--brand);
-}
-
-.kodaore-loader-re {
-  color: var(--brand-warm);
-}
-
-.kodaore-loader-wave {
-  position: relative;
-  width: min(270px, 68vw);
-  height: 4px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--brand) 58%, transparent),
-    color-mix(in srgb, var(--foreground) 78%, transparent) 50%,
-    color-mix(in srgb, var(--brand-warm) 58%, transparent)
-  );
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.kodaore-loader-wave::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.95) 50%, transparent 100%);
-  transform: translateX(-100%);
-  animation: loader-wave-sweep 1.25s ease-in-out infinite;
-}
-
-.kodaore-loader-hint {
-  margin-top: 0.3rem;
-  font-size: clamp(0.74rem, 1.9vw, 0.88rem);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, #f2f2f2 78%, var(--brand) 22%);
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
-  text-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-}
-
-.kodaore-loader-hint.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  animation: loader-hint-bob 1.2s ease-in-out infinite;
-}
-
-.kodaore-footer-top-line {
-  height: 1px;
-  width: 100%;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--brand) 20%, transparent) 0%,
-    color-mix(in srgb, var(--brand) 90%, transparent) 30%,
-    color-mix(in srgb, var(--brand-warm) 90%, transparent) 70%,
-    color-mix(in srgb, var(--brand-warm) 20%, transparent) 100%
-  );
-  background-size: 240% 100%;
-  animation: footer-line-shift 7s linear infinite;
-}
-
 .kodaore-social-icon {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.92);
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.kodaore-social-icon::after {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  box-shadow: 0 0 0 1px var(--social-glow), 0 0 20px -2px var(--social-glow);
-}
-
-.kodaore-social-icon:nth-child(odd) {
-  --social-glow: color-mix(in srgb, var(--brand) 85%, white 15%);
-}
-
-.kodaore-social-icon:nth-child(even) {
-  --social-glow: color-mix(in srgb, var(--brand-warm) 85%, white 15%);
+  border: 1px solid var(--border-default);
+  background: var(--surface-elevated);
+  color: var(--ink-primary);
+  transition: border-color 150ms var(--ease-enter), background 150ms var(--ease-enter);
 }
 
 .kodaore-social-icon:hover {
-  transform: translateY(-2px) scale(1.03);
-  border-color: var(--social-glow);
-  box-shadow: 0 8px 26px -16px var(--social-glow);
-}
-
-.kodaore-social-icon:hover::after {
-  opacity: 1;
-}
-
-.k-back-top {
-  transition:
-    opacity 260ms ease,
-    transform 260ms ease,
-    visibility 260ms ease;
-}
-
-.k-back-top.is-hidden {
-  opacity: 0;
-  transform: translateY(10px) scale(0.95);
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.k-back-top.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.k-back-top-label {
-  animation: back-top-bob 1.8s ease-in-out infinite;
+  border-color: var(--brand-base);
+  background: var(--brand-subtle);
 }
 
 @keyframes fade-rise {
@@ -572,55 +366,6 @@ body::after {
   }
 }
 
-@keyframes footer-line-shift {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 240% 50%;
-  }
-}
-
-@keyframes loader-word-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes loader-wave-sweep {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes loader-hint-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(3px);
-  }
-}
-
-@keyframes back-top-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
 @media (hover: none) {
   .k-hover-lift,
   .k-hover-action,
@@ -634,32 +379,19 @@ body::after {
 
   .k-hover-lift:hover,
   .k-hover-action:hover,
-  .k-back-top:hover,
   .kodaore-social-icon:hover {
     transform: none !important;
     box-shadow: none !important;
   }
 
   .k-hover-lift:hover::before,
-  .k-hover-soft:hover::before,
-  .kodaore-social-icon:hover::after {
+  .k-hover-soft:hover::before {
     opacity: 0 !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kodaore-loader,
-  .kodaore-loader-backdrop,
-  .kodaore-loader-content,
-  .kodaore-loader-word,
-  .kodaore-loader-hint,
-  .kodaore-loader-wave::after,
-  .kodaore-loader-logo-wrap,
-  .kodaore-footer-top-line,
   .kodaore-social-icon,
-  .kodaore-social-icon::after,
-  .k-back-top,
-  .k-back-top-label,
   .fade-rise,
   .fade-reveal-left,
   .k-hover-lift,
@@ -710,5 +442,15 @@ body::after {
     --warning-base: #e0a83b;
     --info-base: #4a9fab;
     --danger-base: #b03030;
+
+    --background: #0f1013;
+    --foreground: #fafaf7;
+    --ink-muted: #8a8e96;
+    --surface: #1a1c21;
+    --surface-strong: #24272e;
+    --brand: #d8603d;
+    --brand-emphasis: #b3472a;
+    --brand-warm: #2cbe76;
+    --danger: #b03030;
   }
 }

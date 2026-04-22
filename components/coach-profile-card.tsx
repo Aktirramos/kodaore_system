@@ -189,13 +189,13 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
         role="dialog"
         aria-modal="true"
         aria-label={isEu ? `${coach.name} fitxa` : `Ficha de ${coach.name}`}
-        className={`relative z-10 grid w-full max-w-xl grid-rows-[240px_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-white/20 bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:max-h-[88svh] md:grid-rows-[250px_minmax(0,1fr)] ${
+        className={`relative z-10 grid w-full max-w-xl grid-rows-[240px_minmax(0,1fr)] overflow-hidden rounded-[1.8rem] border border-border-default bg-[#101316] shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100svh-1.5rem)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:max-h-[88svh] md:grid-rows-[250px_minmax(0,1fr)] ${
           modalVisible
             ? "translate-y-0 scale-100 opacity-100 rotate-0"
             : "translate-y-10 scale-90 opacity-0 -rotate-1"
         }`}
       >
-        <div className="relative h-full overflow-hidden border-b border-white/10">
+        <div className="relative h-full overflow-hidden border-b border-border-subtle">
               <div
                 className={`pointer-events-none absolute -left-24 -right-24 -top-28 h-44 rotate-6 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ${
                   modalVisible ? "translate-y-0" : "-translate-y-20"
@@ -232,7 +232,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
         <div className="min-h-0 space-y-4 overflow-y-auto p-5 md:p-6">
               <article
-                className={`rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ${
+                className={`rounded-xl border border-border-subtle bg-surface-subtle p-4 transition-all duration-500 ${
                   modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                 }`}
                 style={{ transitionDelay: modalVisible ? "190ms" : "0ms" }}
@@ -242,7 +242,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
               </article>
 
               <article
-                className={`rounded-xl border border-brand/25 bg-gradient-to-br from-brand/12 via-white/[0.03] to-brand-warm/12 p-4 transition-all duration-500 ${
+                className={`rounded-xl border border-brand/25 bg-gradient-to-br from-brand-subtle via-surface-subtle to-accent-subtle p-4 transition-all duration-500 ${
                   modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                 }`}
                 style={{ transitionDelay: modalVisible ? "250ms" : "0ms" }}
@@ -253,7 +253,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
               {hasDisciplineTabs ? (
                 <article
-                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                  className={`rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-all duration-500 ${
                     modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                   }`}
                   style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
@@ -276,8 +276,8 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                           onClick={() => setActiveDisciplineIndex(index)}
                           className={`k-focus-ring shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.11em] transition-colors ${
                             isActive
-                              ? "border-brand/65 bg-brand/25 text-brand-emphasis"
-                              : "border-white/20 bg-black/25 text-white/80 hover:border-brand/45"
+                              ? "border-brand/65 bg-brand-subtle text-brand-emphasis"
+                              : "border-border-default bg-surface-subtle text-ink-secondary hover:border-brand/45"
                           }`}
                         >
                           {discipline.name}
@@ -290,7 +290,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
               ) : (
                 <>
                   <article
-                    className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                    className={`rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-all duration-500 ${
                       modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                     }`}
                     style={{ transitionDelay: modalVisible ? "310ms" : "0ms" }}
@@ -299,12 +299,12 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                     <ul className="mt-2 space-y-2">
                       {teacherTitles.length > 0 ? (
                         teacherTitles.map((item) => (
-                          <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                          <li key={item} className="rounded-lg border border-border-subtle bg-surface-subtle px-3 py-2 text-sm text-ink-primary">
                             {item}
                           </li>
                         ))
                       ) : (
-                        <li className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                        <li className="rounded-lg border border-border-subtle bg-surface-subtle px-3 py-2 text-sm text-ink-primary">
                           {isEu ? "Titulurik gabe" : "Sin titulo"}
                         </li>
                       )}
@@ -313,7 +313,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
                   {accreditationDetails.length > 0 ? (
                     <article
-                      className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                      className={`rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-all duration-500 ${
                         modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                       }`}
                       style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
@@ -321,7 +321,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{accreditationLabel}</p>
                       <ul className="mt-2 space-y-2">
                         {accreditationDetails.map((item) => (
-                          <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                          <li key={item} className="rounded-lg border border-border-subtle bg-surface-subtle px-3 py-2 text-sm text-ink-primary">
                             {item}
                           </li>
                         ))}
@@ -336,16 +336,16 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                   role="tabpanel"
                   id={`discipline-panel-${coachId}-${activeDisciplineIndex}`}
                   aria-labelledby={`discipline-tab-${coachId}-${activeDisciplineIndex}`}
-                  className={`rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-all duration-500 ${
+                  className={`rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-all duration-500 ${
                     modalVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
                   }`}
                   style={{ transitionDelay: modalVisible ? "350ms" : "0ms" }}
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">{disciplineDetailsLabel}</p>
-                  {activeDiscipline.summary ? <p className="mt-2 text-sm text-foreground/95">{activeDiscipline.summary}</p> : null}
+                  {activeDiscipline.summary ? <p className="mt-2 text-sm text-ink-primary">{activeDiscipline.summary}</p> : null}
                   <ul className="mt-2 space-y-2">
                     {activeDiscipline.details.map((item) => (
-                      <li key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground/95">
+                      <li key={item} className="rounded-lg border border-border-subtle bg-surface-subtle px-3 py-2 text-sm text-ink-primary">
                         {item}
                       </li>
                     ))}
@@ -362,7 +362,7 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="k-focus-ring k-hover-action rounded-full border border-white/20 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-white/90 hover:border-brand/45"
+                  className="k-focus-ring k-hover-action rounded-full border border-border-default bg-surface-subtle px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-ink-primary hover:border-brand/45"
                 >
                   {isEu ? "Itxi" : "Cerrar"}
                 </button>
@@ -374,14 +374,14 @@ export function CoachProfileCard({ locale, siteName, coach, photoSrc, fallbackSr
 
   return (
     <>
-      <article className="k-hover-lift group overflow-hidden rounded-[1.6rem] border border-white/8 bg-gradient-to-b from-surface-strong to-surface/80">
+      <article className="k-hover-lift group overflow-hidden rounded-[1.6rem] border border-border-subtle bg-gradient-to-b from-surface-strong to-surface/80">
         <div className="relative min-h-[220px] overflow-hidden">
           <SmartImage
             src={photoSrc}
             fallbackSrc={fallbackSrc}
             alt={coach.name}
             fill
-            className="object-cover transition duration-700 group-hover:scale-[1.03]"
+            className="object-cover transition duration-300 group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

@@ -56,7 +56,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <label className="grid gap-2 text-sm text-neutral-300">
+      <label className="grid gap-2 text-sm text-ink-secondary">
         <span>{locale === "eu" ? "Sarbide-identifikatzailea" : "Identificador de acceso"}</span>
         <input
           type="text"
@@ -65,7 +65,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
           placeholder={locale === "eu" ? "Idatzi zure datua" : "Escribe tu dato de acceso"}
           value={identifier}
           onChange={(event) => setIdentifier(event.target.value.toLowerCase())}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
         />
         <span className="text-xs text-ink-muted">
           {locale === "eu"
@@ -74,7 +74,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
         </span>
       </label>
 
-      <label className="grid gap-2 text-sm text-neutral-300">
+      <label className="grid gap-2 text-sm text-ink-secondary">
         <span>{locale === "eu" ? "Pasahitza" : "Contrasena"}</span>
         <input
           type="password"
@@ -82,7 +82,7 @@ export function AuthCredentialsForm({ locale }: AuthCredentialsFormProps) {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="k-focus-ring k-hover-soft rounded-2xl border border-white/20 bg-black/35 px-4 py-3 text-neutral-100 outline-none focus:border-[color:var(--brand-emphasis)]"
+          className="k-focus-ring k-hover-soft rounded-2xl border border-border-default bg-surface-elevated px-4 py-3 text-ink-primary outline-none focus:border-[color:var(--brand-emphasis)]"
         />
       </label>
 

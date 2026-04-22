@@ -267,7 +267,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         </nav>
 
         <div
-          className={clsx("h-5 w-px bg-white/20 transition-all duration-700", revealClass)}
+          className={clsx("h-5 w-px bg-border-default transition-all duration-700", revealClass)}
           style={{ transitionDelay: show ? "560ms" : "0ms" }}
           aria-hidden="true"
         />
@@ -307,7 +307,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         <div className="inline-flex items-center gap-2 md:hidden">
           <button
             type="button"
-            className="k-focus-ring inline-flex min-h-10 items-center justify-center rounded-full border border-white/20 bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
+            className="k-focus-ring inline-flex min-h-10 items-center justify-center rounded-full border border-border-default bg-surface-strong px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
             aria-expanded={mobileMenuOpen}
             aria-controls={mobileMenuId}
             aria-label={mobileMenuOpen
@@ -325,7 +325,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
 
         {mobileMenuOpen ? (
           <div className="w-full md:hidden" id={mobileMenuId}>
-            <div className="mt-2 rounded-2xl border border-white/10 bg-surface-strong/70 p-3">
+            <div className="mt-2 rounded-2xl border border-border-subtle bg-surface-strong/70 p-3">
               <nav className="grid gap-2" aria-label={mobileNavAriaLabel}>
                 {mobileNavItems.map((item) => (
                   <Link
@@ -336,8 +336,8 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                     className={clsx(
                       "k-focus-ring rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                       item.active
-                        ? "bg-white/10 text-foreground"
-                        : "text-ink-muted hover:bg-white/5 hover:text-foreground",
+                        ? "bg-surface-subtle text-foreground"
+                        : "text-ink-muted hover:bg-surface-subtle hover:text-foreground",
                     )}
                   >
                     {item.label}
@@ -345,7 +345,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                 ))}
               </nav>
 
-              <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+              <div className="mt-3 flex items-center justify-between border-t border-border-subtle pt-3">
                 <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em]">
                   <Link
                     href={localizePath(pathname, "eu")}

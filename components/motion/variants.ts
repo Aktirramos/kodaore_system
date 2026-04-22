@@ -1,4 +1,4 @@
-import type { Variants, Transition } from "motion/react";
+import type { Variants } from "motion/react";
 
 // Duraciones en segundos (Motion las consume en segundos; nuestro @theme las expresa en ms).
 export const MOTION_DURATION = {
@@ -33,7 +33,7 @@ export const fadeUp: Variants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export const fadeUpTransition: Transition = {
+export const fadeUpTransition= {
   duration: MOTION_DURATION.base,
   ease: MOTION_EASE.enter,
 };
@@ -61,12 +61,12 @@ export const modalIn: Variants = {
   exit: { opacity: 0, scale: 0.96 },
 };
 
-export const modalInTransition: Transition = {
+export const modalInTransition= {
   duration: MOTION_DURATION.slow,
   ease: MOTION_EASE.enter,
 };
 
-export const modalOutTransition: Transition = {
+export const modalOutTransition= {
   duration: 0.18,
   ease: MOTION_EASE.exit,
 };
@@ -80,12 +80,12 @@ export const toastIn: Variants = {
   exit: { opacity: 0, y: 0 },
 };
 
-export const toastInTransition: Transition = {
+export const toastInTransition= {
   duration: MOTION_DURATION.slow,
   ease: MOTION_EASE.enter,
 };
 
-export const toastOutTransition: Transition = {
+export const toastOutTransition= {
   duration: 0.16,
   ease: MOTION_EASE.exit,
 };
@@ -100,12 +100,12 @@ export const routeTransition: Variants = {
   exit: { opacity: 0, y: 0 },
 };
 
-export const routeInTransition: Transition = {
+export const routeInTransition= {
   duration: MOTION_DURATION.base,
   ease: MOTION_EASE.enter,
 };
 
-export const routeOutTransition: Transition = {
+export const routeOutTransition= {
   duration: 0.16,
   ease: MOTION_EASE.exit,
 };

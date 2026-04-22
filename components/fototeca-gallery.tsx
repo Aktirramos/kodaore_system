@@ -214,7 +214,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
               key={`${item.image}-${index}`}
               type="button"
               onClick={() => setActiveIndex(index)}
-              className={`k-focus-ring k-hover-lift group relative overflow-hidden rounded-2xl border border-white/10 bg-black/10 text-left ${
+              className={`k-focus-ring k-hover-lift group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-subtle text-left ${
                 large ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
               } ${wide ? "md:col-span-2" : "md:col-span-1"}`}
               aria-label={
@@ -228,7 +228,7 @@ export function FototecaGallery({ items, brand, locale }: FototecaGalleryProps) 
                 fallbackSrc={item.fallback}
                 alt={locale === "eu" ? `${brand} galeria ${index + 1}` : `Galeria de ${brand} ${index + 1}`}
                 fill
-                className="object-cover transition duration-700 group-hover:scale-[1.04]"
+                className="object-cover transition duration-300 group-hover:scale-[1.02]"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />

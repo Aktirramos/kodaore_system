@@ -127,11 +127,11 @@ export function SiteFooter({ locale }: SiteFooterProps) {
 
   return (
     <>
-      <footer className="relative mt-12 overflow-hidden bg-[#0a0c0e] text-white">
+      <footer className="relative mt-12 overflow-hidden bg-surface-inverse text-ink-inverse">
         <div className="kodaore-footer-top-line" aria-hidden="true" />
 
         <div className="pointer-events-none absolute inset-x-0 -bottom-10 flex justify-center" aria-hidden="true">
-          <p className="font-heading text-[clamp(3.8rem,17vw,16rem)] font-semibold tracking-[0.16em] text-white/5">
+          <p className="font-heading text-[clamp(3.8rem,17vw,16rem)] font-semibold tracking-[0.16em] text-ink-inverse/5">
             KODAORE
           </p>
         </div>
@@ -139,13 +139,13 @@ export function SiteFooter({ locale }: SiteFooterProps) {
         <div className="relative mx-auto w-full max-w-6xl px-5 py-12 md:px-8 md:py-16">
           <div ref={contentRef} className="space-y-8">
             <div className={revealed ? "fade-rise fade-rise-delay-100" : "opacity-0 translate-y-6"}>
-              <p className="text-xs uppercase tracking-[0.2em] text-white/72">{footerTitle}</p>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/90 md:text-base">{footerDescription}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-ink-inverse/72">{footerTitle}</p>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-inverse/90 md:text-base">{footerDescription}</p>
             </div>
 
             <div className="flex flex-wrap items-end justify-between gap-8">
               <div className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/72">{appsLabel}</p>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-ink-inverse/72">{appsLabel}</p>
                 <nav className="flex items-center gap-3 md:gap-4" aria-label={socialLabel}>
                   {socialLinks.map((social, index) => (
                     <Link
@@ -153,7 +153,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
                       href={social.href}
                       target="_blank"
                       rel="noreferrer"
-                      className={`k-focus-ring inline-flex h-9 w-9 items-center justify-center text-white transition-transform duration-300 hover:scale-110 hover:text-white ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
+                      className={`k-focus-ring inline-flex h-9 w-9 items-center justify-center text-ink-inverse transition-transform duration-300 hover:scale-110 hover:text-ink-inverse ${revealed ? "fade-rise" : "opacity-0 translate-y-6"}`}
                       style={{ animationDelay: revealed ? `${200 + index * 90}ms` : undefined }}
                       aria-label={socialAriaLabel(social.label)}
                     >
@@ -165,19 +165,19 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               </div>
 
               <div className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/72">{legalLabel}</p>
-                <nav className="flex items-center gap-4 text-sm text-white/90" aria-label={legalLabel}>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-ink-inverse/72">{legalLabel}</p>
+                <nav className="flex items-center gap-4 text-sm text-ink-inverse/90" aria-label={legalLabel}>
                   <Link
                     href={`/${locale}/legal/terms`}
                     aria-label={termsAriaLabel}
-                    className="k-focus-ring underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-[color:var(--brand-emphasis)]"
+                    className="k-focus-ring underline decoration-ink-inverse/35 underline-offset-4 transition-colors hover:text-ink-inverse hover:decoration-[color:var(--brand-emphasis)]"
                   >
                     {termsLabel}
                   </Link>
                   <Link
                     href={`/${locale}/legal/privacy`}
                     aria-label={privacyAriaLabel}
-                    className="k-focus-ring underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-[color:var(--brand-emphasis)]"
+                    className="k-focus-ring underline decoration-ink-inverse/35 underline-offset-4 transition-colors hover:text-ink-inverse hover:decoration-[color:var(--brand-emphasis)]"
                   >
                     {privacyLabel}
                   </Link>
@@ -185,7 +185,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               </div>
 
               <p
-                className={`text-xs tracking-[0.05em] text-white/74 md:text-sm ${
+                className={`text-xs tracking-[0.05em] text-ink-inverse/74 md:text-sm ${
                   revealed ? "fade-rise fade-rise-delay-500" : "opacity-0 translate-y-6"
                 }`}
               >
@@ -202,7 +202,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
         aria-label={backTopAriaLabel}
         aria-hidden={!showBackToTop}
         tabIndex={showBackToTop ? 0 : -1}
-        className={`k-focus-ring k-hover-action k-back-top fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-[#101417]/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)] ${showBackToTop ? "is-visible" : "is-hidden"}`}
+        className={`k-focus-ring k-hover-action k-back-top fixed bottom-6 right-6 z-50 rounded-full border border-ink-inverse/20 bg-surface-inverse/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ink-inverse shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)] ${showBackToTop ? "is-visible" : "is-hidden"}`}
       >
         <span className={`block ${showBackToTop ? "k-back-top-label" : ""}`}>{backTopLabel}</span>
       </button>

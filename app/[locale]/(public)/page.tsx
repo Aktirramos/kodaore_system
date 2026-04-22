@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { HomeHeroScrollSync } from "@/components/home-hero-scroll-sync";
+import { HomeHero } from "@/components/home-hero";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
 import { getSiteMedia } from "@/lib/site-media";
@@ -9,11 +9,11 @@ type LocaleHomeProps = {
   params: Promise<{ locale: string }>;
 };
 
-const sitesSectionClass = "fade-rise fade-rise-delay-200 rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
-const siteCardClass = "k-hover-lift group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.28)]";
-const storeSectionClass = "fade-rise fade-rise-delay-250 rounded-3xl border border-white/10 bg-surface p-5 md:p-7";
-const finalSectionClass = "fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-white/10 bg-[#151719] p-4 md:p-6";
-const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-white/20 bg-black/25 p-5 backdrop-blur-sm";
+const sitesSectionClass = "fade-rise fade-rise-delay-200 rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
+const siteCardClass = "k-hover-lift group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-5 shadow-[0_14px_30px_rgba(15,23,42,0.08)]";
+const storeSectionClass = "fade-rise fade-rise-delay-250 rounded-3xl border border-border-subtle bg-surface p-5 md:p-7";
+const finalSectionClass = "fade-rise fade-rise-delay-300 relative overflow-hidden rounded-3xl border border-border-subtle bg-surface-elevated p-4 md:p-6 shadow-sm";
+const finalTextBoxClass = "k-hover-soft group/final-box relative overflow-hidden space-y-3 rounded-2xl border border-border-default bg-surface-subtle p-5";
 
 export default async function LocaleHome({ params }: LocaleHomeProps) {
   const { locale } = await params;
@@ -33,7 +33,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <HomeHeroScrollSync tagline={copy.tagline} heroTitle={copy.home.heroTitle} />
+      <HomeHero tagline={copy.tagline} heroTitle={copy.home.heroTitle} heroId="kodaore-home-hero" />
 
       <section className={sitesSectionClass}>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -61,18 +61,18 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
                 href={`/${locale}/sedes/${site.slug}`}
                 className={siteCardClass}
               >
-              <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
-                <div className="absolute inset-0 bg-gradient-to-br from-brand/18 via-transparent to-brand-warm/18" />
+              <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle" />
               </div>
 
-              <div className="relative h-44 overflow-hidden rounded-xl border border-white/10">
+              <div className="relative h-44 overflow-hidden rounded-xl border border-border-subtle">
                 <SmartImage
                   src={media.coverSrc}
                   fallbackSrc={media.fallbackSrc}
                   alt={locale === "eu" ? `${site.name} aurrebista` : `Vista previa de ${site.name}`}
                   fill
                   parallax
-                  className="object-cover transition duration-700 group-hover:scale-105"
+                  className="object-cover transition duration-300 group-hover:scale-[1.02]"
                   sizes="(max-width: 768px) 100vw, 42vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
@@ -91,13 +91,13 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
 
       <section className={storeSectionClass}>
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.9fr]">
-          <article className="k-hover-lift group relative min-h-[220px] overflow-hidden rounded-2xl border border-white/10">
+          <article className="k-hover-lift group relative min-h-[220px] overflow-hidden rounded-2xl border border-border-subtle">
             <SmartImage
               src="/media/hero-2.jpg"
               fallbackSrc="/media/photo-fallback-2.svg"
               alt={storeImageAlt}
               fill
-              className="object-cover transition duration-700 group-hover:scale-[1.03]"
+              className="object-cover transition duration-300 group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, 54vw"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-black/25" />
@@ -106,8 +106,8 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             </div>
           </article>
 
-          <div className="k-hover-soft group/store relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong/70 p-5">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/16 via-transparent to-brand-warm/16 opacity-0 transition-opacity duration-500 group-hover/store:opacity-100" />
+          <div className="k-hover-soft group/store relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-5">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/store:opacity-100" />
             <p className="relative text-xs font-semibold uppercase tracking-[0.16em] text-brand-emphasis">
               {locale === "eu" ? "Kolekzio berria" : "Nueva coleccion"}
             </p>
@@ -119,13 +119,13 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
             </p>
 
             <div className="relative mt-5 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+              <span className="rounded-full border border-border-default bg-surface-subtle px-3 py-1 text-xs uppercase tracking-[0.12em] text-ink-secondary">
                 {locale === "eu" ? "Sudaderak" : "Sudaderas"}
               </span>
-              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+              <span className="rounded-full border border-border-default bg-surface-subtle px-3 py-1 text-xs uppercase tracking-[0.12em] text-ink-secondary">
                 {locale === "eu" ? "Kamisetak" : "Camisetas"}
               </span>
-              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+              <span className="rounded-full border border-border-default bg-surface-subtle px-3 py-1 text-xs uppercase tracking-[0.12em] text-ink-secondary">
                 {locale === "eu" ? "Osagarriak" : "Accesorios"}
               </span>
             </div>
@@ -141,27 +141,26 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
       </section>
 
       <section className={finalSectionClass}>
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(17,24,39,0.35),rgba(17,24,39,0.12)_45%,rgba(17,24,39,0.35))]" />
         <div className="relative grid items-end gap-6 md:grid-cols-[1.2fr_0.9fr]">
-          <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-white/10 md:min-h-[280px]">
+          <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-border-subtle md:min-h-[280px]">
             <SmartImage
               src="/media/hero-3.jpg"
               fallbackSrc="/media/photo-fallback-3.svg"
               alt={finalImageAlt}
               fill
-              className="object-cover transition duration-700 group-hover:scale-[1.02]"
+              className="object-cover transition duration-300 group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-black/20" />
           </article>
 
           <div className={finalTextBoxClass}>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/12 via-transparent to-brand-warm/12 opacity-0 transition-opacity duration-500 group-hover/final-box:opacity-100" />
-            <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-white md:text-3xl">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/final-box:opacity-100" />
+            <h2 className="relative font-heading text-2xl font-semibold tracking-tight text-ink-primary md:text-3xl">
               {copy.home.photoTitle}
             </h2>
-            <p className="fade-reveal-left relative text-sm leading-relaxed text-white/85 transition-colors duration-500 group-hover/final-box:text-white md:text-base">{copy.home.photoDescription}</p>
-            <p className="fade-reveal-left relative rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs tracking-[0.05em] text-white/90 transition-colors duration-500 group-hover/final-box:border-brand/35 group-hover/final-box:bg-black/35">{copy.home.photoHint}</p>
+            <p className="fade-reveal-left relative text-sm leading-relaxed text-ink-secondary transition-colors duration-300 group-hover/final-box:text-ink-primary md:text-base">{copy.home.photoDescription}</p>
+            <p className="fade-reveal-left relative rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs tracking-[0.05em] text-ink-secondary transition-colors duration-300 group-hover/final-box:border-brand/35">{copy.home.photoHint}</p>
           </div>
         </div>
       </section>

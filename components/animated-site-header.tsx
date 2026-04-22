@@ -20,24 +20,7 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
   const [deepScrolled, setDeepScrolled] = useState(false);
 
   useEffect(() => {
-    const html = document.documentElement;
-
-    const syncPhase = () => {
-      const phase = html.getAttribute("data-loader-phase");
-      setShow(phase === "hidden");
-    };
-
-    syncPhase();
-
-    const observer = new MutationObserver(syncPhase);
-    observer.observe(html, {
-      attributes: true,
-      attributeFilter: ["data-loader-phase"],
-    });
-
-    return () => {
-      observer.disconnect();
-    };
+    setShow(true);
   }, []);
 
   useEffect(() => {
@@ -48,7 +31,7 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
     const onScroll = () => {
       const scrollY = window.scrollY;
       setCompactByScroll(scrollY > 28);
-      setDeepScrolled(scrollY > 50);
+      setDeepScrolled(scrollY > 28);
     };
 
     onScroll();
@@ -64,8 +47,8 @@ export function AnimatedSiteHeader({ locale, brand, discoverLabel, galleryLabel,
   return (
     <header
       className={clsx(
-        "kodaore-site-header sticky top-0 z-40 border-b transition-all duration-700",
-        deepScrolled ? "border-white/10 bg-surface/60 backdrop-blur-xl" : "border-transparent bg-surface/70 backdrop-blur-sm",
+        "kodaore-site-header sticky top-0 z-40 border-b transition-all duration-200",
+        deepScrolled ? "border-border-subtle bg-surface-elevated/85 backdrop-blur-md" : "border-transparent bg-surface-elevated/50 backdrop-blur-sm",
         show ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-5 opacity-0",
       )}
     >

@@ -15,7 +15,7 @@ export function AuthSignOutButton({ locale, className }: AuthSignOutButtonProps)
       type="button"
       onClick={() => signOut({ callbackUrl: `/${locale}` })}
       className={clsx(
-        "k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-white/25 bg-white/5 px-5 py-2 text-sm font-semibold text-neutral-200 hover:border-white/45 hover:bg-white/10",
+        "k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-border-default bg-surface-subtle px-5 py-2 text-sm font-semibold text-ink-secondary hover:border-border-strong hover:bg-surface-elevated",
         className,
       )}
     >

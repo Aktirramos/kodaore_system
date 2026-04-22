@@ -104,7 +104,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <section className="fade-rise overflow-hidden rounded-3xl border border-white/10 bg-surface p-6 md:p-8">
+      <section className="fade-rise overflow-hidden rounded-3xl border border-border-subtle bg-surface p-6 md:p-8">
         <div className="grid gap-5 md:grid-cols-[1.25fr_0.95fr]">
           <article>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-emphasis">{heroTag}</p>
@@ -112,20 +112,20 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-muted md:text-base">{heroDescription}</p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+              <span className="rounded-full border border-border-default bg-surface-subtle px-3 py-1 text-xs uppercase tracking-[0.12em] text-ink-secondary">
                 {isEu ? "Sudaderak" : "Sudaderas"}
               </span>
-              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+              <span className="rounded-full border border-border-default bg-surface-subtle px-3 py-1 text-xs uppercase tracking-[0.12em] text-ink-secondary">
                 {isEu ? "Kamisetak" : "Camisetas"}
               </span>
-              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/85">
+              <span className="rounded-full border border-border-default bg-surface-subtle px-3 py-1 text-xs uppercase tracking-[0.12em] text-ink-secondary">
                 {isEu ? "Osagarriak" : "Accesorios"}
               </span>
             </div>
           </article>
 
-          <article className="k-hover-soft group/how relative overflow-hidden rounded-2xl border border-white/15 bg-black/25 p-5">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/how:opacity-100" />
+          <article className="k-hover-soft group/how relative overflow-hidden rounded-2xl border border-border-default bg-surface-subtle p-5">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/how:opacity-100" />
 
             <h2 className="relative font-heading text-xl font-semibold text-foreground md:text-2xl">
               {isEu ? "Nola funtzionatzen du?" : "Como funciona"}
@@ -138,7 +138,7 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
             <Link
               href={interestCtaHref}
-              className="k-focus-ring k-hover-action relative mt-5 inline-flex rounded-full border border-brand/45 bg-brand/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis"
+              className="k-focus-ring k-hover-action relative mt-5 inline-flex rounded-full border border-brand/45 bg-brand-subtle px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-emphasis"
             >
               {interestCtaLabel}
             </Link>
@@ -148,8 +148,8 @@ export default async function ClothingPage({ params }: ClothingPageProps) {
 
       <section className="fade-rise grid gap-3 md:grid-cols-3">
         {highlights.map((item) => (
-          <article key={item.title} className="k-hover-soft group/highlight relative overflow-hidden rounded-2xl border border-white/10 bg-surface-strong/70 p-4">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/highlight:opacity-100" />
+          <article key={item.title} className="k-hover-soft group/highlight relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-4">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-300 group-hover/highlight:opacity-100" />
             <h2 className="relative font-heading text-xl font-semibold text-foreground">{item.title}</h2>
             <p className="relative mt-2 text-sm leading-relaxed text-ink-muted">{item.text}</p>
           </article>

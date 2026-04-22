@@ -353,7 +353,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             className={`k-focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
               activeCategoryKey === "all"
                 ? "border-brand/60 bg-brand/15 text-brand-emphasis"
-                : "border-white/15 bg-black/20 text-white/75 hover:border-white/30"
+                : "border-border-subtle bg-surface-subtle text-ink-secondary hover:border-border-default"
             }`}
           >
             {allCategoryLabel}
@@ -367,7 +367,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
               className={`k-focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                 activeCategoryKey === category.key
                   ? "border-brand/60 bg-brand/15 text-brand-emphasis"
-                  : "border-white/15 bg-black/20 text-white/75 hover:border-white/30"
+                  : "border-border-subtle bg-surface-subtle text-ink-secondary hover:border-border-default"
               }`}
             >
               {category.label}
@@ -387,7 +387,7 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
             onFocus={(event: FocusEvent<HTMLButtonElement>) => openHoverPreview(index, event.currentTarget)}
             onBlur={closeHoverPreview}
             className={`k-focus-ring k-hover-lift group overflow-hidden rounded-2xl border bg-surface-strong text-left transition-colors ${
-              hoveredIndex === index ? "border-brand/45" : "border-white/10"
+              hoveredIndex === index ? "border-brand/45" : "border-border-subtle"
             }`}
             aria-label={isEu ? `Ireki irudia ${index + 1}` : `Abrir imagen ${index + 1}`}
           >
@@ -397,14 +397,14 @@ export function ErropakGallery({ items, locale }: ErropakGalleryProps) {
                 fallbackSrc={item.fallbackSrc}
                 alt={isEu ? item.nameEu : item.nameEs}
                 fill
-                className="object-cover transition duration-700 group-hover:scale-[1.1]"
+                className="object-cover transition duration-300 group-hover:scale-[1.02]"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
             </div>
 
             <div className="k-hover-soft group/item relative overflow-hidden p-4">
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/14 via-transparent to-brand-warm/14 opacity-0 transition-opacity duration-500 group-hover/item:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-subtle via-transparent to-accent-subtle opacity-0 transition-opacity duration-500 group-hover/item:opacity-100" />
               <p className="relative text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-emphasis">
                 {isEu ? item.categoryEu : item.categoryEs}
               </p>
