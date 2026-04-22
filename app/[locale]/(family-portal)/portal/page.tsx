@@ -42,7 +42,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
         </p>
 
         {summary.familyAccount ? (
-          <div className="k-hover-soft mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+          <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
             <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">{isEu ? "Kontu aktiboa" : "Cuenta activa"}</p>
             <p className="mt-1 text-sm text-foreground">{summary.familyAccount.email}</p>
           </div>
@@ -94,7 +94,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-2">
-        <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+        <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
           <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">{isEu ? "Azken ordainketa" : "Ultimo recibo"}</p>
           {summary.latestReceipt ? (
             <>
@@ -113,7 +113,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
           )}
         </article>
 
-        <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+        <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
           <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">{isEu ? "Azken komunikazioa" : "Ultima comunicacion"}</p>
           {summary.latestCommunication ? (
             <>

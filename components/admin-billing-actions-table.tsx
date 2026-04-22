@@ -206,7 +206,10 @@ export function AdminBillingActionsTable({ locale, receipts, updatePaymentAction
                     const rowPending = isPending && pendingActionId === `edit:${receipt.id}`;
 
                     return (
-                      <tr key={receipt.id} className="k-row-hover border-t border-white/10">
+                      <tr
+                        key={receipt.id}
+                        className="border-t border-white/10 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle"
+                      >
                         <td className="px-4 py-3 font-medium text-foreground">{receipt.studentName}</td>
                         <td className="px-4 py-3 text-ink-muted">{receipt.siteName}</td>
                         <td className="px-4 py-3">

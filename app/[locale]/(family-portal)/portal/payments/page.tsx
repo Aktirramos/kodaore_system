@@ -65,7 +65,10 @@ export default async function PortalPaymentsPage({ params }: PortalPaymentsPageP
         ) : (
           <div className="mt-4 space-y-3">
             {payments.receipts.map((receipt) => (
-              <article key={receipt.id} className="k-hover-lift rounded-xl border border-white/10 bg-black/20 p-4">
+              <article
+                key={receipt.id}
+                className="rounded-xl border border-white/10 bg-black/20 p-4 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{receipt.studentName}</p>
                   <span className={`rounded-full px-3 py-1 text-xs ${statusClass(receipt.status)}`}>
@@ -99,7 +102,7 @@ export default async function PortalPaymentsPage({ params }: PortalPaymentsPageP
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+    <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
       <p className="text-sm text-ink-muted">{label}</p>
       <p className="mt-1 font-heading text-2xl font-semibold text-foreground">{value}</p>
     </article>

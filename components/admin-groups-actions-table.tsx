@@ -309,7 +309,10 @@ export function AdminGroupsActionsTable({
                     const rowPending = isPending && pendingActionId === `edit:${group.id}`;
 
                     return (
-                      <tr key={group.id} className="k-row-hover border-t border-white/10">
+                      <tr
+                        key={group.id}
+                        className="border-t border-white/10 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle"
+                      >
                         <td className="px-4 py-3 font-medium text-foreground">{group.name}</td>
                         <td className="px-4 py-3 text-ink-muted">{group.siteName}</td>
                         <td className="px-4 py-3 text-ink-muted">{group.level ?? "-"}</td>

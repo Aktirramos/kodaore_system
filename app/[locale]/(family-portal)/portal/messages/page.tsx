@@ -63,7 +63,7 @@ export default async function PortalMessagesPage({ params }: PortalMessagesPageP
 
 function MessageItem({ title, text, badge, meta }: { title: string; text: string; badge: string; meta: string }) {
   return (
-    <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+    <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-heading text-lg font-semibold text-foreground">{title}</h2>
         <span className="rounded-full border border-brand-emphasis/30 bg-brand-emphasis/10 px-3 py-1 text-xs text-brand-emphasis">

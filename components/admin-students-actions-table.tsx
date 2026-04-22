@@ -689,7 +689,10 @@ export function AdminStudentsActionsTable({
                     const rowPending = editPending || deactivatePending || deletePending;
 
                     return (
-                      <tr key={student.id} className="k-row-hover border-t border-white/10">
+                      <tr
+                        key={student.id}
+                        className="border-t border-white/10 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle"
+                      >
                         <td className="px-4 py-3 font-medium text-foreground">{student.fullName}</td>
                         <td className="px-4 py-3 text-ink-muted">{student.siteName}</td>
                         <td className="px-4 py-3 text-ink-muted">{student.familyEmail}</td>

@@ -129,7 +129,10 @@ export default async function AdminPage({ params }: AdminPageProps) {
                     </tr>
                   ) : (
                     summary.perSite.map((site) => (
-                      <tr key={site.id} className="k-row-hover border-t border-white/10">
+                      <tr
+                        key={site.id}
+                        className="border-t border-white/10 transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle"
+                      >
                         <td className="px-4 py-3 font-medium text-foreground">{site.name}</td>
                         <td className="px-4 py-3 text-ink-muted">{site.activeStudents}</td>
                         <td className="px-4 py-3 text-ink-muted">{site.activeGroups}</td>
@@ -161,7 +164,7 @@ function AdminModuleCard({
   return (
     <Link
       href={href}
-      className="k-focus-ring k-hover-lift rounded-2xl border border-white/10 bg-surface p-5"
+      className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]"
     >
       <h2 className="font-heading text-xl font-semibold text-foreground">{title}</h2>
       <p className="mt-2 text-sm text-ink-muted">{description}</p>

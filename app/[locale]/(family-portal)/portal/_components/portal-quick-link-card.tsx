@@ -11,7 +11,7 @@ export function PortalQuickLinkCard({ href, title, text, cta }: PortalQuickLinkC
   return (
     <Link
       href={href}
-      className="k-focus-ring k-hover-lift group rounded-2xl border border-white/10 bg-surface p-5 hover:border-white/30 hover:bg-surface-strong/50"
+      className="group rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-white/30 hover:bg-surface-strong/50 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]"
     >
       <h3 className="font-heading text-lg font-semibold text-foreground">{title}</h3>
       <p className="mt-2 text-sm text-ink-muted">{text}</p>

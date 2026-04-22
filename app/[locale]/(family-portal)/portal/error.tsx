@@ -52,13 +52,13 @@ export default function PortalError({ error, unstable_retry }: PortalErrorProps)
           <button
             type="button"
             onClick={() => unstable_retry()}
-            className="k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-rose-300/40 bg-rose-500/20 px-5 py-2 text-sm font-semibold text-rose-100"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-rose-300/40 bg-rose-500/20 px-5 py-2 text-sm font-semibold text-rose-100 transition-[background-color,color,border-color,transform] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-rose-500/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base active:scale-[0.98]"
           >
             {isEu ? "Berriro saiatu" : "Reintentar"}
           </button>
           <Link
             href={`/${locale}/portal`}
-            className="k-focus-ring k-hover-action inline-flex min-h-11 items-center justify-center rounded-full border border-white/20 bg-white/5 px-5 py-2 text-sm font-semibold text-foreground"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/20 bg-white/5 px-5 py-2 text-sm font-semibold text-foreground transition-[background-color,color,border-color,transform] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-base active:scale-[0.98]"
           >
             {isEu ? "Atarira itzuli" : "Volver al portal"}
           </Link>

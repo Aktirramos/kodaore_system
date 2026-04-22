@@ -223,106 +223,9 @@ body::after {
     animation-fill-mode: both;
   }
 
-  .k-hover-lift {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    transition:
-      transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1),
-      border-color 260ms ease,
-      box-shadow 260ms ease,
-      background-color 260ms ease,
-      color 260ms ease;
-    will-change: transform;
-  }
-
-  .k-hover-lift::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0;
-    background: linear-gradient(
-      120deg,
-      color-mix(in srgb, var(--brand) 16%, transparent) 0%,
-      transparent 48%,
-      color-mix(in srgb, var(--brand-warm) 16%, transparent) 100%
-    );
-    transition: opacity 260ms ease;
-  }
-
-  .k-hover-lift:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--brand-emphasis) 35%, rgba(255, 255, 255, 0.2));
-    box-shadow: 0 20px 38px -26px rgba(0, 0, 0, 0.75);
-  }
-
-  .k-hover-lift:hover::before {
-    opacity: 1;
-  }
-
-  .k-hover-soft {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    transition:
-      border-color 220ms ease,
-      background-color 220ms ease,
-      color 220ms ease,
-      opacity 220ms ease;
-  }
-
-  .k-hover-soft::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0;
-    background: linear-gradient(
-      120deg,
-      color-mix(in srgb, var(--brand) 14%, transparent) 0%,
-      transparent 52%,
-      color-mix(in srgb, var(--brand-warm) 14%, transparent) 100%
-    );
-    transition: opacity 220ms ease;
-  }
-
-  .k-hover-soft:hover {
-    border-color: color-mix(in srgb, var(--brand-emphasis) 34%, rgba(255, 255, 255, 0.24));
-    background-color: color-mix(in srgb, var(--surface-strong) 82%, rgba(0, 0, 0, 0.2));
-  }
-
-  .k-hover-soft:hover::before {
-    opacity: 1;
-  }
-
-  .k-hover-action {
-    transition:
-      transform 180ms ease,
-      border-color 220ms ease,
-      background-color 220ms ease,
-      box-shadow 220ms ease,
-      color 220ms ease;
-  }
-
-  .k-hover-action:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px -18px color-mix(in srgb, var(--brand-emphasis) 78%, transparent);
-  }
-
   .k-focus-ring:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--brand-emphasis) 75%, white 25%);
     outline-offset: 2px;
-  }
-
-  .k-row-hover {
-    transition: background-color 220ms ease;
-  }
-
-  .k-row-hover:hover {
-    background-color: color-mix(in srgb, var(--surface-strong) 72%, rgba(255, 255, 255, 0.03));
   }
 }
 
@@ -366,46 +269,12 @@ body::after {
   }
 }
 
-@media (hover: none) {
-  .k-hover-lift,
-  .k-hover-action,
-  .kodaore-social-icon {
-    transition:
-      border-color 220ms ease,
-      background-color 220ms ease,
-      color 220ms ease,
-      opacity 220ms ease;
-  }
-
-  .k-hover-lift:hover,
-  .k-hover-action:hover,
-  .kodaore-social-icon:hover {
-    transform: none !important;
-    box-shadow: none !important;
-  }
-
-  .k-hover-lift:hover::before,
-  .k-hover-soft:hover::before {
-    opacity: 0 !important;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .kodaore-social-icon,
   .fade-rise,
-  .fade-reveal-left,
-  .k-hover-lift,
-  .k-hover-soft,
-  .k-hover-action,
-  .k-row-hover {
+  .fade-reveal-left {
     animation: none !important;
     transition: none !important;
-  }
-
-  .k-hover-lift:hover,
-  .k-hover-action:hover {
-    transform: none !important;
-    box-shadow: none !important;
   }
 
   body::after {

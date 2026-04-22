@@ -42,7 +42,10 @@ export default async function PortalProfilePage({ params }: PortalProfilePagePro
 
       <section className="fade-rise grid gap-4 md:grid-cols-2">
         {profile.familyAccounts.map((account) => (
-          <article key={account.id} className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+          <article
+            key={account.id}
+            className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]"
+          >
             <h2 className="font-heading text-lg font-semibold text-foreground">
               {isEu ? "Harremanetarako datuak" : "Datos de contacto"}
             </h2>
@@ -80,7 +83,10 @@ export default async function PortalProfilePage({ params }: PortalProfilePagePro
           </article>
         ) : (
           profile.students.map((student) => (
-            <article key={student.id} className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+            <article
+              key={student.id}
+              className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]"
+            >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-heading text-lg font-semibold text-foreground">
                   {student.firstName} {student.lastName}
@@ -95,7 +101,7 @@ export default async function PortalProfilePage({ params }: PortalProfilePagePro
                 <DataRow label={isEu ? "Kodea" : "Codigo"} value={student.internalCode} />
               </div>
               {student.activeEnrollment ? (
-                <div className="k-hover-soft mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-sm">
+                <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-sm transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
                   <p className="text-foreground">{student.activeEnrollment.tuitionPlan.name}</p>
                   <p className="text-ink-muted">
                     {formatCurrency(student.activeEnrollment.tuitionPlan.amountCents, locale)} -{" "}

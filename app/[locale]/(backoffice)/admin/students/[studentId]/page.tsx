@@ -134,7 +134,7 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
       </section>
 
       <section className="fade-rise grid gap-4 md:grid-cols-2">
-        <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+        <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
           <h2 className="font-heading text-xl font-semibold text-foreground">{copy.personalInfoTitle}</h2>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
             <Info label={copy.birthDateLabel} value={formatDate(profile.student.birthDate, locale)} />
@@ -155,7 +155,7 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
           </div>
         </article>
 
-        <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+        <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
           <h2 className="font-heading text-xl font-semibold text-foreground">{copy.groupTitle}</h2>
           {profile.currentGroup ? (
             <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
@@ -211,7 +211,10 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
                 </thead>
                 <tbody>
                   {profile.receipts.map((receipt) => (
-                    <tr key={receipt.id} className="k-row-hover border-t border-white/10 text-ink-muted">
+                    <tr
+                      key={receipt.id}
+                      className="border-t border-white/10 text-ink-muted transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle"
+                    >
                       <td className="px-4 py-3 text-foreground">
                         {formatDate(receipt.periodStart, locale)} - {formatDate(receipt.periodEnd, locale)}
                       </td>
@@ -235,7 +238,7 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
       <section id="family-profile" className="fade-rise space-y-4">
         <h2 className="font-heading text-xl font-semibold text-foreground">{copy.familyPortalTitle}</h2>
 
-        <article className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+        <article className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
           <dl className="grid gap-3 text-sm md:grid-cols-3">
             <Info label={copy.ownerLabel} value={profile.familyPortalPreview.ownerName} />
             <Info label={copy.ownerEmailLabel} value={profile.familyPortalPreview.ownerEmail ?? "-"} />
@@ -257,7 +260,10 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {profile.familyPortalPreview.students.map((student) => (
-              <article key={student.id} className="k-hover-lift rounded-2xl border border-white/10 bg-surface p-5">
+              <article
+                key={student.id}
+                className="rounded-2xl border border-white/10 bg-surface p-5 transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:shadow-md hover:border-border-default motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-heading text-lg font-semibold text-foreground">{student.fullName}</h3>
                   <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-ink-muted">
@@ -270,7 +276,7 @@ export default async function AdminStudentProfilePage({ params }: AdminStudentPr
                   <Info label={copy.internalCodeLabel} value={student.internalCode} />
                 </div>
                 {student.activeEnrollment ? (
-                  <div className="k-hover-soft mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-sm">
+                  <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-sm transition-colors duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:bg-surface-subtle/60">
                     <p className="text-foreground">{student.activeEnrollment.tuitionPlan.name}</p>
                     <p className="mt-1 text-ink-muted">
                       {formatCurrency(student.activeEnrollment.tuitionPlan.amountCents, locale)} -{" "}
