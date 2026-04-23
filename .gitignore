@@ -48,7 +48,8 @@ next-env.d.ts
 /.audit/
 /playwright-audit-report/
 
-# MCP server scratch dirs (Playwright MCP + Superpowers)
+# MCP server scratch dirs (Claude Code + Playwright MCP + Superpowers)
+/.claude/
 /.playwright-mcp/
 /.superpowers/
 
