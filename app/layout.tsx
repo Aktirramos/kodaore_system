@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Manrope, Space_Grotesk } from "next/font/google";
+import { Inter, Manrope, Shippori_Mincho, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 function getMetadataBase() {
@@ -28,6 +28,13 @@ const spaceGrotesk = Space_Grotesk({
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
+
+const shipporiMincho = Shippori_Mincho({
+  variable: "--font-mincho",
+  subsets: ["latin"],
+  weight: ["500", "700", "800"],
   display: "swap",
 });
 
@@ -71,7 +78,7 @@ export default function RootLayout({
     <html
       lang="eu"
       suppressHydrationWarning
-      className={`${manrope.variable} ${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
+      className={`${manrope.variable} ${spaceGrotesk.variable} ${inter.variable} ${shipporiMincho.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
