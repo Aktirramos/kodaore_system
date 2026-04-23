@@ -5,7 +5,64 @@ Alcance: landing pública narrativa en `/[locale]` (ruta raíz eu/es).
 Entrada: brief del usuario · `docs/ui-design-direction.md` (Dojo Moderno) · estado post UI-rework.
 Salida: plan de assets, checklist de tokens a añadir, decisiones pendientes antes de Fase 1 (guion).
 
-> **Parada dura tras este documento.** No se redacta guion, no se extraen frames, no se toca código. Se espera respuesta del usuario a las decisiones marcadas `DECIDIR` abajo.
+> **Parada dura tras este documento y `docs/landing-narrative.md`.** Se espera feedback del usuario antes de abrir Fase 1 (dirección visual) y Fase 2 (plan de ejecución).
+
+---
+
+## 0. Addendum · brief revisado (mismo día, más tarde)
+
+Tras el primer audit el usuario ha reforzado el brief con reglas más estrictas que **sobrescriben varias de las decisiones recomendadas aquí**. Se listan antes del cuerpo original para que quien lea el documento lea primero lo vigente.
+
+### Reglas nuevas, no negociables
+
+- **Dirección de arte**: manual técnico de judo, atemporal. No retro-hipster, no japonismo decorativo.
+- **Sin terminología japonesa** en la narrativa. Las fases del movimiento se nombran en eu + es con lenguaje natural del club:
+  - `oreka hautsi` / `romper el equilibrio`
+  - `sartu` / `entrar`
+  - `bota` / `proyectar`
+  - `ondo erori` / `caer bien`
+  - Es decisión editorial del cliente → **no se cuestiona, no se matiza, no se devuelve a debate**.
+- **Respeto a la disciplina**: un judoka debe leer la landing y sentir que quien la ha hecho entiende lo que muestra.
+- **Performance como identidad**: la landing no es "rápida a pesar de ser bonita", es "rápida porque es bonita". SVG + HTML semántico + JS al mínimo.
+- **Sin three.js, sin WebGL, sin partículas, sin parallax genérico, sin números aislados ("+500 alumnos"), sin música autoplay, sin scroll-jacking.**
+- **Fallbacks desde el primer commit**: `prefers-reduced-motion` y versión sin JS plenamente funcionales.
+
+### Presupuestos endurecidos (reemplazan los de §7)
+
+| Métrica | Audit anterior | Brief revisado |
+|---|---|---|
+| Lighthouse Performance desktop | ≥ 90 | **≥ 95** |
+| Lighthouse Performance mobile | ≥ 80 | **≥ 90** |
+| Lighthouse A11y / BP / SEO | ≥ 95 / ≥ 95 / 100 | **≥ 95 / ≥ 95 / ≥ 95** |
+| LCP desktop | < 2.0 s | **< 1.5 s** |
+| LCP mobile 4G | < 2.5 s | < 2.5 s |
+| CLS | 0 | **0 absoluto** |
+| INP | < 200 ms | **< 150 ms** |
+| JS inicial landing (gz) | < 180 kb | **< 80 kb** |
+
+El salto de 180 kb → 80 kb es el cambio más exigente. Implica:
+- Framer Motion + `useScroll` **sólo cargado en la sección haraigoshi** vía `dynamic({ ssr: false })` dentro de `IntersectionObserver`.
+- Toda la landing renderizada como RSC salvo las islas de animación.
+- Fonts: `Shippori Mincho` reducido a pesos estrictamente necesarios (500 + un peso más), subset `latin`. Reevaluar peso 400 en Fase 4 si peta bundle.
+
+### Decisiones del audit anterior que quedan RESUELTAS por el brief nuevo
+
+- **DECIDIR #2 (japonés)** → resuelto: **2c variante euskera+castellano**. Cero japonés en narrativa. Solo "haraigoshi" aparece una vez en el pie de la sección (título del movimiento), sin caption japonés de las fases.
+- **DECIDIR #4 (fotografía)** → resuelto: **4a confirmado** (cero fotos en la landing). Las fotos de sedes viven en `/sedes/[slug]` y se reservan para esa ruta.
+- **DECIDIR #6 (ruta)** → resuelto: **6a confirmado** (reemplaza home pública, ruta raíz `/[locale]`).
+
+### Decisiones que **siguen abiertas** tras el brief revisado
+
+- **DECIDIR #1 (librería)** — el brief pide "evaluar en este orden: Framer Motion + `useScroll` → GSAP + ScrollTrigger → CSS scroll-driven + IO". **Recomendación mantenida: Framer Motion** (opción A del audit). Motivos: ya está en bundle (coste marginal 0 kb), cubre pinning + sync con 5 frames sin problemas, respeta `ui-design-direction.md §6.5`, y encaja con el presupuesto endurecido de <80 kb. Espero confirmación explícita.
+- **DECIDIR #3 (excepción pinning)** — sigue aplicando. Documentar como excepción al "no parallax/pinning" de `ui-design-direction.md §6.4`, limitada a la sección haraigoshi.
+- **DECIDIR #5 (capas washi)** — sigue aplicando. Mantener tal cual; no usar `bg-surface*` en los containers de la landing para evitar washi sobre washi.
+- **Frames como SVG vs. WebP** — resuelto por brief: **SVG vectorizado**, para poder animar paths con CSS/JS (path drawing, frame-by-frame reveal). El audit original proponía WebP, queda descartado (un WebP no se anima sin sustituir el elemento). Resultados de la prueba de vectorización → §10.
+
+---
+
+## Alineación con `docs/ui-design-direction.md`
+
+Este brief amplifica los principios de "Dojo Moderno", no los reinventa. Las reglas del sistema siguen vigentes: tipografía Inter + Shippori Mincho, paleta Dojo, tokens de motion existentes, `useReducedMotion` como ya se usa en `components/motion/`. La landing se permite licencia editorial (tipografía más grande, más aire) pero sin romper el sistema.
 
 ## 1. Estado actual relevante
 
@@ -302,3 +359,109 @@ Para que no quede todo bloqueado por detalles:
 - Peso mincho 400: añado.
 
 Si alguna de estas suposiciones choca con lo que tenías en la cabeza, me paras y ajustamos antes de Fase 1.
+
+---
+
+## 10. Resultados de ejecución · Fase 0 ampliada (tras brief revisado)
+
+### 10.1 Frames extraídos del GIF
+
+GIF copiado de `~/Descargas/haraigoshi.GIF` → `public/media/haraigoshi.GIF` (178 kb, 472×580, 5 frames, 89a, sRGB indexado 256c).
+
+Extraídos con `ffmpeg -vsync 0 -i public/media/haraigoshi.GIF public/landing/haraigoshi/frames/frame-%02d.png`.
+
+| Frame | PNG | Colores | Contenido |
+|---|---|---|---|
+| 01 | 49 kb · 472×580 | 248 | Agarre inicial (kumi-kata). Dos judokas de pie, brazos enlazados, equilibrio simétrico. |
+| 02 | 52 kb · 472×580 | 251 | Empujón de desequilibrio. Uno de los dos empieza a perder la vertical. |
+| 03 | 54 kb · 472×580 | 254 | Entrada del lanzador bajo el centro de gravedad de uke. |
+| 04 | 46 kb · 472×580 | 252 | Barrido + cadera: momento de la proyección, uke despega. |
+| 05 | 58 kb · 472×580 | 253 | Recepción en suelo. Uke tumbado, tori de pie al lado. |
+
+Los 5 frames cuentan el movimiento completo: 1–2 desequilibrio, 3 entrada, 4 proyección, 5 caída. Corresponde exactamente con la narrativa eu/es del brief.
+
+### 10.2 Vectorización SVG — dos calibraciones probadas
+
+Herramientas usadas: `potracer` (pure-Python) + post-proceso propio (descartar la primera curva, que potracer emite siempre como boundary del canvas y producía SVGs invertidos en el primer intento).
+
+Script: `scripts/tmp/vectorize-final.py` (provisional, no committeado todavía; se consolidará en Fase 3 como script idempotente).
+
+| Calibración | Threshold | Turdsize | Paths/frame | kb/frame | Total 5f | vs PNG |
+|---|---|---|---|---|---|---|
+| **A — trazo limpio** | 140 | 8 | 35–67 | 25–33 | **136 kb** | 52% |
+| **B — detalle conservado** | 170 | 2 | 46–94 | 28–42 | 168 kb | 64% |
+
+Ambas calibraciones son SVG usables. Diferencia visual:
+
+- **A (recomendada)**: el trazo queda algo más seco, pierde parte del sombreado por tramas. Resultado más editorial/atemporal, sin "nostalgia de fotocopia años 60". Path counts más bajos → animación de path-drawing más fluida.
+- **B**: conserva más hatching, lee más como "manual escaneado". Path counts más altos, más pesada en animación.
+
+**Evaluación honesta (checkpoint del brief)**: la calidad es **suficiente para continuar sin plan B**. No salen sucios, no salen inconsistentes entre sí, los 5 frames mantienen la coherencia de línea y pose. No hace falta limpieza manual ni morph interpolado ni ilustrador nuevo. Los SVG pueden inlinearse directamente en el DOM y animarse.
+
+Recomendación: **calibración A**. Guardados en `public/landing/haraigoshi/svg-a-clean/frame-0{1..5}.svg`.
+
+> Muestras visuales renderizadas en `/tmp/haraigoshi-preview/preview-svg-a-clean-0{1..5}.png` (temporal, no committeado). El lector puede generar nuevas desde los SVG con cairosvg o abriéndolos en navegador.
+
+**Archivos actuales** (provisionales, se consolidarán en Fase 3):
+```
+public/media/haraigoshi.GIF                               (178 kb)
+public/landing/haraigoshi/frames/frame-0{1..5}.png        (fuente raster)
+public/landing/haraigoshi/svg-a-clean/frame-0{1..5}.svg   (recomendada)
+public/landing/haraigoshi/svg-b-detail/frame-0{1..5}.svg  (alternativa)
+```
+
+### 10.3 Baseline de la landing vigente
+
+#### Screenshots (Playwright, server local :3001)
+
+```
+docs/landing-baseline/screenshots/
+  eu-desktop.png   (1440×900 viewport, fullPage)
+  eu-mobile.png    (390×844 viewport,  fullPage)
+  es-desktop.png   (1440×900 viewport, fullPage)
+  es-mobile.png    (390×844 viewport,  fullPage)
+```
+
+Observación visual: la home actual compone 5 bloques (hero triple + sedes grid + tienda card + foto card + footer). Funciona, no es editorial. La nueva landing la sustituye.
+
+#### Lighthouse baseline
+
+```
+docs/landing-baseline/lighthouse/eu-desktop.{json,html}
+```
+
+| Categoría | Score |
+|---|---|
+| Accessibility | 100 |
+| Best Practices | 100 |
+| SEO | 92 |
+
+SEO penalizado por:
+1. `label-content-name-mismatch` — a11y: botones con texto visible distinto del aria-label. Ya está en nuestro radar post-UI-rework, no se aborda aquí.
+2. `robots-txt is not valid` — a verificar; `app/robots.txt` existe (visible en `ls app/`) pero la herramienta marca formato inválido. Diagnóstico pendiente; si es un quick win se arregla en Fase 3, si no, queda como nota.
+
+**Limitación honesta**: la auditoría mobile falló con `NO_FCP` ("the page did not paint any content") — es un problema conocido de la MCP de chrome-devtools cuando el navegador no está en foreground. No es fallo de la landing, es fallo del entorno de captura. Se repetirá en Fase 4 con la misma metodología para que la comparación antes/después sea justa. El baseline de Performance (LCP/CLS/INP) **NO está cubierto por `lighthouse_audit`** — por diseño esa tool omite Performance. Para medirlo se usará `performance_start_trace` del mismo MCP en Fase 4, donde también se auditará la nueva landing con el mismo método.
+
+### 10.4 Checklist Fase 0 actualizado (estado)
+
+- [x] Audit escrito y ampliado
+- [x] GIF en repo (`public/media/haraigoshi.GIF`)
+- [x] Frames extraídos (`public/landing/haraigoshi/frames/`)
+- [x] Vectorización SVG probada y validada (A recomendada)
+- [x] Screenshots baseline 4/4
+- [x] Lighthouse baseline desktop eu (a11y/bp/seo)
+- [ ] Lighthouse baseline mobile — bloqueado por NO_FCP en entorno headless, se captura en Fase 4
+- [ ] Perf baseline (LCP/CLS/INP) — se captura en Fase 4 con `performance_start_trace`
+- [x] `docs/landing-narrative.md` — redactado en paralelo a este doc
+
+### 10.5 Lo que falta para cerrar Fase 0
+
+Lo que necesito del usuario antes de abrir Fase 1:
+
+1. **Confirmar calibración SVG A** (trazo limpio) o cambiar a B (detalle).
+2. **Confirmar Motion** como librería de animación (vs. GSAP) → DECIDIR #1.
+3. **Confirmar excepción de pinning** documentada (sección haraigoshi solo) → DECIDIR #3.
+4. **Revisar `docs/landing-narrative.md`** — arco, copy provisional y posición del momento haraigoshi.
+5. **Confirmar presupuestos endurecidos** son realistas con el contenido que aprobemos (si el narrativo requiere más peso, ajustamos ahora, no en Fase 4).
+
+Cuando estas 5 estén confirmadas, abro Fase 1 (dirección visual) con `docs/landing-direction.md`.
