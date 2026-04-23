@@ -47,3 +47,10 @@ next-env.d.ts
 # audit artifacts (Fase 0 UI rework)
 /.audit/
 /playwright-audit-report/
+
+# MCP server scratch dirs (Playwright MCP + Superpowers)
+/.playwright-mcp/
+/.superpowers/
+
+# loose screenshots at repo root (diagnostic / exploration)
+/*.png
