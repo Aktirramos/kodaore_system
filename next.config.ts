@@ -60,6 +60,25 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          "**/node_modules/**",
+          "**/.next/**",
+          "**/.git/**",
+          "**/.claude/**",
+          "**/.playwright-mcp/**",
+          "**/.superpowers/**",
+          "**/.audit/**",
+          "**/playwright-audit-report/**",
+          "**/coverage/**",
+        ],
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
