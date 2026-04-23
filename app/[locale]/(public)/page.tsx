@@ -90,7 +90,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
       </section>
 
-      <TatamiDivider className="text-ink-secondary/80" />
+      <TatamiDivider />
 
       <section className={storeSectionClass}>
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.9fr]">
@@ -142,6 +142,8 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
           </div>
         </div>
       </section>
+
+      <TatamiDivider />
 
       <section className={finalSectionClass}>
         <div className="relative grid items-end gap-6 md:grid-cols-[1.2fr_0.9fr]">

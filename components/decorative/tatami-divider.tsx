@@ -8,11 +8,10 @@ type TatamiDividerProps = {
 
 /**
  * Separador tatami: banda horizontal con estriado que evoca la trama de
- * una estera. Usa currentColor para que el contexto CSS defina el tono
- * (ink-secondary por defecto en el CSS consumidor).
+ * una estera. Bordes superiores e inferiores en brand-emphasis para
+ * marcar la separacion de forma clara; trama interior en ink-secondary.
  *
- * Usa role=presentation cuando es puramente decorativo. Si se pasa
- * ariaLabel se promueve a role=separator.
+ * role=separator cuando se pasa ariaLabel; presentation en caso contrario.
  */
 export function TatamiDivider({ className, ariaLabel }: TatamiDividerProps) {
   const a11yProps = ariaLabel
@@ -20,28 +19,33 @@ export function TatamiDivider({ className, ariaLabel }: TatamiDividerProps) {
     : ({ role: "presentation", "aria-hidden": true } as const);
 
   return (
-    <div {...a11yProps} className={clsx("relative h-8 w-full text-ink-secondary", className)}>
+    <div {...a11yProps} className={clsx("relative h-14 w-full", className)}>
+      {/* Bordes enmarcando la banda en tono brand-emphasis */}
+      <span className="absolute inset-x-0 top-1 block h-px bg-brand-emphasis/45" />
+      <span className="absolute inset-x-0 top-2 block h-[2px] bg-brand-emphasis/25" />
+      <span className="absolute inset-x-0 bottom-1 block h-px bg-brand-emphasis/45" />
+      <span className="absolute inset-x-0 bottom-2 block h-[2px] bg-brand-emphasis/25" />
+
+      {/* Trama interior */}
       <svg
         aria-hidden="true"
-        viewBox="0 0 480 32"
+        viewBox="0 0 480 56"
         preserveAspectRatio="none"
-        className="absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full text-ink-secondary"
         fill="none"
       >
-        <line x1="0" y1="4" x2="480" y2="4" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.3"/>
-        <line x1="0" y1="28" x2="480" y2="28" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.3"/>
-        <g stroke="currentColor" strokeOpacity="0.14" strokeWidth="0.9">
-          <line x1="0" y1="9" x2="480" y2="9"/>
-          <line x1="0" y1="13" x2="480" y2="13"/>
-          <line x1="0" y1="17" x2="480" y2="17"/>
-          <line x1="0" y1="21" x2="480" y2="21"/>
-          <line x1="0" y1="25" x2="480" y2="25"/>
+        <g stroke="currentColor" strokeOpacity="0.32" strokeWidth="1">
+          <line x1="0" y1="16" x2="480" y2="16"/>
+          <line x1="0" y1="22" x2="480" y2="22"/>
+          <line x1="0" y1="28" x2="480" y2="28"/>
+          <line x1="0" y1="34" x2="480" y2="34"/>
+          <line x1="0" y1="40" x2="480" y2="40"/>
         </g>
-        <g stroke="currentColor" strokeOpacity="0.2" strokeWidth="0.8" strokeDasharray="3 7">
-          <line x1="0" y1="11" x2="480" y2="11"/>
-          <line x1="0" y1="15" x2="480" y2="15"/>
+        <g stroke="currentColor" strokeOpacity="0.45" strokeWidth="1" strokeDasharray="3 7">
           <line x1="0" y1="19" x2="480" y2="19"/>
-          <line x1="0" y1="23" x2="480" y2="23"/>
+          <line x1="0" y1="25" x2="480" y2="25"/>
+          <line x1="0" y1="31" x2="480" y2="31"/>
+          <line x1="0" y1="37" x2="480" y2="37"/>
         </g>
       </svg>
     </div>

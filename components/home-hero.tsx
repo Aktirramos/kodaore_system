@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { HankoSeal, SumiStroke } from "@/components/decorative";
+import { SumiStroke } from "@/components/decorative";
 import { SmartImage } from "@/components/smart-image";
 
 type HomeHeroProps = {
@@ -61,10 +61,6 @@ export function HomeHero({ tagline, heroTitle, heroId }: HomeHeroProps) {
           <article className="relative min-h-[13svh] overflow-hidden rounded-2xl border border-border-subtle bg-surface-strong p-4 md:min-h-0 md:p-5">
             <div className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-brand" />
             <div className="pointer-events-none absolute inset-y-0 left-2 w-1.5 bg-brand-warm" />
-            <HankoSeal
-              className="pointer-events-none absolute right-3 top-3 rotate-[8deg] drop-shadow-[0_6px_14px_rgba(154,30,37,0.35)] md:right-4 md:top-4"
-              size={52}
-            />
             <div className="relative z-10 flex h-full flex-col justify-start gap-4 pl-5 pr-1 md:pl-6 md:pr-2">
               <div className="fade-rise fade-rise-delay-400 relative aspect-square w-full max-w-[82px] overflow-hidden rounded-full md:max-w-[96px]">
                 <Image
