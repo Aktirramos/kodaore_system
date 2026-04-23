@@ -47,7 +47,7 @@ function ChapterHaraigoshiPinned({ locale }: { locale: LocaleCode }) {
   return (
     <section
       aria-labelledby="landing-haraigoshi-title-interactive"
-      className="relative bg-surface-subtle"
+      className="fade-rise fade-rise-delay-150 relative rounded-3xl border border-border-subtle bg-surface-subtle shadow-sm"
     >
       <div
         ref={wrapperRef}
@@ -55,7 +55,7 @@ function ChapterHaraigoshiPinned({ locale }: { locale: LocaleCode }) {
         className="relative"
       >
         <div className="sticky top-0 h-screen flex items-center">
-          <div className="mx-auto w-full max-w-6xl px-5 md:px-12">
+          <div className="mx-auto w-full max-w-5xl px-6 md:px-12">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
               {/* Frame */}
               <div className="md:col-span-6 relative">

@@ -10,7 +10,7 @@ import { FamilyPortalEntry } from "./sections/family-portal-entry";
 
 export function LandingRoot({ locale }: { locale: LocaleCode }) {
   return (
-    <main className="relative">
+    <div className="space-y-6 md:space-y-8">
       <Opening locale={locale} />
       <Teaching locale={locale} />
       <ChapterHaraigoshi locale={locale} />
@@ -19,6 +19,6 @@ export function LandingRoot({ locale }: { locale: LocaleCode }) {
       <Disciplines locale={locale} />
       <Trial locale={locale} />
       <FamilyPortalEntry locale={locale} />
-    </main>
+    </div>
   );
 }

@@ -25,9 +25,9 @@ export function ChapterHaraigoshiStatic({ locale }: { locale: LocaleCode }) {
   return (
     <section
       aria-labelledby="landing-haraigoshi-title"
-      className="relative bg-surface-subtle"
+      className="fade-rise fade-rise-delay-150 relative rounded-3xl border border-border-subtle bg-surface-subtle p-6 md:p-10 shadow-sm"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 md:px-12 py-[clamp(5rem,10vh,8rem)]">
+      <div className="mx-auto w-full max-w-5xl">
         <p
           id="landing-haraigoshi-title"
           className="font-heading text-ink-primary text-2xl md:text-3xl lowercase tracking-tight"
