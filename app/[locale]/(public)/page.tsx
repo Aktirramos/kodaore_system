@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TatamiDivider } from "@/components/decorative";
 import { HomeHero } from "@/components/home-hero";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
@@ -90,9 +89,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
       </section>
 
-      <TatamiDivider />
-
-      <section className={storeSectionClass}>
+<section className={storeSectionClass}>
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.9fr]">
           <article className="group relative min-h-[220px] overflow-hidden rounded-2xl border border-border-subtle transition-[transform,box-shadow,border-color,background-color] duration-[var(--duration-base)] ease-[var(--ease-enter)] hover:-translate-y-[var(--distance-sm)] hover:border-border-default hover:shadow-md motion-reduce:transform-none motion-reduce:transition-[box-shadow,border-color,background-color]">
             <SmartImage
@@ -143,9 +140,7 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
         </div>
       </section>
 
-      <TatamiDivider />
-
-      <section className={finalSectionClass}>
+<section className={finalSectionClass}>
         <div className="relative grid items-end gap-6 md:grid-cols-[1.2fr_0.9fr]">
           <article className="group relative min-h-[230px] overflow-hidden rounded-2xl border border-border-subtle md:min-h-[280px]">
             <SmartImage

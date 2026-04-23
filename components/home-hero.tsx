@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { SumiStroke } from "@/components/decorative";
 import { SmartImage } from "@/components/smart-image";
 
 type HomeHeroProps = {
@@ -78,7 +77,6 @@ export function HomeHero({ tagline, heroTitle, heroId }: HomeHeroProps) {
                 <h1 className="fade-rise fade-rise-delay-500 font-heading text-lg leading-tight text-foreground md:text-xl">
                   {heroTitle}
                 </h1>
-                <SumiStroke className="mt-1 text-ink-primary/80" width={112} height={12} />
               </div>
             </div>
           </article>
