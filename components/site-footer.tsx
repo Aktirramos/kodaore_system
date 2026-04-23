@@ -115,10 +115,11 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   const termsLabel = locale === "eu" ? "Baldintzak" : "Terminos";
   const privacyLabel = locale === "eu" ? "Pribatutasuna" : "Privacidad";
   const backTopLabel = locale === "eu" ? "Gora" : "Arriba";
-  const backTopAriaLabel = locale === "eu" ? "Orrialdearen hasierara igo" : "Subir al inicio de la pagina";
+  // WCAG 2.5.3: el aria-label debe contener el texto visible del enlace / boton.
+  const backTopAriaLabel = locale === "eu" ? `${backTopLabel}, orrialdearen hasierara igo` : `${backTopLabel}, subir al inicio de la pagina`;
   const socialLabel = locale === "eu" ? "Sare sozialak" : "Redes sociales";
-  const termsAriaLabel = locale === "eu" ? "Erabilera baldintzak irakurri" : "Leer terminos de uso";
-  const privacyAriaLabel = locale === "eu" ? "Pribatutasun politika irakurri" : "Leer politica de privacidad";
+  const termsAriaLabel = locale === "eu" ? `${termsLabel}, erabilera baldintzak irakurri` : `${termsLabel}, leer terminos de uso`;
+  const privacyAriaLabel = locale === "eu" ? `${privacyLabel}, pribatutasun politika irakurri` : `${privacyLabel}, leer politica de privacidad`;
 
   const socialAriaLabel = (name: string) =>
     locale === "eu"

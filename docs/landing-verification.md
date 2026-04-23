@@ -10,12 +10,25 @@ Salida: pruebas pasadas, límites honestos, pendientes para iteración siguiente
 
 La landing narrativa está **funcional, visualmente alineada con el brief, accesible y semánticamente limpia**. Los tres criterios "editoriales" del brief (respeto a la disciplina, contención, performance como identidad) se sostienen.
 
+**Estado de aceptación tras la iteración de cierre de Fase 4** (post-fixes a11y + bundle + GIF + e2e):
+
+| Area | Estado |
+|---|---|
+| Lighthouse desktop snapshot | **A11y 100 · BP 100 · SEO 100 · 36 passed · 0 failed** |
+| Bundle JS inicial landing | **67.7 kB** gz (under budget <80 kB) |
+| SVG frames totales | **137 kB** (under budget <200 kB) |
+| Tests unitarios (Vitest) | **67/67** verdes |
+| Tests e2e landing (Playwright) | **6/6** verdes |
+| No-JS | SSR entrega contenido completo ✓ |
+| Reduced motion | Fallback estático renderizado ✓ |
+| GIF demo del haraigoshi | **552 KB** (más webm 298 KB) listo para README |
+
 Hay **dos grupos de limitaciones** que se documentan honestamente en §5:
 
 1. **Del entorno de captura** (Lighthouse navigation falla con `NO_FCP` en headless; Playwright fullPage no dispara `whileInView` de Motion). No son bugs de la landing.
 2. **Datos pendientes del cliente** (WhatsApp, geo/teléfono de sedes, año de fundación, horarios exactos). Marcados como `TODO` o ausentes del JSON-LD por no inventar.
 
-Los presupuestos de `docs/landing-plan.md §7` se han medido en lo que el entorno permite; el resto requiere medición en un navegador con ventana en primer plano (laboral) o en CI con preset Lighthouse específico.
+Performance trace (LCP/CLS/INP) **sigue pendiente** — requiere browser en primer plano y no es reproducible en este entorno headless. Es la única pieza crítica por medir para el cierre formal.
 
 ---
 
@@ -57,21 +70,45 @@ Durante desarrollo se tomaron capturas de viewport por sección:
 
 ## 3. Lighthouse (snapshot, desktop)
 
-Fichero: `docs/landing-verification/lighthouse/eu-desktop-snapshot.json` + HTML.
+Fichero: `docs/landing-verification/lighthouse/eu-desktop-snapshot-final.{json,html}` (post-fixes).
 
-| Categoría | Score | vs. baseline |
-|---|---|---|
-| Accessibility | **100** | = 100 |
-| Best Practices | **100** | = 100 |
-| SEO | **83** | 92 ← 83 (regresión aparente en snapshot mode; ver nota) |
-| Performance | no cubierto por `lighthouse_audit` | — |
+| Categoría | Score v0 (pre) | Score v1 (post-robots) | **Score final (post a11y)** |
+|---|---|---|---|
+| Accessibility | 100 | 100 | **100** |
+| Best Practices | 100 | 100 | **100** |
+| SEO | 83 | 100 | **100** |
+| Performance | no cubierto por `lighthouse_audit` (excluye perf por diseño) | — | — |
 
-**Nota SEO**: el modo `snapshot` analiza DOM estático sin recargar la página y cubre menos audits que el `navigation` mode. Los dos fallos detectados son los mismos que el baseline previo y **no introducidos por la landing nueva**:
+**Passed: 36 · Failed: 0**
 
-1. `label-content-name-mismatch` — proviene del header/footer compartidos (`site-header-nav.tsx` / `site-footer.tsx`). Existe desde antes.
-2. `robots-txt is not valid` — **corregido en este cambio** (línea `Sitemap` absolutizada a `https://kodaore.eus/sitemap.xml`, case `User-agent` lowercase).
+Fixes aplicados en esta iteración:
 
-Tras el fix de robots, el próximo run de navigation debería subir SEO al menos a 92.
+1. `app/robots.txt`: `Sitemap` absolutizada a `https://kodaore.eus/sitemap.xml`; `User-agent` en lowercase.
+2. `components/site-header-nav.tsx`:
+   - `aria-label` de links del menú: prefijado con el texto visible (`${label} orrira joan` / `Ir a ${label}` → `${label}, orrira joan` / `${label}, ir a pagina`).
+   - Locale switcher: aria-label ahora contiene `EU`/`ES` al inicio.
+   - Brand link: `aria-label` movido a `title` (tooltip) y `alt=""` en el `<Image>` del logo. El accessible name del link es ahora solo el texto visible "Kodaore".
+3. `components/site-footer.tsx`: aria-labels de "Baldintzak"/"Terminos", "Pribatutasuna"/"Privacidad" y "Gora"/"Arriba" prefijados con el texto visible.
+
+### Performance baseline no capturado en este entorno
+
+`lighthouse_audit` en modo `navigation` falló con `NO_FCP` (“the page did not paint any content. Please ensure you keep the browser window in the foreground”). Es un límite del entorno headless — no de la landing. Para el corte definitivo de Performance se propone:
+
+- Ejecutar Lighthouse desde una máquina con navegador en primer plano, o
+- Añadir `scripts/lighthouse-ci.mjs` con Playwright + lighthouse-core en Fase siguiente.
+
+### Bundle JS inicial — medido con `next build`
+
+```
+Route (app)                          Size  First Load JS
+ƒ /[locale]                       67.7 kB         210 kB
+...
++ First Load JS shared by all     102 kB
+```
+
+- **Landing-specific chunk**: 67.7 kB gz → dentro del budget **<80 kB** ✓
+- First Load total: 210 kB (incluye React + Next runtime compartido).
+- La mayoría del chunk específico (~35–40 kB gz) son las 5 paths SVG serializadas. Optimización futura si se aprieta: pasar los paths como prop server→cliente para sacarlos del bundle cliente.
 
 ### Performance baseline no capturado en este entorno
 
@@ -118,11 +155,21 @@ Los demás `RevealOnView` no hacen animación significativa con reduced motion p
 
 | Suite | Resultado |
 |---|---|
-| `npm run test` (Vitest) | **67/67 passed** · 10 files · 992ms |
+| `npm run test` (Vitest) | **67/67 passed** · 10 files · ~750 ms |
 | `npm run lint` | **clean** (sin warnings nuevos) |
 | `npx tsc --noEmit` | **clean** (0 errores) |
+| `tests/e2e/landing.spec.ts` (Playwright, 6 tests) | **6/6 passed** · 18.1s |
 
-Tests de Playwright (e2e) no se ejecutaron aquí — se dejan para una tarea específica con el dev server en modo producción.
+### Cobertura de los e2e nuevos
+
+`tests/e2e/landing.spec.ts` verifica:
+
+1. **eu: SSR entrega todas las secciones y el fallback estatico de haraigoshi** — hero, 4 aforismos (oreka hautsi / sartu / bota / ondo erori), método, 3 sedes, disciplinas, CTA.
+2. **es: mismas secciones traducidas** — mismos checks en castellano (romper el equilibrio / entrar / proyectar / caer bien).
+3. **Enlaces a sedes** apuntan a `/eu/sedes/azkoitia` (y equivalentes) — rutas existentes.
+4. **Enlace al portal familia** apunta a `/eu/portal`, el de acceso a `/eu/acceso`.
+5. **Metadata + JSON-LD** presentes: title con "Judo kluba", `Organization` + 3× `SportsActivityLocation`.
+6. **prefers-reduced-motion** → 5 figures SVG del fallback estático renderizados.
 
 ---
 
@@ -130,27 +177,26 @@ Tests de Playwright (e2e) no se ejecutaron aquí — se dejan para una tarea esp
 
 | Métrica | Umbral | Medido | Estado |
 |---|---|---|---|
-| Lighthouse Perf desktop | ≥ 95 | no medido (NO_FCP) | pendiente |
-| Lighthouse Perf mobile | ≥ 90 | no medido (NO_FCP) | pendiente |
+| Lighthouse Perf desktop | ≥ 95 | no medido (NO_FCP en headless) | pendiente foreground browser |
+| Lighthouse Perf mobile | ≥ 90 | no medido (NO_FCP en headless) | pendiente foreground browser |
 | Lighthouse A11y | ≥ 95 | **100** | ✅ |
 | Lighthouse BP | ≥ 95 | **100** | ✅ |
-| Lighthouse SEO | ≥ 95 | 83 (snapshot) / 92 (nav baseline) + fix robots | pendiente re-run tras fix |
-| LCP desktop | < 1.5 s | no medido | pendiente |
-| LCP mobile | < 2.5 s | no medido | pendiente |
+| Lighthouse SEO | ≥ 95 | **100** (post-fixes) | ✅ |
+| LCP desktop | < 1.5 s | no medido | pendiente performance_trace |
+| LCP mobile | < 2.5 s | no medido | pendiente performance_trace |
 | CLS | 0 | no medido en trace | pendiente (pero reservamos altura 220vh con style inline, no debería haber shift) |
 | INP | < 150 ms | no medido | pendiente |
-| JS inicial landing | < 80 kb gz | no medido con `next build` aquí | pendiente |
-| SVG frames totales | < 200 kb | **137 kb** total (A-clean, 5 frames) | ✅ |
-| Visual match contra baseline | 100% SSR diff limpio | baselines renovados, dev baseline conservado en `docs/landing-baseline/` | ✅ estructural |
+| **JS inicial landing** | < 80 kB gz | **67.7 kB** gz | ✅ |
+| SVG frames totales | < 200 kB | **137 kB** total (A-clean, 5 frames) | ✅ |
+| Visual match contra baseline | 100% SSR diff limpio | baselines renovados | ✅ estructural |
 | Sin JS: contenido visible | 100% | ✅ SSR estático completo | ✅ |
 | Reduced motion: fallback estático | sin animación | ✅ early-return a `ChapterHaraigoshiStatic` | ✅ |
+| **e2e Playwright** | todos verdes | **6/6 passed** | ✅ |
+| **GIF demo para README** | <1 MB | **552 KB** (+ webm 298 KB alternativa) | ✅ |
 
-**Pendientes críticos** antes de calificar Fase 4 de cerrada al 100%:
-- Ejecución de Performance trace (`performance_start_trace`) en entorno con browser en primer plano, o en CI.
-- `next build` para medir bundle JS inicial y confirmar <80 kb gz.
-- Re-run de Lighthouse navigation tras el fix de robots.txt.
+**Único pendiente crítico** antes del cierre formal al 100%:
 
-Estas medidas **no bloquean la entrega visual** pero sí son requisitos del brief para que Fase 4 se considere formalmente cerrada.
+- **Performance trace (LCP/CLS/INP)** — requiere entorno con browser en primer plano. El env de trabajo actual es headless y `lighthouse_audit` en modo `navigation` + `performance_start_trace` siempre devuelven `NO_FCP`. La medición se puede hacer en local con Chrome DevTools normal, o añadir un job CI con Playwright headed + lighthouse-core.
 
 ---
 
@@ -171,7 +217,12 @@ Datos provisionales marcados en el código como `TODO(landing)` o documentados a
 
 ## 8. Imagen / GIF para README
 
-Un clip corto del momento haraigoshi (scroll completo a velocidad editorial) queda **pendiente de grabar**. Herramientas sugeridas: `asciinema` no aplica, `peek` o `byzanz` para Linux + `ffmpeg` para transcodificar a webm + .gif liviano (<1 MB). Se puede hacer en una iteración de pulido una vez los 4 aforismos estén validados por el cliente.
+Grabado en `docs/landing-verification/video/`:
+
+- `haraigoshi-scroll.gif` — **552 KB**, 22 frames a 4 fps, 520×325 px. Ideal para README (auto-play en GitHub).
+- `haraigoshi-scroll.webm` — **298 KB**, VP9 CRF 35, 960×600 px. Alternativa más nítida para docs web.
+
+Metodología: captura de 11 screenshots en viewport (1440×900) mientras `window.scrollTo` avanza scroll-sync entre los cuatro aforismos, luego `ffmpeg` con paleta adaptada y dither bayer.
 
 ---
 
@@ -182,16 +233,14 @@ Un clip corto del momento haraigoshi (scroll completo a velocidad editorial) que
 - Integración con i18n eu/es.
 - SSR limpio, sin-JS compliant, reduced-motion compliant.
 - Structured data `Organization` + 3× `SportsActivityLocation`.
-- Tests unitarios y lint verdes.
+- **A11y 100 / BP 100 / SEO 100** (fixes aplicados en header + footer).
+- Bundle landing **67.7 kB gz** bajo budget.
+- Tests Vitest 67/67, e2e Playwright 6/6, lint + tsc clean.
+- GIF + WebM del momento haraigoshi listos para README.
 - Fix colateral: `app/robots.txt` ahora válido.
-- Screenshots baseline en `docs/landing-baseline/` + screenshots de la landing nueva en `docs/landing-verification/`.
 
-**Pendiente para cerrar formalmente** (requiere entorno con browser en primer plano o CI):
-- Performance trace (LCP/CLS/INP).
-- Bundle size check (`next build`).
-- Re-run Lighthouse navigation post-fix robots.
-- Playwright e2e si se añaden (no hay actualmente cubiertos este flujo).
-- GIF demo del momento haraigoshi.
+**Único pendiente para el cierre formal al 100%**:
+- Performance trace (LCP/CLS/INP) — requiere browser en primer plano. Todo lo demás está en verde.
 - Confirmación del cliente de los 8 datos provisionales listados en §7.
 
 ---
@@ -199,7 +248,6 @@ Un clip corto del momento haraigoshi (scroll completo a velocidad editorial) que
 ## 10. Próximos pasos recomendados
 
 1. Llevar los pendientes de §7 al cliente (mejor en una sola revisión por email o llamada).
-2. Ejecutar `next build` en local y reportar bundle (si >80 kb gz, code-splittear más agresivamente el `ChapterHaraigoshiPinned`).
-3. Ejecutar Lighthouse navigation en un entorno con browser foregrounded para tener los scores completos.
-4. Grabar el GIF del haraigoshi para el README.
-5. En una pasada posterior: auditar header/footer compartidos para resolver el `label-content-name-mismatch` a11y — no bloquea esta Fase 4 pero afecta al score.
+2. Ejecutar Lighthouse navigation con performance_trace en un entorno con browser foregrounded para tener LCP/CLS/INP.
+3. Incluir `docs/landing-verification/video/haraigoshi-scroll.gif` en el README principal cuando sea oportuno.
+4. Considerar un job CI (Playwright headed + lighthouse-core) para reproducir el performance trace de manera consistente.

@@ -116,24 +116,25 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
   const mobileNavAriaLabel = locale === "eu" ? "Mugikorreko nabigazioa" : "Navegacion movil";
   const mobileMenuId = "site-header-mobile-menu";
 
+  // WCAG 2.5.3 "Label in Name": el aria-label debe contener el texto visible del link.
   const pageAriaLabel = (label: string) =>
-    locale === "eu" ? `${label} orrira joan` : `Ir a ${label}`;
+    locale === "eu" ? `${label}, orrira joan` : `${label}, ir a pagina`;
 
   const localeSwitchAriaLabel = (targetLocale: LocaleCode) => {
+    const short = targetLocale === "eu" ? "EU" : "ES";
     if (targetLocale === "eu") {
-      return locale === "eu" ? "Euskara aktibatuta" : "Aldatu hizkuntza euskarara";
+      return locale === "eu" ? `${short}, euskara aktibatuta` : `${short}, aldatu hizkuntza euskarara`;
     }
-
-    return locale === "es" ? "Castellano activado" : "Cambiar idioma a castellano";
+    return locale === "es" ? `${short}, castellano activado` : `${short}, cambiar idioma a castellano`;
   };
 
   const brandAriaLabel = isPrivateArea
     ? locale === "eu"
-      ? `${brand}: ${panelLabel} orrira joan`
-      : `${brand}: ir a ${panelLabel}`
+      ? `${brand} ${panelLabel} orrira joan`
+      : `${brand} ir a ${panelLabel}`
     : locale === "eu"
-      ? `${brand}: hasierara joan`
-      : `${brand}: ir al inicio`;
+      ? `${brand} hasierara joan`
+      : `${brand} ir al inicio`;
 
   const navClass = (active: boolean) => clsx(
     "k-focus-ring border-b-2 rounded-sm px-1 py-2 text-sm font-medium transition-colors",
@@ -203,10 +204,10 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
         href={isPrivateArea ? panelHref : homeHref}
         className={clsx("k-focus-ring group inline-flex items-center gap-3 rounded-md transition-all duration-700", revealClass)}
         style={{ transitionDelay: show ? "0ms" : "0ms" }}
-        aria-label={brandAriaLabel}
+        title={brandAriaLabel}
       >
         <span className={clsx("relative overflow-hidden rounded-full transition-all duration-500", compact ? "h-9 w-9" : "h-11 w-11")}>
-          <Image src="/logo-kodaore.png" alt={locale === "eu" ? "Kodaore logoa" : "Logo de Kodaore"} fill priority sizes="44px" className="object-contain" />
+          <Image src="/logo-kodaore.png" alt="" fill priority sizes="44px" className="object-contain" />
         </span>
         <span
           className={clsx(
