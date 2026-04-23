@@ -282,8 +282,50 @@ body::after {
   }
 }
 
+/* Dark tokens. Applied by user override (data-theme="dark") or by
+   system preference when no data-theme attribute is set. */
+:root[data-theme="dark"] {
+  --surface-base: #0f1013;
+  --surface-subtle: #1a1c21;
+  --surface-elevated: #24272e;
+  --surface-inverse: #fafaf7;
+
+  --ink-primary: #fafaf7;
+  --ink-secondary: #c9cdd4;
+  --ink-muted-2: #8a8e96;
+  --ink-inverse: #13141a;
+
+  --border-subtle: #24272e;
+  --border-default: #33363d;
+  --border-strong: #fafaf7;
+  --border-focus: #d8603d;
+
+  --brand-base: #d8603d;
+  --brand-emphasis-2: #b3472a;
+  --brand-subtle: #2e1416;
+
+  --accent-base: #2cbe76;
+  --accent-emphasis: #1ea05d;
+  --accent-subtle: #10241b;
+
+  --success-base: #2cbe76;
+  --warning-base: #e0a83b;
+  --info-base: #4a9fab;
+  --danger-base: #b03030;
+
+  --background: #0f1013;
+  --foreground: #fafaf7;
+  --ink-muted: #8a8e96;
+  --surface: #1a1c21;
+  --surface-strong: #24272e;
+  --brand: #d8603d;
+  --brand-emphasis: #b3472a;
+  --brand-warm: #2cbe76;
+  --danger: #b03030;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --surface-base: #0f1013;
     --surface-subtle: #1a1c21;
     --surface-elevated: #24272e;

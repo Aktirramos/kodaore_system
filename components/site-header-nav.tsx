@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AuthSignOutButton } from "@/components/auth-signout-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { LocaleCode } from "@/lib/i18n";
 
 type SiteHeaderNavProps = {
@@ -293,6 +294,13 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
           </Link>
         </div>
 
+        <div
+          className={clsx("transition-all duration-700", revealClass)}
+          style={{ transitionDelay: show ? "690ms" : "0ms" }}
+        >
+          <ThemeToggle locale={locale} />
+        </div>
+
         {isAuthenticated ? (
           <div
             className={clsx("transition-all duration-700", revealClass)}
@@ -370,6 +378,7 @@ export function SiteHeaderNav({ locale, brand, discoverLabel, galleryLabel, acce
                   >
                     ES
                   </Link>
+                  <ThemeToggle locale={locale} className="ml-2" />
                 </div>
 
                 {isAuthenticated ? <AuthSignOutButton locale={locale} className="min-h-9 px-3 py-1.5 text-xs" /> : null}

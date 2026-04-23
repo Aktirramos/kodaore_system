@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { SmartImage } from "@/components/smart-image";
 
 type HomeHeroProps = {
@@ -11,30 +10,18 @@ type HomeHeroProps = {
   heroId: string;
 };
 
-function getInitialReadyState() {
-  return typeof document !== "undefined";
-}
-
 export function HomeHero({ tagline, heroTitle, heroId }: HomeHeroProps) {
   const pathname = usePathname() ?? "/eu";
   const isEu = pathname.startsWith("/eu");
-
-  const [ready, setReady] = useState(getInitialReadyState);
 
   const heroImageAlt = isEu ? "Kodaore hero irudia" : "Imagen hero de Kodaore";
   const sideImageAlt = isEu ? "Kodaore alboko irudia" : "Imagen lateral de Kodaore";
   const logoAlt = isEu ? "Kodaore logoa" : "Logo de Kodaore";
 
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
   return (
     <section
       id={heroId}
-      className={`kodaore-hero relative isolate overflow-hidden rounded-[2rem] border border-border-subtle bg-surface shadow-[0_50px_120px_-70px_rgba(16,16,16,0.62)] min-h-[74svh] md:h-[calc(100svh-11rem)] md:min-h-[calc(100svh-11rem)] transition-opacity duration-500 ${
-        ready ? "opacity-100 fade-rise fade-rise-delay-100" : "opacity-0"
-      }`}
+      className="kodaore-hero fade-rise fade-rise-delay-100 relative isolate overflow-hidden rounded-[2rem] border border-border-subtle bg-surface shadow-[0_50px_120px_-70px_rgba(16,16,16,0.62)] min-h-[74svh] md:h-[calc(100svh-11rem)] md:min-h-[calc(100svh-11rem)]"
     >
       <div
         aria-hidden="true"
@@ -74,7 +61,7 @@ export function HomeHero({ tagline, heroTitle, heroId }: HomeHeroProps) {
             <div className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-brand" />
             <div className="pointer-events-none absolute inset-y-0 left-2 w-1.5 bg-brand-warm" />
             <div className="relative z-10 flex h-full flex-col justify-start gap-4 pl-5 pr-1 md:pl-6 md:pr-2">
-              <div className={`relative aspect-square w-full max-w-[82px] overflow-hidden rounded-full md:max-w-[96px] ${ready ? "fade-rise fade-rise-delay-400" : "opacity-0"}`}>
+              <div className="fade-rise fade-rise-delay-400 relative aspect-square w-full max-w-[82px] overflow-hidden rounded-full md:max-w-[96px]">
                 <Image
                   src="/logo-kodaore.png"
                   alt={logoAlt}
@@ -87,7 +74,7 @@ export function HomeHero({ tagline, heroTitle, heroId }: HomeHeroProps) {
 
               <div className="space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-emphasis">{tagline}</p>
-                <h1 className={`font-heading text-lg leading-tight text-foreground md:text-xl ${ready ? "fade-rise fade-rise-delay-500" : "opacity-0"}`}>
+                <h1 className="fade-rise fade-rise-delay-500 font-heading text-lg leading-tight text-foreground md:text-xl">
                   {heroTitle}
                 </h1>
               </div>

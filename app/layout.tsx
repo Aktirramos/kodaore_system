@@ -58,6 +58,10 @@ export const metadata: Metadata = {
   },
 };
 
+const themeInitScript = `
+(function(){try{var t=localStorage.getItem('kodaore-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -66,8 +70,12 @@ export default function RootLayout({
   return (
     <html
       lang="eu"
+      suppressHydrationWarning
       className={`${manrope.variable} ${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
       </body>
