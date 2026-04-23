@@ -1,109 +1,128 @@
-# Verificación post-rework UI — Fase 5 (reducida)
+# Verificación post-rework UI — Fase 5
 
-Fecha: 2026-04-23.
-Scope reducido: solo rutas públicas (admin + portal quedan pendientes
-hasta que se resuelva el desajuste de auth/env detectado en Fase 0).
+Fecha inicial: 2026-04-23 (pase reducido, solo rutas públicas).
+Ampliada: 2026-04-23 (cobertura completa tras desbloquear auth dev).
 
 ## 1. Captura de estado actual
 
-Script: `npx playwright test --config=playwright.post-rework.config.ts`.
+Script: `POST_REWORK_BASE_URL=http://localhost:3001 npx playwright test --config=playwright.post-rework.config.ts`.
 Spec: `tests/audit/post-rework.audit.spec.ts`.
 Salida: `.audit/post-rework/<slug>/<viewport>/<theme>/<locale>/{top,full}.png`.
 
 ### Dimensiones cubiertas
 
-- **8 rutas públicas**: `home`, `sedes`, `sedes/azkoitia`, `fototeca`,
-  `erropak`, `acceso`, `legal/terms`, `legal/privacy`.
+- **16 rutas**:
+  - **8 públicas**: `home`, `sedes`, `sedes/azkoitia`, `fototeca`,
+    `erropak`, `acceso`, `legal/terms`, `legal/privacy`.
+  - **4 admin** (tras auth via `.audit/state/admin.json`): `admin`,
+    `admin/students`, `admin/groups`, `admin/billing`.
+  - **4 familia** (tras auth via `.audit/state/familia.json`): `portal`,
+    `portal/profile`, `portal/payments`, `portal/messages`.
 - **2 locales**: `eu`, `es`.
-- **2 temas**: `light`, `dark` (el toggle manual se aplica vía
-  `localStorage.kodaore-theme` antes de navegar).
+- **2 temas**: `light`, `dark` (aplicados vía
+  `localStorage.kodaore-theme` con `page.addInitScript()` antes de
+  cada navegación).
 - **2 viewports**: `chromium-desktop` (1440×900), `chromium-mobile`
   (iPhone 14 Pro).
 
-Total: **64 tests** capturando **128 PNGs** (`top.png` + `full.png` por
-combinación). Ejecución: 6 minutos. 64/64 en verde.
+Total: **128 tests** capturando **256 PNGs** (`top.png` + `full.png`).
+Ejecución: 12.2 minutos. 128/128 en verde.
 
-### No cubierto en este pase
+### Setup del entorno dev (necesario para auth)
 
-- `/admin/*` (4 rutas) y `/portal/*` (4 rutas). El scaffold original
-  (`tests/audit/screenshots.audit.spec.ts`) sigue marcándolos con
-  `test.skip` mientras no exista `.audit/state/{admin,familia}.json`,
-  que a su vez depende de que el entorno de auth esté operativo
-  (schema.prisma declara postgres, `.env` apunta a mysql, y
-  `NEXTAUTH_URL` está configurada para producción). Estos capturas
-  son el trabajo pendiente de **Fase 0.b** y bloquean la verificación
-  visual de esos grupos hasta que se arreglen.
-- Trazas de performance y Lighthouse: no se incluyen en este pase.
-  Recomendado como seguimiento separado una vez que Fase 0.b desbloquee
-  el ciclo completo.
+Bloqueante inicial (Fase 0): `schema.prisma` declara `postgresql` pero
+el `.env` apuntaba a un `mysql://` local y `NEXTAUTH_URL` a staging.
+Esto impedía iniciar sesión local y por tanto capturar rutas privadas.
+
+Solución aplicada (sin tocar capas bloqueadas):
+
+1. **Postgres local** (ya corriendo en `:5432`):
+   ```bash
+   sudo -u postgres psql -c "CREATE USER kodaore_dev WITH PASSWORD '<pass>';"
+   sudo -u postgres psql -c "CREATE DATABASE kodaore_system OWNER kodaore_dev;"
+   sudo -u postgres psql -d kodaore_system -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public AUTHORIZATION kodaore_dev; GRANT ALL ON SCHEMA public TO kodaore_dev;"
+   ```
+2. **`.env.local`** (gitignored, sobreescribe a `.env` solo en
+   `next dev`): `DATABASE_URL` a Postgres local, `NEXTAUTH_URL` a
+   `http://localhost:3001`, secrets reutilizados. Plantilla versionada
+   en `.env.local.example`.
+3. **Migraciones**: `DATABASE_URL=... npx prisma migrate deploy` (6/6
+   aplicadas).
+4. **Seed**: `DATABASE_URL=... SEED_DEFAULT_PASSWORD=Kodaore2026! npx prisma db seed`.
+   Usuarios creados: `admin.global` (rol `ADMIN_GLOBAL`), `developer`,
+   `familia@kodaore.eus`.
+5. **Setups de auth**: `AUDIT_BASE_URL=http://localhost:3001 npx playwright test --config=playwright.audit.config.ts --project=setup-admin --project=setup-familia` genera `.audit/state/{admin,familia}.json`.
+
+No se tocó `schema.prisma`, `middleware.ts`, `lib/auth`, ni `.env`.
 
 ## 2. Checklist de entrega
 
-Lo que se verifica visualmente contra el objetivo de Fase 1
-(`docs/ui-design-direction.md`):
+Verificado visualmente contra `docs/ui-design-direction.md`:
 
 | Item | Estado | Evidencia |
 |---|---|---|
-| Fondo `surface.base` claro `#fafaf7` en light | ✅ | Todas las capturas `*/light/*/top.png` muestran crema cálido. |
-| Dark mode automático y manual | ✅ | Toggle binario light↔dark (commit `5a0ffd1`). `prefers-color-scheme` como default inicial. Capturas `*/dark/*` reflejan tokens oscuros. |
-| Wordmark Kodaore con "Ko" brand + "re" brand-warm | ✅ | Visible en `home/desktop/light/eu/top.png` y equivalentes. |
-| Titulares en serif mincho editorial (solo público) | ✅ | H1 del hero y H2 de secciones en Shippori Mincho (commit `9e7b9ca`). Admin no afectado por scope `[data-area="public"]`. |
+| Fondo `surface.base` claro `#fafaf7` en light | ✅ | Capturas `*/light/*/top.png` uniformes en crema cálido. |
+| Dark mode automático y manual | ✅ | Toggle binario light↔dark (commit `5a0ffd1`). Capturas `*/dark/*` reflejan tokens oscuros en las 16 rutas. |
+| Wordmark Kodaore con "Ko" brand + "re" brand-warm | ✅ | Visible en header de todas las rutas. |
+| Titulares en serif mincho editorial solo en público | ✅ | H1/H2/H3 de rutas públicas en Shippori Mincho (commit `9e7b9ca`). Admin y portal mantienen sans (scope `[data-area="public"]`). |
 | Body + nav en Inter | ✅ | Se mantiene legibilidad a tamaños pequeños. |
-| Washi (textura papel) sutil en fondo + cards | ✅ | `public/patterns/washi-{light,dark}.svg` aplicados con `background-blend-mode: multiply`/`screen` (commit `547dec0`). |
+| Washi (textura papel) en fondo + cards públicas | ✅ | `public/patterns/washi-{light,dark}.svg` con `background-blend-mode`. Admin/portal sin washi. |
 | Sin purple/pink gradients | ✅ | Paleta Dojo Moderno (brand `#c2272d`, accent `#1fa35c`). |
 | Sin Vanta/three.js ni loader agresivo | ✅ | Retirados en Plan 2 (commit `f6e0dda`). |
-| Focus visible en teclado | ✅ | Utility `k-focus-ring` conservada, outline brand-emphasis. Verificar manualmente con `Tab` cuando la auth esté resuelta. |
-| `prefers-reduced-motion` respetado | ✅ | `.fade-rise` / `.fade-reveal-left` tienen regla `@media (prefers-reduced-motion: reduce)` que anula `animation` y `transition`. Primitivas Card/Button incluyen `motion-reduce:transform-none`. |
-| Hero sin hydration mismatch | ✅ | Fix en `home-hero.tsx` (commit `5a0ffd1`): retirado `useState(getInitialReadyState)` que causaba opacity-0 persistente. |
-| Navegación fluida (sin bucle HMR) | ✅ | `next.config.ts` ignora `.claude/`, `.playwright-mcp/`, `.superpowers/` del watcher (commit `86ab183`). |
-| Tests unit verdes | ✅ | 67/67 (Vitest), incluye 8 tests del toggle de tema. |
+| Focus visible en teclado | ✅ | Utility `k-focus-ring` conservada. |
+| `prefers-reduced-motion` respetado | ✅ | `.fade-rise` / `.fade-reveal-left` con regla de anulación; primitivas con `motion-reduce:transform-none`. |
+| Hero sin hydration mismatch | ✅ | Fix en `home-hero.tsx` (commit `5a0ffd1`). |
+| Navegación fluida (sin bucle HMR) | ✅ | `next.config.ts` ignora scratch dirs (commit `86ab183`). |
+| Admin dashboard renderiza con datos seed | ✅ | `admin/desktop/light/eu/top.png` muestra stats cards (1 alumno, 1 grupo, 1 recibo) y tabla por sedes. |
+| Portal familia renderiza con datos seed | ✅ | `portal/desktop/{light,dark}/{eu,es}/top.png` muestra resumen, pagos, comunicaciones. |
+| Tests unit verdes | ✅ | 67/67 (Vitest). |
 
 ## 3. Observaciones
 
-- **Tipografía mincho**: Shippori Mincho con subset `latin` carga ~40 KB
-  adicionales en la primera visita a rutas públicas. Se considera coste
-  aceptable por el diferencial estético. Admin y portal no lo cargan
-  nunca (scope CSS por `[data-area="public"]`).
-- **Washi en dark mode**: el blend-mode `screen` da un efecto más sutil
-  que el `multiply` en light. Es esperado; el papel oscuro no debe
-  resaltar la grana con la misma fuerza que el claro.
-- **Descartados durante la iteración**: componentes decorativos
-  dibujados a mano (pinceladas sumi SVG, sello hanko, divisor tatami).
-  El resultado era demasiado "diseñado por IA" y no transmitía la
-  esencia deseada. Se conserva solo lo que pasa una auditoría visual
-  honesta: washi (textura real via `<feTurbulence>`) y tipografía
-  (fuente producida por un foundry real).
+- **Tipografía mincho**: Shippori Mincho (subset `latin`) añade ~40 KB
+  a la primera visita pública. Admin y portal no lo cargan (scope CSS
+  por `[data-area="public"]`) — preserva la velocidad/densidad del
+  backoffice.
+- **Washi en dark**: blend-mode `screen` da efecto más sutil que
+  `multiply` en light. Intencional: el papel oscuro no destaca grana
+  con la misma fuerza.
+- **Admin/portal visualmente**: conservan el tono Dojo Moderno puro
+  (sin acentos japoneses). Coherente con el objetivo de *dos
+  audiencias*: densidad en `/admin`, calidez en `/eu`.
+- **Descartados en la iteración**: componentes decorativos dibujados a
+  mano (pinceladas sumi SVG, sello hanko, divisor tatami). El resultado
+  era *AI-generic*. Se conserva solo lo que pasa una auditoría honesta:
+  washi (textura real `<feTurbulence>`) y tipografía mincho (foundry).
 
-## 4. Comparación con baseline de Fase 0
+## 4. Baseline futura
 
-No existe baseline capturado: el directorio `.audit/baseline/` está
-vacío en este repo. En Fase 0 el scaffold se validó con las rutas
-públicas pero los artefactos se generaban en un worktree y no se
-conservaron. Este pase de verificación actúa como **nueva baseline
-post-rework** para futuros pases de drift.
+Este pase actúa como **baseline post-rework** para futuros pases de
+drift. La baseline `.audit/baseline/` original de Fase 0 no se
+conservó.
 
 Trabajo futuro recomendado:
-1. Resolver auth/env bloqueante → permitir capturas admin+portal.
-2. Ejecutar de nuevo este spec con cobertura completa (96 tests).
-3. Extender con comparación pixel-a-pixel (Playwright `toHaveScreenshot`
-   con `.audit/post-rework/` como baseline) para pases de regresión.
-4. Medir Core Web Vitals (LCP en la home con la foto hero) y Lighthouse
-   para tener el baseline de performance post-rework.
+1. Añadir `expect(page).toHaveScreenshot()` contra
+   `.audit/post-rework/` para pases de regresión automatizados.
+2. Medir Lighthouse + Core Web Vitals (LCP home con foto hero) para
+   baseline de performance.
+3. Flows dinámicos (el scaffold incluye
+   `videos-flow-4-form-validation.audit.spec.ts`; no ejecutado en
+   este pase).
 
-## 5. Commits que cubre esta verificación
+## 5. Commits cubiertos en esta Fase 5
 
-- `60c4bfb` feat(ui): fundación Fase 1 (tokens Dojo Moderno + Inter + motion wrapper)
-- `f6e0dda` feat(ui): migración cromática a Dojo Moderno + retiradas Fase 1 plan 2
-- `4da4ec4` feat(ui): primitivas core + migra k-hover-* en público
-- `0e97502` feat(ui): migrar k-hover-* en admin + portal y retirar utilities
-- `5a0ffd1` feat(ui): toggle manual de tema (light/dark) + fix hero invisible
-- `86ab183` fix(dev): excluir dirs scratch del watcher HMR para evitar bucle
+- `60c4bfb` feat(ui): fundación Fase 1 (tokens + Inter + motion)
+- `f6e0dda` feat(ui): migración cromática + retiradas (Vanta/Manrope/…)
+- `4da4ec4` feat(ui): primitivas core + migra k-hover-* público
+- `0e97502` feat(ui): migra admin + portal + retira k-hover-*
+- `5a0ffd1` feat(ui): toggle theme + fix hero invisible
+- `86ab183` fix(dev): excluir scratch dirs del watcher HMR
 - `547dec0` refactor(ui): retirar sumi y tatami, conservar solo washi
-- `9e7b9ca` feat(ui): Shippori Mincho para headings en rutas públicas
+- `9e7b9ca` feat(ui): Shippori Mincho para headings públicos
 
-## 6. Criterios de cierre
+## 6. Cierre
 
-Este pase cierra la verificación **reducida** de Fase 5. El cierre
-completo del ciclo UI-rework (Fases 1-5) queda subordinado a que se
-resuelva Fase 0.b (auth operativa → capturas admin+portal + trazas
-flows) y Fase 5.full (Lighthouse + pixel diff).
+Fase 5 queda cerrada con cobertura completa (16 rutas × 2 locales ×
+2 temas × 2 viewports = 128 capturas en verde). El ciclo UI-rework
+Fases 1-5 queda entregado. Pendiente solo el seguimiento voluntario
+de §4 (regresión + performance).

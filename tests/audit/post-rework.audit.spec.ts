@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { test, type Page } from "@playwright/test";
 
@@ -14,8 +15,24 @@ const PUBLIC_ROUTES: RouteSpec[] = [
   { slug: "legal__privacy", path: "/legal/privacy" },
 ];
 
+const ADMIN_ROUTES: RouteSpec[] = [
+  { slug: "admin", path: "/admin" },
+  { slug: "admin__students", path: "/admin/students" },
+  { slug: "admin__groups", path: "/admin/groups" },
+  { slug: "admin__billing", path: "/admin/billing" },
+];
+
+const FAMILIA_ROUTES: RouteSpec[] = [
+  { slug: "portal", path: "/portal" },
+  { slug: "portal__profile", path: "/portal/profile" },
+  { slug: "portal__payments", path: "/portal/payments" },
+  { slug: "portal__messages", path: "/portal/messages" },
+];
+
 const LOCALES = ["eu", "es"] as const;
 const THEMES = ["light", "dark"] as const;
+const ADMIN_STATE = ".audit/state/admin.json";
+const FAMILIA_STATE = ".audit/state/familia.json";
 
 function viewportKind() {
   const n = test.info().project.name;
@@ -25,7 +42,6 @@ function viewportKind() {
 }
 
 async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
-  // Pre-carga de un html minimo para tener localStorage del origen antes del navigate real.
   await page.addInitScript((t) => {
     try {
       window.localStorage.setItem("kodaore-theme", t);
@@ -62,6 +78,34 @@ async function capture(
 
 test.describe.serial("post-rework rutas publicas", () => {
   for (const spec of PUBLIC_ROUTES) {
+    for (const locale of LOCALES) {
+      for (const theme of THEMES) {
+        test(`${spec.slug} · ${locale} · ${theme}`, async ({ page }) => {
+          await capture(page, spec, locale, theme);
+        });
+      }
+    }
+  }
+});
+
+test.describe.serial("post-rework rutas admin", () => {
+  test.skip(() => !fs.existsSync(ADMIN_STATE), `falta ${ADMIN_STATE}`);
+  test.use({ storageState: ADMIN_STATE });
+  for (const spec of ADMIN_ROUTES) {
+    for (const locale of LOCALES) {
+      for (const theme of THEMES) {
+        test(`${spec.slug} · ${locale} · ${theme}`, async ({ page }) => {
+          await capture(page, spec, locale, theme);
+        });
+      }
+    }
+  }
+});
+
+test.describe.serial("post-rework rutas familia", () => {
+  test.skip(() => !fs.existsSync(FAMILIA_STATE), `falta ${FAMILIA_STATE}`);
+  test.use({ storageState: FAMILIA_STATE });
+  for (const spec of FAMILIA_ROUTES) {
     for (const locale of LOCALES) {
       for (const theme of THEMES) {
         test(`${spec.slug} · ${locale} · ${theme}`, async ({ page }) => {
