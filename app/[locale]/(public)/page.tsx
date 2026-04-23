@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TatamiDivider } from "@/components/decorative";
 import { HomeHero } from "@/components/home-hero";
 import { SmartImage } from "@/components/smart-image";
 import { getCopy, isLocale, type LocaleCode } from "@/lib/i18n";
@@ -88,6 +89,8 @@ export default async function LocaleHome({ params }: LocaleHomeProps) {
           })}
         </div>
       </section>
+
+      <TatamiDivider className="text-ink-secondary/80" />
 
       <section className={storeSectionClass}>
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.9fr]">

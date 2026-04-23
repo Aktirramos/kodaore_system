@@ -154,6 +154,24 @@ body::after {
   pointer-events: none;
 }
 
+/* Washi — textura de papel japones aplicada como fondo tileable.
+   Scope: solo rutas con [data-area="public"] para no afectar a /admin ni /portal. */
+:root:has([data-area="public"]) body {
+  background-image: url("/patterns/washi-light.svg");
+  background-size: 280px 280px;
+  background-repeat: repeat;
+}
+
+:root[data-theme="dark"]:has([data-area="public"]) body {
+  background-image: url("/patterns/washi-dark.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):has([data-area="public"]) body {
+    background-image: url("/patterns/washi-dark.svg");
+  }
+}
+
 .k-skip-link {
   position: fixed;
   top: 0.75rem;
