@@ -12,13 +12,21 @@ export type HaraigoshiScroll = {
     MotionValue<number>,
     MotionValue<number>,
   ];
-  titleOpacity: MotionValue<number>;
 };
 
 /**
  * Progreso del scroll sobre el contenedor del capitulo haraigoshi.
- * Mapea scrollYProgress (0..1) a frame index (0..4) y a opacidades por
- * aforismo. Ver docs/landing-plan.md §2-§3 para el timing.
+ *
+ * Como Math.round del frameIndex redondea medio hacia arriba, los
+ * cambios de frame suceden a 10%, 30%, 50%, 70% (mitades de los tramos
+ * 0-20, 20-40, 40-60, 60-80). Los aforismos aparecen exactamente en
+ * esos puntos de switch para que imagen y texto vayan a la par:
+ *
+ *   scroll 0%..10%  → frame 0 setup                oreka hautsi aparece 8-20 %
+ *   scroll 10%..30% → frame 1 rompiendo equilibrio (sigue oreka hautsi)
+ *   scroll 30%..50% → frame 2 entrando             sartu aparece 30-42 %
+ *   scroll 50%..70% → frame 3 proyectando          bota aparece 50-62 %
+ *   scroll 70%..100%→ frame 4 caida                ondo erori aparece 70-82 %
  */
 export function useHaraigoshiScroll(ref: RefObject<HTMLElement | null>): HaraigoshiScroll {
   const { scrollYProgress } = useScroll({
@@ -29,19 +37,17 @@ export function useHaraigoshiScroll(ref: RefObject<HTMLElement | null>): Haraigo
   const frameIndex = useTransform(
     scrollYProgress,
     [0, 0.2, 0.4, 0.6, 0.8, 1],
-    [0, 0, 2, 2, 3, 4],
+    [0, 1, 2, 3, 4, 4],
   );
 
-  const moment1 = useTransform(scrollYProgress, [0, 0.12, 0.2], [0, 1, 1]);
-  const moment2 = useTransform(scrollYProgress, [0.2, 0.32, 0.4], [0, 1, 1]);
-  const moment3 = useTransform(scrollYProgress, [0.4, 0.52, 0.6], [0, 1, 1]);
-  const moment4 = useTransform(scrollYProgress, [0.6, 0.72, 0.8], [0, 1, 1]);
-  const titleOpacity = useTransform(scrollYProgress, [0.85, 0.95], [0, 1]);
+  const moment1 = useTransform(scrollYProgress, [0.08, 0.2], [0, 1]);
+  const moment2 = useTransform(scrollYProgress, [0.3, 0.42], [0, 1]);
+  const moment3 = useTransform(scrollYProgress, [0.5, 0.62], [0, 1]);
+  const moment4 = useTransform(scrollYProgress, [0.7, 0.82], [0, 1]);
 
   return {
     scrollYProgress,
     frameIndex,
     moments: [moment1, moment2, moment3, moment4],
-    titleOpacity,
   };
 }
