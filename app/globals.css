@@ -114,6 +114,9 @@
   --distance-sm: 4px;
   --distance-md: 8px;
   --distance-lg: 16px;
+
+  /* Escala tipografica editorial. Solo se usa en la landing narrativa. */
+  --text-display-2xl: clamp(3.5rem, 6vw + 1rem, 7rem);
 }
 
 body {

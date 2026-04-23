@@ -239,6 +239,87 @@ const copy = {
         "Klubeko argazki errealek zure seme-alaben hurrengo kirol etxea dena erakusten dute.",
       photoHint: "Lehen saioari buruz galdetzeko: Kodaorejudoelkartea@gmail.com",
     },
+    landing: {
+      opening: {
+        brand: "Kodaore",
+        title: "Judo kluba Azkoitia, Azpeitia eta Zumaian.",
+        lede: "2002tik erakusten dugu gorputzak ikasten duela belarriak baino lehen.",
+      },
+      teaching: {
+        title: "Zer irakasten dugun",
+        p1: "Judoa ez da indarraren kontua. Teknika da, eta pazientzia. Orekari eustea, puntu egokian mugitzea, arnasa ez galtzea.",
+        p2: "Horregatik ez dugu erakusten nola irabazi. Erakusten dugu nola geratzen den zutik dakiena, noiz eta norekin egiten duen lan.",
+      },
+      haraigoshi: {
+        title: "haraigoshi",
+        moments: [
+          {
+            label: "oreka hautsi",
+            aforism: "Mugimendua sortu baino lehen, aurkariak bere oinak ahaztu behar ditu.",
+          },
+          {
+            label: "sartu",
+            aforism: "Hutsune bat uzten dizun instantean zaude han.",
+          },
+          {
+            label: "bota",
+            aforism: "Ez duzu jaurtitzen: zuk jartzen duzu bidea eta berak jarraitzen du.",
+          },
+          {
+            label: "ondo erori",
+            aforism: "Teknika biena da. Ondo erortzen duenak ere lan egiten du.",
+          },
+        ],
+      },
+      method: {
+        title: "Nola entrenatzen dugun",
+        pillars: [
+          {
+            title: "Maila eta adinaren arabera",
+            body: "Talde bakoitza maila zehatz baterako antolatzen da. 5 urteko hasiberriak ez dira 14 urteko aurreratuekin nahasten. Taldez aldatzen da ikaslea prest dagoenean, ez urtea amaitu delako.",
+          },
+          {
+            title: "Teknikatik hasita",
+            body: "Ariketa bakoitza teknika batetik abiatzen da. Lehenik oinak, ondoren eskuak, azkenik indarra. Indarra etortzen da teknika ulertu denean, ez lehenago.",
+          },
+          {
+            title: "Errespetuan oinarrituta",
+            body: "Tatamira igotzen zaren egunetik ikasten duzu agurtzen, itxaroten, lankidetzan aritzen. Hori da judoaren lehen teknika.",
+          },
+        ],
+      },
+      sites: {
+        title: "Non entrenatzen dugun",
+        items: [
+          { slug: "azkoitia", city: "Azkoitia", venue: "Izarraitz kiroldegia", schedule: "Astelehenak, asteazkenak, ostiralak — arratsaldeak", linkLabel: "Azkoitiko egoitza ikusi" },
+          { slug: "azpeitia", city: "Azpeitia", venue: "Landeta kiroldegia", schedule: "Astearteak, ostegunak, larunbatak — goizak eta arratsaldeak", linkLabel: "Azpeitiko egoitza ikusi" },
+          { slug: "zumaia", city: "Zumaia", venue: "Aita Mari kiroldegia", schedule: "Astelehenak, asteazkenak — arratsaldeak", linkLabel: "Zumaiako egoitza ikusi" },
+        ],
+      },
+      disciplines: {
+        title: "Zer irakasten dugun",
+        items: [
+          { name: "Judoa", body: "5 urtetik aurrerakoak. Hasiberriak, tartekoak eta aurreratuak. Dan maila lortzeko prestakuntza barne." },
+          { name: "Defentsa pertsonala", body: "16 urtetik aurrera. Emakumeentzako espezializazioa Azkoitian." },
+        ],
+      },
+      trial: {
+        title: "Lehen saioa",
+        body: "Ez dago inskripziorik proba saioa egin aurretik. Etorri, begiratu, saiatu. Gero erabakitzen duzu.",
+        emailLabel: "Idatzi Kodaorera",
+        whatsappLabel: "WhatsApp bidez idatzi",
+      },
+      familyPortal: {
+        title: "Dagoeneko gurekin zaudenentzat",
+        ledgerLabel: "Ordainketak eta jakinarazpenak ikusi",
+        loginLabel: "Saio-hasiera",
+      },
+      meta: {
+        title: "Kodaore — Judo kluba Azkoitia, Azpeitia eta Zumaian",
+        description:
+          "Judo klub editoriala Azkoitian, Azpeitian eta Zumaian. Teknika, errespetua eta taldea — 2002tik.",
+      },
+    },
     ctas: {
       discover: "Egoitzak",
       access: "Familien gunea",
@@ -493,6 +574,87 @@ const copy = {
       photoDescription:
         "Con vuestras fotos, la web refleja el caracter deportivo real del club.",
       photoHint: "Para una primera clase de prueba: Kodaorejudoelkartea@gmail.com",
+    },
+    landing: {
+      opening: {
+        brand: "Kodaore",
+        title: "Club de judo en Azkoitia, Azpeitia y Zumaia.",
+        lede: "Desde 2002 ensenando que el cuerpo aprende antes que la cabeza.",
+      },
+      teaching: {
+        title: "Lo que ensenamos",
+        p1: "El judo no va de fuerza. Va de tecnica y paciencia. Sostener el equilibrio, moverse en el momento exacto, no perder la respiracion.",
+        p2: "Por eso no ensenamos a ganar. Ensenamos a quedarse de pie sabiendo con quien se trabaja y cuando.",
+      },
+      haraigoshi: {
+        title: "haraigoshi",
+        moments: [
+          {
+            label: "romper el equilibrio",
+            aforism: "El movimiento empieza cuando el otro olvida sus pies.",
+          },
+          {
+            label: "entrar",
+            aforism: "Estar donde el te deja un hueco, en el instante en que te lo deja.",
+          },
+          {
+            label: "proyectar",
+            aforism: "No se lanza: se pone el camino y el otro lo sigue.",
+          },
+          {
+            label: "caer bien",
+            aforism: "La tecnica es de dos. El que cae bien tambien hace el trabajo.",
+          },
+        ],
+      },
+      method: {
+        title: "Como entrenamos",
+        pillars: [
+          {
+            title: "Por nivel y edad",
+            body: "Cada grupo se organiza para un nivel concreto. Un principiante de 5 anos no entrena con un avanzado de 14. El paso al siguiente grupo lo marca la persona, no el calendario.",
+          },
+          {
+            title: "Desde la tecnica",
+            body: "Cada ejercicio arranca de una tecnica. Primero los pies, luego las manos, la fuerza al final. La fuerza llega cuando la tecnica se entiende, no antes.",
+          },
+          {
+            title: "Con respeto",
+            body: "Desde el primer dia sobre tatami se aprende a saludar, esperar, trabajar en pareja. Esa es la primera tecnica del judo.",
+          },
+        ],
+      },
+      sites: {
+        title: "Donde entrenamos",
+        items: [
+          { slug: "azkoitia", city: "Azkoitia", venue: "Polideportivo Izarraitz", schedule: "Lunes, miercoles, viernes — tardes", linkLabel: "Ver sede de Azkoitia" },
+          { slug: "azpeitia", city: "Azpeitia", venue: "Polideportivo Landeta", schedule: "Martes, jueves, sabados — mananas y tardes", linkLabel: "Ver sede de Azpeitia" },
+          { slug: "zumaia", city: "Zumaia", venue: "Polideportivo Aita Mari", schedule: "Lunes, miercoles — tardes", linkLabel: "Ver sede de Zumaia" },
+        ],
+      },
+      disciplines: {
+        title: "Que ensenamos",
+        items: [
+          { name: "Judo", body: "Desde los 5 anos. Iniciacion, intermedio y avanzado. Preparacion para grados DAN incluida." },
+          { name: "Defensa personal", body: "Desde los 16 anos. Especializacion para mujeres en Azkoitia." },
+        ],
+      },
+      trial: {
+        title: "Primera clase",
+        body: "No hay inscripcion antes de la clase de prueba. Ven, mira, prueba. Luego decides.",
+        emailLabel: "Escribir a Kodaore",
+        whatsappLabel: "Escribir por WhatsApp",
+      },
+      familyPortal: {
+        title: "Si ya estas con nosotros",
+        ledgerLabel: "Ver pagos y avisos",
+        loginLabel: "Acceso",
+      },
+      meta: {
+        title: "Kodaore — Club de judo en Azkoitia, Azpeitia y Zumaia",
+        description:
+          "Club de judo editorial en Azkoitia, Azpeitia y Zumaia. Tecnica, respeto y grupo — desde 2002.",
+      },
     },
     ctas: {
       discover: "Sedes",
