@@ -242,8 +242,9 @@ const copy = {
     landing: {
       opening: {
         brand: "Kodaore",
-        title: "Judo kluba Azkoitia, Azpeitia eta Zumaian.",
+        title: "Judo kluba, Urola Bailarako bihotzean.",
         lede: "2002tik erakusten dugu gorputzak ikasten duela belarriak baino lehen.",
+        photoAlt: "Kodaoreko judokak haraigoshi proiekzioa egiten kale ekitaldi batean",
       },
       teaching: {
         title: "Zer irakasten dugun",
@@ -287,6 +288,17 @@ const copy = {
             body: "Tatamira igotzen zaren egunetik ikasten duzu agurtzen, itxaroten, lankidetzan aritzen. Hori da judoaren lehen teknika.",
           },
         ],
+      },
+      tatami: {
+        eyebrow: "Tatamia",
+        title: "Bizi denean ikusten da",
+        alts: [
+          "Kodaoreko judokak tatamian entrenatzen",
+          "Talde txikia keinu teknikoa lantzen",
+          "Aurpegi-aurpegi lankidetzan tatamian",
+          "Klasea bukatzen, agurtzen tatamian",
+        ],
+        linkLabel: "Fototeka osoa ikusi",
       },
       sites: {
         title: "Non entrenatzen dugun",
@@ -578,8 +590,9 @@ const copy = {
     landing: {
       opening: {
         brand: "Kodaore",
-        title: "Club de judo en Azkoitia, Azpeitia y Zumaia.",
+        title: "Club de judo, en el corazon del Urola.",
         lede: "Desde 2002 ensenando que el cuerpo aprende antes que la cabeza.",
+        photoAlt: "Judokas de Kodaore ejecutando una proyeccion haraigoshi en una exhibicion al aire libre",
       },
       teaching: {
         title: "Lo que ensenamos",
@@ -623,6 +636,17 @@ const copy = {
             body: "Desde el primer dia sobre tatami se aprende a saludar, esperar, trabajar en pareja. Esa es la primera tecnica del judo.",
           },
         ],
+      },
+      tatami: {
+        eyebrow: "El tatami",
+        title: "Se ve cuando se vive",
+        alts: [
+          "Judokas de Kodaore entrenando en el tatami",
+          "Grupo pequeño practicando un gesto tecnico",
+          "Trabajo en pareja sobre el tatami",
+          "Final de clase, saludo sobre el tatami",
+        ],
+        linkLabel: "Ver fototeca completa",
       },
       sites: {
         title: "Donde entrenamos",
